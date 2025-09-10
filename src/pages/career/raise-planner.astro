@@ -1,0 +1,796 @@
+---
+// File: src/pages/career/raise-planner.astro
+// Drop-in replacement. Changes:
+// • Insights → new grid with template areas; “Fresh postings” spans full width
+// • Who’s hiring / Hotspots / Skills appear as compact side panels
+// • Improve Your Odds → card grid (not a wall of text), cleaner spacing
+// • Small typographic tweaks (line-height, spacing, pills, chips)
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Raise Planner" }}>
+  <section class="tool-wrapper">
+    <h1>Raise Planner</h1>
+    <p class="subtitle">
+      Live, market-aware raise targets powered by current salary data, inflation, and wage-growth signals.
+    </p>
+
+    <!-- ===== FORM ===== -->
+    <form id="raise-form" class="form-grid">
+      <div class="two-col">
+        <label>
+          Job title
+          <input id="title" name="title" placeholder="e.g., Network Engineer" required />
+        </label>
+
+        <label>
+          Location (City, ST or Country)
+          <div class="input-with-btn">
+            <input id="location" name="location" placeholder="e.g., Tampa, FL" required />
+            <button type="button" id="use-location" class="mini-btn">Use my location</button>
+          </div>
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>
+          Years of experience
+          <input id="experience" type="number" name="experience" min="0" value="5" required />
+        </label>
+        <label>
+          Current salary (USD)
+          <input id="salary" type="number" name="salary" min="0" placeholder="127000" required />
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>
+          Received a raise in last 12 months?
+          <select id="recentRaise" name="recentRaise" required>
+            <option value="">-- Select --</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+        <label>
+          Last performance review
+          <select id="review" name="review" required>
+            <option value="">-- Select --</option>
+            <option value="excellent">Excellent</option>
+            <option value="good">Good</option>
+            <option value="average">Average</option>
+            <option value="poor">Poor</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>
+          Do you lead or mentor others?
+          <select id="leadership" name="leadership" required>
+            <option value="">-- Select --</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+        <label>
+          Taken on new responsibilities?
+          <select id="growth" name="growth" required>
+            <option value="">-- Select --</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>
+          Do you know your market value?
+          <select id="marketAwareness" name="marketAwareness" required>
+            <option value="">-- Select --</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+        <label>
+          Open to switching companies?
+          <select id="openToLeave" name="openToLeave" required>
+            <option value="">-- Select --</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+      </div>
+
+      <button id="submitBtn" type="submit" class="submit-btn">Generate Raise Plan</button>
+    </form>
+
+    <!-- ===== RESULTS ===== -->
+    <div id="live-panels" class="panels" style="display:none;">
+
+      <div class="grid-3">
+        <!-- Likelihood -->
+        <div class="tool-card highlight" id="likelihood-card">
+          <div class="card-head">
+            <h3>Raise Likelihood</h3>
+            <span class="caps small dim" id="likelihood-pill">—</span>
+          </div>
+
+          <div id="chance-wrap" class="chance">
+            <div class="chance-bar"></div>
+            <div class="chance-gradient"></div>
+            <div class="chance-main">
+              <div id="chance-num" class="chance-num">—</div>
+              <div id="chance-label" class="chance-label">—</div>
+            </div>
+            <div id="chance-hints" class="chance-hints small"></div>
+          </div>
+        </div>
+
+        <!-- Market -->
+        <div class="tool-card" id="market-card">
+          <div class="card-head">
+            <h3>Market Compensation</h3>
+            <span class="caps small chip info" id="market-scope">—</span>
+          </div>
+          <div class="kv-grid" id="market-body"></div>
+          <div class="source small" id="market-source"></div>
+        </div>
+
+        <!-- Macro -->
+        <div class="tool-card" id="macro-card">
+          <h3>Macro Signals</h3>
+          <div class="kv-grid" id="macro-body"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Plan -->
+        <div class="tool-card" id="plan-card">
+          <h3>Personalized Raise Plan</h3>
+
+          <div id="plan-summary" class="plan-summary"></div>
+          <div class="hr"></div>
+          <div id="plan-body"></div>
+
+          <details class="collapser">
+            <summary>Manager email (copy-paste)</summary>
+            <pre class="pre" id="email-text"></pre>
+            <button id="copy-email" class="btn ghost">Copy manager email</button>
+          </details>
+
+          <details class="collapser">
+            <summary>2-minute meeting script</summary>
+            <pre class="pre" id="script-text"></pre>
+            <button id="copy-script" class="btn ghost">Copy 2-minute script</button>
+          </details>
+
+          <details class="math" id="diag-wrap" style="display:none;">
+            <summary>Diagnostics</summary>
+            <pre id="diag-body" class="pre"></pre>
+          </details>
+
+          <details class="math">
+            <summary>Show my math</summary>
+            <pre id="math-body" class="pre"></pre>
+          </details>
+        </div>
+
+        <!-- Demand + Insights -->
+        <div class="tool-card" id="demand-card">
+          <div class="card-head">
+            <h3>Role Demand</h3>
+            <span class="caps small chip" id="demand-pill">—</span>
+          </div>
+
+          <div class="kv-grid tight" id="demand-body"></div>
+
+          <details class="collapser" id="insights-box" style="margin-top:.75rem;display:none;" open>
+            <summary>Market insights</summary>
+
+            <!-- Fresh postings spans the whole insights area.
+                 Side panels stack alongside on wide screens and below on small screens. -->
+            <div class="insights-areas">
+              <section class="panel companies">
+                <h4>Who’s hiring</h4>
+                <div id="insights-companies" class="chip-grid"></div>
+              </section>
+
+              <section class="panel hotspots">
+                <h4>Hotspots</h4>
+                <div id="insights-hotspots" class="table mini"></div>
+              </section>
+
+              <section class="panel skills">
+                <h4>Skills in titles</h4>
+                <div id="insights-skills" class="chip-row"></div>
+              </section>
+
+              <section class="panel recent">
+                <div class="row-head">
+                  <h4>Fresh postings</h4>
+                  <span class="small dim">Most recent nearby listings</span>
+                </div>
+                <div id="insights-recent" class="cards scroll recent-grid"></div>
+              </section>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Improve Your Odds -->
+      <div class="tool-card" id="advice-card" style="margin-top:1rem;">
+        <div class="card-head">
+          <h3>Improve Your Odds</h3>
+          <span class="small dim">Quick wins & positioning</span>
+        </div>
+        <div id="advice-grid" class="advice-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    :root{
+      --bg:#0e0f11;
+      --card:#15171b;
+      --muted:#9aa3aa;
+      --border:#262a31;
+      --accent:#2d6dff;
+      --ok:#2ecc71;
+      --warn:#f1c40f;
+      --bad:#e74c3c;
+      --chip:#1e2229;
+      --chip-b:#303743;
+      --shadow:0 10px 24px rgba(0,0,0,.35);
+      --glass:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      --grid-gap:1rem;
+    }
+    *{box-sizing:border-box}
+    body{line-height:1.4}
+
+    .subtitle{opacity:.9;margin-top:.3rem}
+
+    form.form-grid{
+      display:grid; gap:var(--grid-gap); margin-top:1.2rem;
+      background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem
+    }
+    .two-col{display:grid; grid-template-columns:1fr 1fr; gap:var(--grid-gap)}
+    @media (max-width:900px){ .two-col{ grid-template-columns:1fr } }
+    label{display:flex; flex-direction:column; font-weight:600; color:#f0f0f0}
+    input, select{
+      margin-top:.45rem; padding:.6rem .7rem; border-radius:9px;
+      border:1px solid #3a4250; background:#1b1f27; color:#e7edf7
+    }
+    input:focus, select:focus{outline:none; border-color:#4c87ff; box-shadow:0 0 0 2px rgba(45,109,255,.15)}
+    .input-with-btn{display:flex; gap:.5rem; align-items:center}
+    .input-with-btn input{flex:1}
+    .mini-btn{white-space:nowrap; padding:.5rem .7rem; border-radius:9px; background:var(--accent); border:1px solid #355fe0; color:#eaf1ff; cursor:pointer; font-weight:700}
+    .mini-btn:disabled{opacity:.6; cursor:not-allowed}
+
+    .submit-btn{
+      margin-top:.3rem; padding:.9rem 1.1rem; background:var(--accent); color:#fff;
+      border:0; border-radius:12px; font-weight:800; cursor:pointer; transition:filter .2s, transform .05s;
+      box-shadow:var(--shadow)
+    }
+    .submit-btn:hover{filter:brightness(1.07)}
+    .submit-btn:active{transform:translateY(1px)}
+
+    .panels{margin-top:1.5rem}
+    .grid-3{display:grid; grid-template-columns:2fr 1fr 1fr; gap:var(--grid-gap)}
+    @media (max-width:1100px){ .grid-3{ grid-template-columns:1fr } }
+    .grid-2{display:grid; grid-template-columns:2fr 1fr; gap:var(--grid-gap); margin-top:var(--grid-gap)}
+    @media (max-width:1100px){ .grid-2{ grid-template-columns:1fr } }
+
+    .tool-card{
+      background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1rem 1rem 1.1rem;
+      box-shadow:var(--shadow); position:relative; overflow:hidden
+    }
+    .tool-card::before{ content:""; position:absolute; inset:0; background:var(--glass); pointer-events:none }
+    .tool-card h3{ color:#27c0d7; margin:0 0 .6rem 0 }
+    .highlight h3{ color:#fff }
+    .card-head{display:flex; align-items:center; justify-content:space-between; gap:.5rem}
+
+    .hr{height:1px; background:linear-gradient(90deg, transparent, #2a313d, transparent); margin:.75rem 0}
+
+    .kv-grid{ display:grid; grid-template-columns:1fr; gap:.5rem }
+    .kv-grid.tight{ gap:.4rem }
+    .metric{
+      display:flex; justify-content:space-between; gap:1rem;
+      padding:.38rem .6rem; border-radius:10px; background:#10141b; border:1px solid #1f2430; line-height:1.3
+    }
+    .small{opacity:.87; font-size:.94rem}
+    .dim{opacity:.65}
+    .caps{ text-transform:uppercase; letter-spacing:.06em }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace }
+
+    .chip{ background:var(--chip); border:1px solid var(--chip-b); padding:.22rem .6rem; border-radius:999px; line-height:1.2 }
+    .chip.ok{ color:#9ae6b4; border-color:#2f885e; background:rgba(46,204,113,.07) }
+    .chip.warn{ color:#ffe08a; border-color:#8c6f2b; background:rgba(241,196,15,.07) }
+    .chip.bad{ color:#ff9aa2; border-color:#aa3e47; background:rgba(231,76,60,.07) }
+    .chip.info{ color:#9cc2ff; border-color:#355fe0; background:rgba(45,109,255,.08) }
+
+    .tag{ border:1px solid #3a4250; padding:.14rem .5rem; border-radius:999px; font-size:.85rem; background:#10151d }
+
+    /* Likelihood */
+    .chance{ position:relative; background:#0f1216; border:1px solid var(--border); border-radius:12px; padding:1rem; overflow:hidden; min-height:120px }
+    .chance-bar{ position:absolute; left:0; top:0; bottom:0; width:0%; background:#2d6dff; opacity:.18; transition:width .5s ease }
+    .chance-gradient{ position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg, rgba(231,76,60,.25), rgba(241,196,15,.22), rgba(46,204,113,.22)); mix-blend-mode:screen; opacity:.55 }
+    .chance-main{ position:relative; display:flex; align-items:baseline; gap:.6rem }
+    .chance-num{ font-size:2.8rem; font-weight:900; color:#e8f1ff; line-height:1 }
+    .chance-label{ font-weight:800; margin-top:.35rem }
+    .chance-label.ok{ color:var(--ok) } .chance-label.warn{ color:var(--warn) } .chance-label.bad{ color:var(--bad) }
+    .chance-hints{ margin-top:.6rem; line-height:1.25 }
+
+    .collapser > summary{ cursor:pointer; color:#e2e8f6; font-weight:700; margin:.6rem 0 }
+    .pre{ background:#0e1116; border:1px solid var(--border); border-radius:10px; padding:1rem; overflow:auto; white-space:pre-wrap; line-height:1.45 }
+
+    /* INSIGHTS — grid areas so Fresh postings spans full width */
+    .insights-areas{
+      display:grid;
+      grid-template-areas:
+        "companies hotspots"
+        "skills    hotspots"
+        "recent    recent";
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: var(--grid-gap);
+      margin-top:.4rem;
+    }
+    @media (max-width:1100px){
+      .insights-areas{
+        grid-template-areas:
+          "companies"
+          "hotspots"
+          "skills"
+          "recent";
+        grid-template-columns: 1fr;
+      }
+    }
+    .panel{ background:#0f131a; border:1px solid #1f2732; border-radius:12px; padding:.85rem }
+    .panel h4{ margin:.1rem 0 .55rem 0; color:#cfe7ff; letter-spacing:.01em }
+    .row-head{display:flex; align-items:baseline; justify-content:space-between; gap:.6rem}
+
+    .companies{ grid-area: companies }
+    .hotspots{ grid-area: hotspots }
+    .skills{ grid-area: skills }
+    .recent{ grid-area: recent }
+
+    .chip-grid{ display:flex; flex-wrap:wrap; gap:.5rem }
+    .chip-grid .chip{ font-weight:700; display:inline-flex; align-items:center; gap:.35rem }
+    .chip-grid .count{ opacity:.85; font-weight:700 }
+
+    .chip-row{ display:flex; flex-wrap:wrap; gap:.45rem }
+
+    .recent-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.7rem }
+    @media (max-width:900px){ .recent-grid{ grid-template-columns:1fr } }
+    .post-card{ border:1px solid var(--border); background:#11151c; border-radius:10px; padding:.75rem .85rem; line-height:1.3 }
+    .post-title{ font-weight:800; color:#eaf2ff; margin-bottom:.35rem; line-height:1.2 }
+    .post-sub{ display:flex; flex-wrap:wrap; gap:.45rem; margin:.25rem 0 .4rem 0 }
+    .pill{ font-size:.78rem; border:1px solid #334055; background:#18202c; padding:.14rem .45rem; border-radius:999px }
+    .pay{ font-weight:800; color:#b9ffd8 }
+
+    .table.mini{ border:1px solid var(--border); border-radius:10px; overflow:hidden }
+    .table.mini .row{ display:flex; justify-content:space-between; gap:.6rem; padding:.54rem .7rem; border-top:1px solid #20242c }
+    .table.mini .row:nth-child(1){ border-top:0 }
+
+    /* ADVICE — card grid */
+    .advice-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:.75rem;
+    }
+    @media (max-width:900px){ .advice-grid{ grid-template-columns:1fr } }
+    .advice-card{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg,#10141b,#0f1217);
+      border-radius:12px;
+      padding:.75rem .85rem;
+      line-height:1.35;
+    }
+    .advice-card .eyebrow{
+      font-size:.76rem; letter-spacing:.08em; text-transform:uppercase; opacity:.7; margin-bottom:.25rem
+    }
+    .advice-card strong{ color:#e8f5ff }
+  </style>
+
+  <script type="module">
+    // ---------- helpers ----------
+    const $ = (id) => document.getElementById(id);
+    const fmtMoney = (n) => Number(n).toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0});
+    const pct = (n) => (n*100).toFixed(1)+"%";
+    const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+    const safeNum = (x) => { const n = Number(x); return Number.isFinite(n) ? n : null; };
+
+    // ---------- Use my location ----------
+    const locBtn = $("use-location"), locInput = $("location");
+    if (locBtn) {
+      locBtn.addEventListener("click", async () => {
+        if (!("geolocation" in navigator)) { alert("Location services are not available in this browser."); return; }
+        const busy = (b) => { locBtn.disabled = b; locBtn.textContent = b ? "Locating…" : "Use my location"; };
+        busy(true);
+        try {
+          const pos = await new Promise((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy:true, timeout:10000, maximumAge:0 })
+          );
+          const { latitude: lat, longitude: lon } = pos.coords;
+          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+          const res = await fetch(url, { headers: { Accept: "application/json" } });
+          if (res.ok) {
+            const data = await res.json();
+            const a = data?.address || {};
+            const city = a.city || a.town || a.village || a.hamlet || a.suburb || "";
+            const state = a.state || a.region || "";
+            const country = a.country || "";
+            const cc = (a.country_code || "").toUpperCase();
+            let pretty = "";
+            if (cc === "US" && city && state) pretty = `${city}, ${state}`;
+            else if (city && country)        pretty = `${city}, ${country}`;
+            else if (state && country)       pretty = `${state}, ${country}`;
+            else                             pretty = data?.display_name || `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+            locInput.value = pretty;
+            locInput.dispatchEvent(new Event("input", { bubbles:true }));
+            locInput.dispatchEvent(new Event("change", { bubbles:true }));
+          } else {
+            locInput.value = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+          }
+        } catch (e) { console.warn("Geolocation error:", e); alert("Couldn't get your location. Type city/state/country manually."); }
+        finally { busy(false); }
+      });
+    }
+
+    // ---------- API ----------
+    async function fetchInsights(payload) {
+      const url = new URL("/api/raise-insights", window.location.origin);
+      url.searchParams.set("title", payload.title);
+      url.searchParams.set("location", payload.location);
+      url.searchParams.set("salary", String(payload.salary));
+      const res = await fetch(url.toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) { throw new Error(`Failed (${res.status})`); }
+      return res.json();
+    }
+
+    // ---------- UI refs ----------
+    const form         = $("raise-form");
+    const submitBtn    = $("submitBtn");
+    const panels       = $("live-panels");
+
+    const chanceBar  = document.querySelector(".chance-bar");
+    const chanceNum  = $("chance-num");
+    const chanceLbl  = $("chance-label");
+    const chanceHint = $("chance-hints");
+    const likelihoodPill = $("likelihood-pill");
+
+    const marketBody   = $("market-body");
+    const macroBody    = $("macro-body");
+    const marketScope  = $("market-scope");
+    const marketSource = $("market-source");
+    const demandBody   = $("demand-body");
+    const demandPill   = $("demand-pill");
+
+    const companiesEl  = $("insights-companies");
+    const recentEl     = $("insights-recent");
+    const hotspotsEl   = $("insights-hotspots");
+    const skillsEl     = $("insights-skills");
+    const insightsBox  = $("insights-box");
+
+    const planSummary  = $("plan-summary");
+    const planBody     = $("plan-body");
+    const emailEl      = $("email-text");
+    const scriptEl     = $("script-text");
+    const mathBody     = $("math-body");
+    const diagWrap     = $("diag-wrap");
+    const diagBody     = $("diag-body");
+
+    const adviceGrid   = $("advice-grid");
+
+    // ---------- Likelihood calculation ----------
+    function demandBump(text){
+      const t = (text||"").toLowerCase();
+      if (t.includes("very high")) return +15;
+      if (t.includes("high")) return +8;
+      if (t.includes("low")) return -10;
+      return 0;
+    }
+    function calcChance({ leverage, marketGap, demandText, budget, recentRaise }){
+      let p = 35;
+      p += leverage * 0.40;
+      p += demandBump(demandText);
+      if (marketGap != null) {
+        if (marketGap > 0.07) p += 12;
+        else if (marketGap > 0.03) p += 6;
+        else if (marketGap < -0.05) p -= 8;
+      }
+      if (recentRaise === "yes") p -= 12;
+      if (budget >= 4.5) p += 5;
+      if (budget <= 3.0) p -= 5;
+      p = clamp(p, 5, 95);
+      let label = "Challenging", cls="bad";
+      if (p >= 75){ label="Likely"; cls="ok"; }
+      else if (p >= 55){ label="Possible"; cls="warn"; }
+      return { p: Math.round(p), label, cls };
+    }
+
+    // ---------- Macro renderer ----------
+    function renderMacro(macro) {
+      const rows = [];
+      const b = safeNum(macro?.budget);
+      const c = safeNum(macro?.cpi_yoy);
+      const e = safeNum(macro?.eci_yoy);
+
+      if (c !== null) rows.push(`<div class="metric"><span>Inflation (YoY CPI)</span><b>${c.toFixed(1)}%</b></div>`);
+      if (e !== null) rows.push(`<div class="metric"><span>Wage growth (YoY ECI)</span><b>${e.toFixed(1)}%</b></div>`);
+      rows.push(`<div class="metric"><span>Typical raise budgets</span><b>${(b ?? 3.5).toFixed(1)}%</b></div>`);
+      macroBody.innerHTML = rows.join("");
+      return { budget: b ?? 3.5, cpi: c, eci: e };
+    }
+
+    // ---------- Advice generator ----------
+    function titleKind(t){
+      const s=(t||"").toLowerCase();
+      if (s.includes("network")) return "network";
+      if (s.includes("sre") || s.includes("site reliability") || s.includes("devops")) return "sre";
+      if (s.includes("software") || s.includes("developer") || s.includes("engineer")) return "softeng";
+      if (s.includes("data")) return "data";
+      if (s.includes("security")) return "security";
+      if (s.includes("product")) return "pm";
+      if (s.includes("designer") || s.includes("design")) return "design";
+      if (s.includes("sales") || s.includes("account")) return "sales";
+      if (s.includes("support") || s.includes("help desk") || s.includes("service desk")) return "support";
+      if (s.includes("marketing")) return "marketing";
+      return "other";
+    }
+    function improveAdvice({ kind, leverage, marketGap, demand, targetMid, yoe, answers }){
+      const A = [];
+
+      if (marketGap!=null && marketGap>0.03) A.push(`<strong>Ask for a market adjustment.</strong> Cite local median and recent postings; position it as keeping pay competitive.`);
+      else A.push(`<strong>Anchor to cycle budgets.</strong> Propose a <b>${(targetMid*0.03).toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0})}+</b> total adjustment tied to next-cycle KPIs.`);
+
+      if (answers.recentRaise==="yes") A.push(`<strong>Set a milestone plan.</strong> Agree on concrete KPIs that unlock a mid-cycle adjustment (60-day review).`);
+      if (answers.openToLeave==="yes") A.push(`<strong>Line up external comps.</strong> A recruiter screen or interview clarifies market value and adds leverage.`);
+      if (leverage<50) A.push(`<strong>Ship a 1-pager.</strong> 3 quantified wins (before→after), artifacts (PRs/dashboards/incidents avoided), and next-cycle KPIs.`);
+
+      switch(kind){
+        case "network":
+          A.push(`<strong>Quantify reliability.</strong> Uptime %, MTTR, change failure rate, ticket aging.`);
+          A.push(`<strong>Show cost wins.</strong> Peering/egress savings, SD-WAN consolidation, carrier renegotiations.`);
+          if (yoe>=5) A.push(`<strong>Show scope.</strong> BGP/EVPN/SD-WAN ownership, cloud networking (VPC/TGW), automation (Ansible/Terraform).`);
+          A.push(`<strong>Certs that move the needle.</strong> CCNP/CCIE or a cloud networking specialty.`);
+          break;
+        case "sre":
+          A.push(`<strong>Lead with SLOs.</strong> MTTR/MTTD drops, error-budget policy adoption, toil removed via automation.`);
+          break;
+        case "softeng":
+          A.push(`<strong>Quantify delivery.</strong> Cycle time, PR throughput, defects escaped, and business impact.`); break;
+        case "data":
+          A.push(`<strong>Tie to business.</strong> Pipeline reliability, freshness, model lift, analyst hours saved.`); break;
+        case "security":
+          A.push(`<strong>Quantify risk reduction.</strong> Vulns remediated, MDR/MFA coverage, dwell time shortened.`); break;
+        default:
+          A.push(`<strong>Translate to impact.</strong> Money saved, revenue gained, risk reduced, time saved.`); break;
+      }
+
+      if ((demand||"").toLowerCase().includes("low"))
+        A.push(`<strong>Offer a phased path.</strong> Now + next review, or a title/scope bump with raise next cycle.`);
+
+      return A;
+    }
+
+    // ---------- Submit ----------
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+
+      try {
+        const A = Object.fromEntries(new FormData(form).entries());
+        const title    = String(A.title || "").trim();
+        const location = String(A.location || "").trim();
+        const salary   = Number(String(A.salary || "").replace(/[,$\s]/g,""));
+        const yoe      = Math.max(0, Number(A.experience || 0));
+        if (!title || !location || !Number.isFinite(salary) || salary <= 0) {
+          alert("Please enter a job title, location, and a valid salary."); return;
+        }
+
+        // leverage score (0–100)
+        let leverage = 0; const bumps=[], cuts=[];
+        if (A.review === "excellent") { leverage += 18; bumps.push("+18: excellent review"); }
+        else if (A.review === "good") { leverage += 10; bumps.push("+10: good review"); }
+        else if (A.review === "poor") { leverage -= 10; cuts.push("-10: poor review"); }
+        if (A.leadership === "yes") { leverage += 8; bumps.push("+8: leadership/mentorship"); }
+        if (A.growth === "yes")     { leverage += 8; bumps.push("+8: new responsibilities"); }
+        if (A.marketAwareness === "yes") { leverage += 5; bumps.push("+5: prepared with comps"); }
+        if (A.openToLeave === "yes")     { leverage += 12; bumps.push("+12: open to external offers"); }
+        if (A.recentRaise === "yes")     { leverage -= 10; cuts.push("-10: received raise in last 12m"); }
+        else                             { leverage += 6;  bumps.push("+6: no raise in last 12m"); }
+        if (yoe >= 12)      { leverage += 12; bumps.push("+12: staff/principal scope"); }
+        else if (yoe >= 7)  { leverage += 8;  bumps.push("+8: senior scope"); }
+        else if (yoe <= 2)  { leverage -= 5;  cuts.push("-5: junior tenure"); }
+        leverage = clamp(leverage, 0, 100);
+
+        const { adzuna, macro, diagnostics } = await fetchInsights({ title, location, salary });
+
+        // diagnostics
+        if (!adzuna) { diagWrap.style.display = "block"; diagBody.textContent = JSON.stringify(diagnostics, null, 2); }
+        else { diagWrap.style.display = "none"; diagBody.textContent = ""; }
+
+        // market
+        const med   = safeNum(adzuna?.median);
+        const p25   = safeNum(adzuna?.p25);
+        const p75   = safeNum(adzuna?.p75);
+        const nJobs = adzuna?.count ?? 0;
+        const demand = adzuna?.demandText || "—";
+        const scopeStep = adzuna?.sourceStep || "local";
+
+        marketBody.innerHTML = `
+          <div class="metric"><span>Market median</span><b>${med?fmtMoney(med):"—"}</b></div>
+          <div class="metric"><span>25th–75th pct.</span><b>${p25?fmtMoney(p25):"—"} – ${p75?fmtMoney(p75):"—"}</b></div>
+          <div class="metric"><span>Active postings (est.)</span><b>${nJobs || "—"}</b></div>`;
+        marketScope.textContent = scopeStep.replace(/[-_]/g," ");
+        marketSource.textContent = `Source: Adzuna — “${title}” near ${location}.`;
+
+        // macro
+        const m = renderMacro(macro);
+        const budget = m.budget, cpi = m.cpi, eci = m.eci;
+
+        // demand details
+        const cs = adzuna?.contractSplit || {permanent:0, contract:0, other:0};
+        const ts = adzuna?.timeSplit || {full_time:0, part_time:0, other:0};
+        const remotePct = adzuna?.remoteShare!=null ? (adzuna.remoteShare*100).toFixed(0) + "%" : "—";
+        demandBody.innerHTML = `
+          <div class="metric"><span>Local demand</span><b>${demand}</b></div>
+          <div class="metric"><span>Permanent</span><b>${cs.permanent}</b></div>
+          <div class="metric"><span>Contract</span><b>${cs.contract}</b></div>
+          <div class="metric"><span>Full-time</span><b>${ts.full_time}</b></div>
+          <div class="metric"><span>Part-time</span><b>${ts.part_time}</b></div>
+          <div class="metric"><span>Likely remote mentions</span><b>${remotePct}</b></div>`;
+        demandPill.textContent = demand;
+        demandPill.className = "caps small chip " + (demand.includes("high") ? "ok" : demand.includes("low") ? "bad" : "info");
+
+        // insights content
+        const companies = (adzuna?.companies||[]).slice(0,12)
+          .map(c => `<span class="chip"><b>${c.name}</b><span class="count">· ${c.count}</span>${c.medSalary?`<span class="count"> · ~${fmtMoney(c.medSalary)}</span>`:""}</span>`)
+          .join("");
+        companiesEl.innerHTML = companies || `<div class="small dim">Not enough postings to rank companies.</div>`;
+
+        const rec = (adzuna?.recent||[]).slice(0, 20).map(r => {
+          const pay = (r.salaryMin && r.salaryMax)? `<span class="pay">${fmtMoney(r.salaryMin)}–${fmtMoney(r.salaryMax)}</span>`:"<span class='dim'>—</span>";
+          const loc = (r.location||"").toString().split(",").slice(0,2).join(", ");
+          const age = (r.ageDays!=null)? `${r.ageDays}d`:"—";
+          return `<div class="post-card">
+                    <div class="post-title">${r.title || "—"}</div>
+                    <div class="post-sub">
+                      <span class="pill">${r.company||"—"}</span>
+                      <span class="pill mono">${loc||"—"}</span>
+                      <span class="pill mono">${age}</span>
+                    </div>
+                    <div>${pay}</div>
+                  </div>`;
+        }).join("");
+        recentEl.innerHTML = rec || `<div class="small dim">No recent postings.</div>`;
+
+        const hot = (adzuna?.locations||[]).slice(0,14)
+          .map(l => `<div class="row"><span>${l.name}</span><b>${l.count}</b></div>`).join("");
+        hotspotsEl.innerHTML = hot || `<div class="small dim" style="padding:.4rem .6rem;">No clear hotspots.</div>`;
+
+        const skills = (adzuna?.skills||[]).map(s => `<span class="tag">${s.name} (${s.count})</span>`).join(" ");
+        skillsEl.innerHTML = skills || `<div class="small dim">Not enough signal.</div>`;
+        insightsBox.style.display = "block";
+
+        // raise range
+        const marketGap = med ? (med - salary) / Math.max(1, salary) : null;
+        let floorPct = budget;
+        if (cpi != null) floorPct = Math.max(floorPct, cpi);
+        let stretchPct = Math.max(floorPct + 1.5, (eci ?? 0) + 0.5);
+        if (marketGap != null && marketGap > 0.03) { floorPct += 1.2; stretchPct += 1.8; }
+        if (marketGap != null && marketGap > 0.07) { floorPct += 0.8; stretchPct += 1.0; }
+        floorPct   = clamp(floorPct   + (leverage/100) * 3.0, 1.5, 14.0);
+        stretchPct = clamp(stretchPct + (leverage/100) * 4.5, floorPct+0.5, 20.0);
+        const low  = Math.round(salary * (1 + floorPct/100));
+        const high = Math.round(salary * (1 + stretchPct/100));
+        const targetMid = Math.round((low + high) / 2);
+
+        const underOverHtml = med
+          ? (salary < med ? `<span class="tag">Below market by ~${pct((med - salary)/salary)}</span>` : `<span class="tag">At/Above market</span>`)
+          : "";
+
+        // chance %
+        const chance = calcChance({ leverage, marketGap, demandText:demand, budget, recentRaise:A.recentRaise });
+        chanceNum.textContent = chance.p + "%";
+        chanceLbl.textContent = chance.label;
+        chanceLbl.className = "chance-label " + chance.cls;
+        likelihoodPill.textContent = chance.label;
+        likelihoodPill.className = "caps small dim";
+        chanceBar.style.width = chance.p + "%";
+        chanceHint.innerHTML = `<div class="small">Levers: leverage ${Math.round(leverage)}, demand ${demand}${marketGap!=null?`, market gap ${(marketGap*100).toFixed(1)}%`:""}, budgets ${budget.toFixed(1)}%${A.recentRaise==="yes"?" (recent raise)":""}.</div>`;
+
+        // plan summary
+        $("plan-summary").innerHTML = `
+          <div class="summary-row">
+            <span class="summary-pill"><b>Current:</b> ${fmtMoney(salary)}</span>
+            ${underOverHtml? `<span class="summary-pill">${underOverHtml}</span>` : ""}
+            <span class="summary-pill"><b>Ask:</b> ${fmtMoney(low)} – ${fmtMoney(high)} <span class="dim">(${floorPct.toFixed(1)}%–${stretchPct.toFixed(1)}%)</span></span>
+            <span class="summary-pill"><b>Median:</b> ${med?fmtMoney(med):"—"}</span>
+            <span class="summary-pill"><b>Posts:</b> ${nJobs}</span>
+          </div>
+        `;
+
+        // plan details
+        planBody.innerHTML = `
+          <h4>How to position</h4>
+          <ul class="small">
+            <li>Anchor to budgets ${budget.toFixed(1)}%${cpi!=null?` and CPI ${cpi.toFixed(1)}%`:""}; cite local market ${med?fmtMoney(med):"—"} median.</li>
+            <li>Lead with outcomes + expanded scope; bring artifacts.</li>
+            <li>${nJobs?`Mention active demand (~${nJobs} postings).`:`If demand is light, propose a phased increase or title/scope bump now.`}</li>
+          </ul>`;
+
+        // email/script
+        $("email-text").textContent =
+`Subject: Compensation Review – ${title}
+
+Hi <Manager>,
+
+Based on current market data for ${title} in ${location}${med?` (median ~${fmtMoney(med)})`:""}, typical raise budgets around ${budget.toFixed(1)}%${cpi!=null?`, and inflation of ${cpi.toFixed(1)}%`: ""}, I’d like to discuss adjusting my compensation to ${fmtMoney(low)}–${fmtMoney(high)} (${floorPct.toFixed(1)}%–${stretchPct.toFixed(1)}%).
+
+Highlights this cycle:
+${(bumps.slice(0,3).map(b=>"• "+b.replace(/\+\d+:\s*/,"")).join("\n")) || "• Delivered measurable impact on core goals."}
+
+Could we set aside 20 minutes this week? I’ll bring a 1-pager with outcomes and next-cycle KPIs.
+
+Thanks,
+<Your Name>`;
+
+        $("script-text").textContent =
+`Thanks for meeting, <Manager>. In the last cycle I delivered X, Y, and Z outcomes.
+Considering typical budgets (~${budget.toFixed(1)}%)${cpi!=null?` and inflation (${cpi.toFixed(1)}%)`:""}${med?`, plus local market median of ${fmtMoney(med)} for ${title}`:""}, I’m targeting ${fmtMoney(low)}–${fmtMoney(high)} (${floorPct.toFixed(1)}%–${stretchPct.toFixed(1)}%).
+If that isn’t feasible this cycle, what specific milestones would make it possible? I’m happy to align on a 60-day checkpoint and adjust scope to hit them.`;
+
+        $("copy-email").onclick  = () => navigator.clipboard.writeText(($("email-text").textContent||"").trim());
+        $("copy-script").onclick = () => navigator.clipboard.writeText(($("script-text").textContent||"").trim());
+
+        // math
+        $("math-body").textContent =
+`Inputs:
+  title=${title}
+  location=${location}
+  salary=${salary}
+  yoe=${yoe}
+Answers leverage: ${Math.round(leverage)} / 100
+Market median=${med ?? "—"}  postings=${nJobs}  demand=${demand}
+Budgets=${budget}%  CPI=${cpi ?? "—"}  ECI=${eci ?? "—"}
+
+Ask range:
+  ${floorPct.toFixed(2)}% – ${stretchPct.toFixed(2)}%  →  ${fmtMoney(low)} – ${fmtMoney(high)}
+
+Chance:
+  ${chance.p}% (${chance.label})`;
+
+        // advice as cards
+        const adv = improveAdvice({
+          kind: titleKind(title),
+          leverage,
+          marketGap,
+          demand,
+          targetMid,
+          yoe,
+          answers: A
+        });
+        adviceGrid.innerHTML = adv.map((x,i)=>`
+          <div class="advice-card">
+            <div class="eyebrow">Tip ${i+1}</div>
+            <div class="small">${x}</div>
+          </div>
+        `).join("");
+
+        panels.style.display = "block";
+        panels.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (err) {
+        console.error(err);
+        alert("Could not generate insights. Open DevTools — Console for details.");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</PageLayout>

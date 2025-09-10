@@ -1,0 +1,473 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Ping Monitor" }}>
+  <h1>Ping Monitor — Browser + Edge</h1>
+  <p>
+    Measure round-trip time from your <em>browser</em> (WebSocket/HTTP) and from the <em>edge</em> (Cloudflare Worker) for any IP/port.
+    Compare latency, jitter, and loss across multiple targets.
+  </p>
+
+  <style>
+    :root{
+      --card-bg:#1e1e1e; --card-br:#333; --muted:#9aa0a6;
+    }
+    /* Layout */
+    .wrap{display:flex;flex-direction:column;gap:24px;margin-top:14px}
+    .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+    @media (max-width:1000px){.row{grid-template-columns:minmax(0,1fr)}}
+    .card{background:var(--card-bg);border:1px solid var(--card-br);border-radius:12px;padding:16px}
+
+    /* Controls */
+    .controls-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px;align-items:end}
+    .controls-grid>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .controls-grid label{font-size:.85rem;color:var(--muted)}
+    input[type="text"],input[type="number"],select{
+      background:#121212;color:#e5e7eb;border:1px solid #2e2e2e;border-radius:8px;padding:10px 12px;outline:none;min-width:0
+    }
+    button{background:#2563eb;color:#fff;border:none;border-radius:10px;padding:12px 16px;cursor:pointer;transition:background .15s}
+    button.secondary{background:#374151}
+    button.ghost{background:transparent;border:1px solid #3a3a3a}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    button:hover{background:#1d4ed8}
+
+    /* Targets */
+    .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:.8rem;background:#0f172a;border:1px solid #223;color:#cbd5e1}
+    .targets{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+    .target-row{display:grid;gap:8px;align-items:center;grid-template-columns:16px 120px minmax(0,1fr) 160px minmax(0,220px) 36px}
+    @media (max-width:900px){.target-row{grid-template-columns:16px 120px minmax(0,1fr) 120px minmax(0,1fr) 36px}}
+    .chip{width:12px;height:12px;border-radius:3px;border:1px solid #222}
+
+    /* Legend */
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .legend .item{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:#e5e7eb;background:#121212;border:1px solid #2b2b2b;padding:4px 8px;border-radius:8px;cursor:pointer;opacity:.95}
+    .legend .item.inactive{opacity:.35}
+    .legend .dot{width:10px;height:10px;border-radius:50%;background:#60a5fa;border:1px solid #1c1c1c}
+
+    /* Chart */
+    .chartbox{height:320px;border:1px dashed #2a2a2a;border-radius:10px;overflow:hidden;background:#0b0b0b}
+    /* make canvas responsive without horizontal scroll */
+    #chart{display:block;width:100%;height:320px}
+
+    /* Stats — wrap neatly within card */
+    .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:8px}
+    .stat{background:#121212;border:1px solid #2b2b2b;border-radius:10px;padding:10px;font-size:.95rem;word-break:break-word}
+    .stat b{display:flex;align-items:center;gap:6px;color:#cbd5e1;font-weight:600;margin-bottom:6px;font-size:.85rem}
+    .stat .sw{width:10px;height:10px;border-radius:3px;border:1px solid #1c1c1c;display:inline-block}
+
+    .small{font-size:.85rem;color:var(--muted)}
+    .guide{line-height:1.55;margin-top:6px}
+    .guide code{background:#0f172a;border:1px solid #223;padding:1px 6px;border-radius:6px}
+    .warn{color:#f59e0b}
+    .del{background:#2a2a2a;border-radius:8px;height:37px;display:inline-flex;align-items:center;justify-content:center}
+  </style>
+
+  <div class="wrap">
+    <!-- Controls -->
+    <div class="card">
+      <div class="controls-grid">
+        <div style="grid-column:span 2">
+          <label for="count">Total Pings</label>
+          <input id="count" type="number" min="1" max="99999" value="50" />
+        </div>
+        <div style="grid-column:span 2">
+          <label for="interval">Interval (ms)</label>
+          <input id="interval" type="number" min="50" step="50" value="1000" />
+          <small class="small">Time between batches</small>
+        </div>
+        <div style="grid-column:span 2">
+          <label for="batch">Batch Size</label>
+          <input id="batch" type="number" min="1" max="20" value="5" />
+          <small class="small">RTT samples per Worker call (Edge IP)</small>
+        </div>
+        <div style="grid-column:span 2">
+          <label for="timeout">Timeout (ms)</label>
+          <input id="timeout" type="number" min="100" step="100" value="3000" />
+        </div>
+        <div style="grid-column:span 2">
+          <label>&nbsp;</label>
+          <button id="startBtn">Start</button>
+        </div>
+        <div style="grid-column:span 2">
+          <label>&nbsp;</label>
+          <button id="stopBtn" class="secondary" disabled>Stop</button>
+        </div>
+      </div>
+
+      <hr style="border:0;border-top:1px solid #2b2b2b;margin:14px 0" />
+
+      <!-- Targets -->
+      <div>
+        <div class="badge">Targets</div>
+        <div id="targets" class="targets"></div>
+
+        <!-- Add Target Row -->
+        <div class="target-row" style="margin-top:8px">
+          <span class="chip" style="background:#444"></span>
+          <select id="newType">
+            <option value="ws">WebSocket</option>
+            <option value="http">HTTP</option>
+            <option value="edge">Edge IP</option>
+          </select>
+          <input id="newUrl" type="text" placeholder="Example: wss://echo.websocket.events  |  https://postman-echo.com/get  |  8.8.8.8:443" />
+          <select id="newProto" title="Protocol for Edge IP (ignored for WS/HTTP)">
+            <option value="https" selected>https</option>
+            <option value="http">http</option>
+          </select>
+          <input id="newLabel" type="text" placeholder="Label (optional)" />
+          <button id="addBtn" class="ghost" title="Add target">＋</button>
+        </div>
+
+        <p class="guide">
+          <b>Parameter Guide</b> — <b>Total Pings</b>: measurements to collect per target (timeouts count). <b>Interval</b>: delay between batches (ms).<br>
+          <b>Batch Size</b>: <em>Edge IP only</em> — RTT samples returned per Worker call. <b>Timeout</b>: per-sample timeout before counting as loss.<br>
+          <b>WebSocket</b>: echo RTT via WS (e.g., <code>wss://echo.websocket.events</code>). <b>HTTP</b>: browser fetch timing (subject to CORS).<br>
+          <b>Edge IP</b>: probe <code>IP/host[:port]</code> from Cloudflare’s edge via HTTP/HTTPS (not ICMP).
+        </p>
+
+        <p id="edgeWarn" class="warn" style="margin-top:6px;display:none">
+          Edge Ping URL not configured — Edge IP targets will not run. Set <code>EDGE_PING_URL</code> in this file.
+        </p>
+      </div>
+    </div>
+
+    <!-- Charts & Stats -->
+    <div class="row">
+      <div class="card">
+        <div class="badge">Latency (ms)</div>
+        <div id="chartBox" class="chartbox">
+          <canvas id="chart"></canvas>
+        </div>
+        <div id="legend" class="legend"></div>
+      </div>
+
+      <div class="card">
+        <div class="badge">Stats</div>
+        <div id="stats" class="stats"></div>
+        <p class="small" style="margin-top:8px">Jitter = std dev of successful RTT samples. Loss = timeouts / total attempts.</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    /********* CONFIG *********/
+    const EDGE_PING_URL = ""; // e.g., "https://edge-ping.pingtracessh.com"
+    if (!EDGE_PING_URL) document.getElementById("edgeWarn").style.display = "block";
+
+    /********* COLORS *********/
+    const COLORS=["#60a5fa","#34d399","#f472b6","#f59e0b","#22d3ee","#c084fc","#fb7185","#a3e635","#f97316","#2dd4bf","#e879f9","#93c5fd"];
+    const pickColor=(i)=>COLORS[i%COLORS.length];
+
+    /********* DOM *********/
+    const targetsEl=document.getElementById("targets");
+    const legendEl=document.getElementById("legend");
+    const statsEl=document.getElementById("stats");
+    const chartBox=document.getElementById("chartBox");
+    const chartCanvas=document.getElementById("chart");
+    const ctx=chartCanvas.getContext("2d");
+
+    const startBtn=document.getElementById("startBtn");
+    const stopBtn=document.getElementById("stopBtn");
+    const countEl=document.getElementById("count");
+    const intEl=document.getElementById("interval");
+    const toEl=document.getElementById("timeout");
+    const batchEl=document.getElementById("batch");
+
+    const addBtn=document.getElementById("addBtn");
+    const newType=document.getElementById("newType");
+    const newUrl=document.getElementById("newUrl");
+    const newProto=document.getElementById("newProto");
+    const newLabel=document.getElementById("newLabel");
+
+    /********* STATE *********/
+    let running=false, tickTimer=null, activeSeriesId=null;
+    /** { id,type,url,label,color,data:(number|null)[], ws?, pending?, edge?:{host,port,proto} } */
+    let series=[];
+
+    /********* UTIL *********/
+    const clamp=(n,lo,hi)=>Math.min(hi,Math.max(lo,isFinite(n)?n:lo));
+    const escapeHtml=(s)=>(s+"").replace(/[&<>\"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+    function stddev(arr,mean){ if(!arr.length) return 0;
+      const m=(typeof mean==="number")?mean:(arr.reduce((a,b)=>a+b,0)/arr.length);
+      return Math.sqrt(arr.reduce((acc,x)=>acc+Math.pow(x-m,2),0)/arr.length);
+    }
+    function parseHostPort(v){
+      let host=v.trim(),port=null;
+      if(!host) return {host:"",port:null};
+      if(host.includes("]:")){const m=/^\[([^\]]+)\]:(\d+)$/.exec(host); if(m){host=m[1];port=+m[2];}}
+      else if(host.includes(":") && host.indexOf(":")===host.lastIndexOf(":")){const [h,p]=host.split(":");host=h;port=+p;}
+      return {host,port:port||null};
+    }
+    function normalizeInput(type, raw, proto){
+      let v=raw.trim();
+      if(type==="ws"){
+        if(!/^wss?:\/\//i.test(v)) v="wss://"+v.replace(/^\/+/,"");
+      }else if(type==="http"){
+        if(!/^https?:\/\//i.test(v)) v="https://"+v.replace(/^\/+/,"");
+      }else{ /* edge */ v=v; }
+      return v;
+    }
+
+    /********* TARGET UI *********/
+    function seriesLabel(s){
+      if(s.type==="edge") return `${s.edge.host}${s.edge.port?":"+s.edge.port:""} (${s.edge.proto||"https"})`;
+      return s.label || s.url || "target";
+    }
+    function renderTargets(){
+      targetsEl.innerHTML="";
+      series.forEach((s,idx)=>{
+        const row=document.createElement("div"); row.className="target-row";
+        row.innerHTML=`
+          <span class="chip" style="background:${s.color}"></span>
+          <select data-k="type">
+            <option value="ws"${s.type==="ws"?" selected":""}>WebSocket</option>
+            <option value="http"${s.type==="http"?" selected":""}>HTTP</option>
+            <option value="edge"${s.type==="edge"?" selected":""}>Edge IP</option>
+          </select>
+          <input data-k="url" type="text" value="${s.type==="edge" ? (s.edge.host + (s.edge.port?":"+s.edge.port:"")) : s.url}">
+          <select data-k="extra" ${s.type==="edge"?"":"style='display:none;'"} title="Protocol (Edge IP)">
+            <option value="https"${s.edge?.proto!=="http"?" selected":""}>https</option>
+            <option value="http"${s.edge?.proto==="http"?" selected":""}>http</option>
+          </select>
+          <input data-k="label" type="text" value="${escapeHtml(s.label||"")}" placeholder="Label (optional)" />
+          <button class="del" title="Remove">✕</button>
+        `;
+        row.querySelector('[data-k="type"]').addEventListener("change",(e)=>{
+          s.type=e.target.value;
+          if(s.type!=="ws" && s.ws){try{s.ws.close();}catch{}; s.ws=null;}
+          row.querySelector('[data-k="extra"]').style.display = s.type==="edge" ? "" : "none";
+          if(s.type==="edge" && !s.edge) s.edge={host:s.url,port:null,proto:"https"};
+          renderLegend(); renderStats(); drawChart();
+        });
+        row.querySelector('[data-k="url"]').addEventListener("change",(e)=>{
+          const v=e.target.value.trim();
+          if(s.type==="edge"){ const {host,port}=parseHostPort(v); s.edge.host=host; s.edge.port=port; }
+          else { s.url=v; if(s.ws){try{s.ws.close();}catch{}; s.ws=null;} }
+          renderLegend(); renderStats(); drawChart();
+        });
+        row.querySelector('[data-k="extra"]').addEventListener("change",(e)=>{ if(s.type==="edge") s.edge.proto=e.target.value; });
+        row.querySelector('[data-k="label"]').addEventListener("change",(e)=>{ s.label=e.target.value.trim()||""; renderLegend(); renderStats(); drawChart(); });
+        row.querySelector(".del").addEventListener("click",()=>{
+          if(running) stop(); if(s.ws){try{s.ws.close();}catch{};}
+          series.splice(idx,1); renderTargets(); renderLegend(); renderStats(); drawChart();
+        });
+        targetsEl.appendChild(row);
+      });
+    }
+    function renderLegend(){
+      legendEl.innerHTML="";
+      series.forEach((s)=>{
+        const it=document.createElement("div");
+        it.className="item"+(activeSeriesId && activeSeriesId!==s.id?" inactive":"");
+        it.dataset.id=s.id;
+        it.innerHTML=`<span class="dot" style="background:${s.color}"></span>${escapeHtml(s.label||seriesLabel(s))}`;
+        it.addEventListener("click",()=>{ activeSeriesId=(activeSeriesId===s.id?null:s.id); renderLegend(); drawChart(); });
+        legendEl.appendChild(it);
+      });
+    }
+    function renderStats(){
+      statsEl.innerHTML="";
+      series.forEach((s)=>{
+        const vals=s.data.filter(v=>typeof v==="number");
+        const n=s.data.length, ok=vals.length, lost=Math.max(0,n-ok), lossPct=n?(lost/n*100):0;
+        const min=ok?Math.min(...vals):0, max=ok?Math.max(...vals):0, avg=ok?(vals.reduce((a,b)=>a+b,0)/ok):0, jitter=ok?stddev(vals,avg):0;
+        const box=document.createElement("div"); box.className="stat";
+        const endpoint=escapeHtml(seriesLabel(s)); const type=s.type.toUpperCase();
+        box.innerHTML=`<b><span class="sw" style="background:${s.color}"></span> ${escapeHtml(s.label||endpoint)}</b>
+                        <div class="small">${type} • ${endpoint}</div>
+                        <div>Min: ${min.toFixed(1)} ms</div>
+                        <div>Avg: ${avg.toFixed(1)} ms</div>
+                        <div>Max: ${max.toFixed(1)} ms</div>
+                        <div>Jitter: ${jitter.toFixed(1)} ms</div>
+                        <div>Loss: ${lossPct.toFixed(1)}% (${lost}/${n})</div>`;
+        // Hover a stat to highlight the series
+        box.addEventListener("mouseenter",()=>{activeSeriesId=s.id; renderLegend(); drawChart();});
+        box.addEventListener("mouseleave",()=>{activeSeriesId=null; renderLegend(); drawChart();});
+        statsEl.appendChild(box);
+      });
+    }
+
+    /********* CHART (responsive) *********/
+    function resizeCanvas(){
+      const w=chartBox.clientWidth;
+      const h=320; // fixed visual height
+      chartCanvas.width=w; chartCanvas.height=h;
+      drawChart();
+    }
+    window.addEventListener("resize", resizeCanvas);
+
+    function drawChart(){
+      const W=chartCanvas.width,H=chartCanvas.height;
+      ctx.clearRect(0,0,W,H);
+
+      // grid
+      ctx.save(); ctx.strokeStyle="#222"; ctx.lineWidth=1;
+      for(let y=H-0.5;y>=0;y-=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      ctx.restore();
+
+      const maxLen=Math.max(1,...series.map(s=>s.data.length));
+      const xStep=W/Math.max(1,maxLen-1);
+      const all=series.flatMap(s=>s.data.filter(v=>typeof v==="number"));
+      const yMax=Math.max(100,Math.ceil((Math.max(10,...all,0))/25)*25);
+      const yScale=H/yMax;
+
+      // y labels
+      ctx.fillStyle="#8a8a8a"; ctx.font="12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto";
+      for(let ms=0;ms<=yMax;ms+=25){const y=H-ms*yScale; ctx.fillText(ms+"ms",6,Math.max(12,y-2));}
+
+      // series lines + end labels
+      series.forEach((s)=>{
+        const dim=activeSeriesId && activeSeriesId!==s.id;
+        ctx.beginPath(); ctx.lineWidth=dim?2:3; ctx.strokeStyle=s.color; ctx.globalAlpha=dim?0.28:1.0;
+        let first=true, lastIdx=-1, lastY=0;
+        for(let i=0;i<s.data.length;i++){
+          const v=s.data[i], x=i*xStep;
+          if(typeof v!=="number"){first=true;continue;}
+          const y=H-Math.min(v,yMax)*yScale; lastIdx=i; lastY=y;
+          if(first){ctx.moveTo(x,y); first=false;} else {ctx.lineTo(x,y);}
+        }
+        ctx.stroke(); ctx.globalAlpha=1.0;
+        // draw end label near last point
+        if(lastIdx>=0){
+          const x=lastIdx*xStep+6;
+          ctx.fillStyle="#000"; ctx.globalAlpha=0.6;
+          ctx.fillRect(x-2,lastY-10, ctx.measureText(s.label||seriesLabel(s)).width+10, 18);
+          ctx.globalAlpha=1.0;
+          ctx.fillStyle=s.color;
+          ctx.fillText((s.label||seriesLabel(s)), x+2, Math.max(12,lastY+5));
+        }
+      });
+    }
+
+    /********* DATA FLOW *********/
+    function pushSample(s,v){
+      s.data.push(v);
+      if(s.data.length>5000) s.data.shift();
+      renderStats(); drawChart();
+    }
+
+    /********* ENGINES *********/
+    // WebSocket echo
+    function ensureWS(s){
+      return new Promise((resolve,reject)=>{
+        if(s.ws && s.ws.readyState===1) return resolve();
+        if(s.ws){try{s.ws.close();}catch{}; s.ws=null;}
+        try{
+          s.ws=new WebSocket(s.url);
+          s.ws.addEventListener("open",()=>resolve(),{once:true});
+          s.ws.addEventListener("error",()=>reject(new Error("WS error")),{once:true});
+          s.ws.addEventListener("message",(ev)=>{
+            try{
+              const payload=typeof ev.data==="string"?JSON.parse(ev.data):null;
+              if(payload && payload.__ping && s.pending && s.pending[payload.__ping]){
+                const t0=s.pending[payload.__ping]; delete s.pending[payload.__ping]; pushSample(s,performance.now()-t0);
+              }else if(typeof ev.data==="string"){
+                const m=/^PING:(\d+)$/.exec(ev.data.trim());
+                if(m && s.pending && s.pending[m[1]]){const t0=s.pending[m[1]]; delete s.pending[m[1]]; pushSample(s,performance.now()-t0);}
+              }
+            }catch{}
+          });
+        }catch{reject(new Error("WS open failed")); }
+      });
+    }
+    async function wsPing(s,timeoutMs){
+      s.pending=s.pending||{}; const id=(s.seq=(s.seq||0)+1);
+      try{
+        await ensureWS(s); s.pending[id]=performance.now(); s.ws.send(JSON.stringify({__ping:id}));
+        const t0=performance.now();
+        while(performance.now()-t0<timeoutMs){ if(!s.pending[id]) return; await new Promise(r=>setTimeout(r,5)); }
+        delete s.pending[id]; pushSample(s,null);
+      }catch{pushSample(s,null);}
+    }
+
+    // HTTP timing
+    async function httpPing(s,timeoutMs){
+      const ctrl=new AbortController(); const t0=performance.now();
+      const url=/^https?:\/\//i.test(s.url)?s.url:"https://"+s.url;
+      const bust=url+(url.includes("?")?"&":"?")+"_cb="+Math.random().toString(36).slice(2);
+      const timer=setTimeout(()=>ctrl.abort("timeout"),timeoutMs);
+      try{ await fetch(bust,{method:"GET",cache:"no-store",redirect:"follow",signal:ctrl.signal,mode:"cors"});
+           clearTimeout(timer); pushSample(s,performance.now()-t0);}
+      catch{clearTimeout(timer); pushSample(s,null);}
+    }
+
+    // Edge IP (batch)
+    async function edgePingBatch(s,timeoutMs){
+      if(!EDGE_PING_URL){ pushSample(s,null); return; }
+      const batchSize=clamp(+batchEl.value,1,20);
+      const q=new URLSearchParams({
+        host:s.edge.host, count:String(batchSize), timeout:String(timeoutMs),
+        proto:s.edge.proto||"https", port:s.edge.port?String(s.edge.port):""
+      });
+      try{
+        const res=await fetch(`${EDGE_PING_URL}/probe?`+q.toString(),{method:"GET",cache:"no-store"});
+        if(!res.ok){ for(let i=0;i<batchSize;i++) pushSample(s,null); return; }
+        const j=await res.json();
+        if(Array.isArray(j.samples)){ j.samples.forEach(sample=>pushSample(s, sample.ok?sample.rtt:null)); }
+        else{ for(let i=0;i<batchSize;i++) pushSample(s,null); }
+      }catch{ for(let i=0;i<batchSize;i++) pushSample(s,null); }
+    }
+
+    /********* RUNNER *********/
+    function resetAll(){ series.forEach(s=>{ s.data=[]; s.seq=0; s.pending={}; if(s.ws){try{s.ws.close();}catch{}; s.ws=null;} }); renderStats(); drawChart(); }
+    const allTargetsReached=(total)=> series.length? series.every(s=>s.data.length>=total):true;
+
+    async function step(){
+      const timeout=clamp(+toEl.value,100,60000);
+      await Promise.all(series.map(s=>{
+        if(s.type==="ws") return wsPing(s,timeout);
+        if(s.type==="http") return httpPing(s,timeout);
+        return edgePingBatch(s,timeout);
+      }));
+      const total=clamp(+countEl.value,1,99999);
+      if(allTargetsReached(total)) stop();
+    }
+
+    function start(){
+      if(running || series.length===0) return;
+      running=true; startBtn.disabled=true; stopBtn.disabled=false;
+      resetAll(); step();
+      const interval=clamp(+intEl.value,50,600000);
+      tickTimer=setInterval(step,interval);
+    }
+    function stop(){
+      running=false; startBtn.disabled=false; stopBtn.disabled=true;
+      if(tickTimer){clearInterval(tickTimer); tickTimer=null;}
+      series.forEach(s=>{ if(s.ws){try{s.ws.close();}catch{}; s.ws=null;} });
+    }
+
+    /********* ADD / DEFAULTS *********/
+    function addTarget(type, raw, label, proto="https"){
+      const id=crypto.randomUUID(); const color=pickColor(series.length);
+      let s;
+      if(type==="edge"){ const {host,port}=parseHostPort(raw); s={id,type,url:"",label:(label||"").trim(),color,data:[],edge:{host,port,proto}}; }
+      else{ const url=normalizeInput(type,raw,proto); s={id,type,url,label:(label||"").trim(),color,data:[]}; }
+      // fallback label
+      if(!s.label) s.label = type==="edge" ? `${s.edge.host}${s.edge.port?":"+s.edge.port:""} (${s.edge.proto})` : (s.url);
+      series.push(s); renderTargets(); renderLegend(); renderStats(); drawChart(); return s;
+    }
+
+    // Sensible defaults (removable)
+    addTarget("ws","wss://echo.websocket.events","Echo (Anycast WS)");
+    addTarget("http","https://postman-echo.com/get","Postman Echo");
+    addTarget("edge","1.1.1.1:443","Cloudflare 1.1.1.1:443","https");
+
+    addBtn.addEventListener("click",()=>{
+      const t=newType.value, u=newUrl.value.trim(), p=newProto.value, L=newLabel.value.trim();
+      if(!u) return;
+      addTarget(t,u,L,p); newUrl.value=""; newLabel.value="";
+    });
+    // Press Enter in URL field to add
+    newUrl.addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ e.preventDefault(); addBtn.click(); } });
+
+    startBtn.addEventListener("click",start);
+    stopBtn.addEventListener("click",stop);
+    window.addEventListener("beforeunload",stop);
+
+    // Initial sizing
+    resizeCanvas();
+    // Slight delay to avoid 0-width in some SSR hydration cases
+    setTimeout(resizeCanvas, 50);
+  </script>
+</PageLayout>

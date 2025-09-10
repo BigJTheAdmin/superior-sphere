@@ -1,0 +1,438 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+
+// Port preset definitions (shown as chips)
+const PRESETS = [
+  { name: "Top 20", value: "21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080" },
+  { name: "Web", value: "80,443,8080,8443,8000,8888,8800,9443" },
+  { name: "Infra", value: "22,3389,5432,6379,27017,3306,1521,1433" },
+  { name: "Email", value: "25,110,143,465,587,993,995" },
+  { name: "1–1024", value: "1-1024" },
+  { name: "Custom", value: "" },
+];
+---
+
+<PageLayout meta={{ title: "Port Scanner (Guided)" }}>
+  <section class="wrap">
+    <header>
+      <h1>Port Scanner (TCP)</h1>
+      <p class="sub">
+        A safe, guided port scanner for discovery and quick triage. Enter a host, choose ports, and we’ll attempt TCP connects,
+        optionally grab lightweight banners (e.g., SSH greetings, HTTP <code>HEAD /</code>), and probe TLS certificates on HTTPS-like ports.
+        <br />
+        <small class="muted">
+          <strong>Use responsibly.</strong> Only scan systems you own or are explicitly authorized to test.
+        </small>
+      </p>
+    </header>
+
+    <!-- FORM -->
+    <div class="card">
+      <div class="grid">
+        <label>
+          Target (hostname or IPv4)
+          <input id="host" placeholder="e.g. example.com or 93.184.216.34" />
+          <small class="hint">We’ll resolve DNS if enabled below.</small>
+        </label>
+
+        <label>
+          Ports / ranges
+          <input id="ports" placeholder="e.g. 22,80,443 or 1-1024" />
+          <small class="hint">Accepts lists and ranges (comma/space separated), e.g. <code>22,80,1000-1010</code>.</small>
+        </label>
+
+        <label>
+          Timeout (ms)
+          <input id="timeout" type="number" value="1200" min="200" max="10000" />
+        </label>
+
+        <label>
+          Concurrency
+          <input id="conc" type="number" value="40" min="1" max="100" />
+        </label>
+      </div>
+
+      <!-- Presets -->
+      <div class="row presets">
+        <span>Presets:</span>
+        <div class="chips" id="presetChips">
+          {PRESETS.map((p) => (
+            <button type="button" class="chip" data-ports={p.value}>{p.name}</button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Toggles -->
+      <div class="row toggles">
+        <label class="check"><input id="dns" type="checkbox" checked /> Resolve DNS</label>
+        <label class="check"><input id="tls" type="checkbox" checked /> TLS probe</label>
+        <label class="check"><input id="banner" type="checkbox" checked /> Banner grab</label>
+      </div>
+
+      <!-- Advanced drawer -->
+      <details class="adv">
+        <summary>What happens during a scan? (good to know)</summary>
+        <ul class="bullets">
+          <li><strong>TCP connect:</strong> We attempt to open a TCP connection to each port within your timeout.</li>
+          <li><strong>Banner grabbing:</strong> If enabled, we read initial greetings (SSH/SMTP/FTP) or send a safe HTTP <code>HEAD /</code>.</li>
+          <li><strong>TLS probe:</strong> For HTTPS-like ports (443/8443/9443/etc.), we read certificate subject/issuer/SANs and validity dates.</li>
+          <li><strong>Performance tips:</strong> Lower timeout and moderate concurrency for nearby targets; raise timeout for distant ones.</li>
+          <li><strong>Limit:</strong> Max 2,000 ports per scan to keep the service responsive.</li>
+        </ul>
+      </details>
+
+      <div class="row consent">
+        <label class="check"><input id="ok" type="checkbox" /> I am authorized to scan this target.</label>
+      </div>
+
+      <!-- Actions -->
+      <div class="row actions">
+        <button class="btn primary" id="run">Run Scan</button>
+        <button class="btn" id="clear">Clear</button>
+        <span class="spacer"></span>
+        <button class="btn ghost" id="copyOpen" title="Copy list of open ports" disabled>Copy Open Ports</button>
+        <button class="btn ghost" id="downloadJson" title="Download raw JSON" disabled>Download JSON</button>
+      </div>
+
+      <!-- Progress -->
+      <div id="prog" class="progress" style="display:none;">
+        <div id="bar" class="bar"></div>
+        <span id="pct">0%</span>
+      </div>
+    </div>
+
+    <!-- Errors -->
+    <div id="err" class="card error" style="display:none; white-space:pre-wrap;"></div>
+
+    <!-- Pre-info -->
+    <div id="pre" class="card" style="display:none;"></div>
+
+    <!-- Results -->
+    <div id="res" class="card" style="display:none;">
+      <div class="res-head">
+        <h3>Results</h3>
+        <label class="check small"><input id="openOnly" type="checkbox" /> Show open only</label>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th data-sort="port">Port ▲</th>
+              <th>Status</th>
+              <th>Service (guess)</th>
+              <th>Banner / Details</th>
+              <th>Latency (ms)</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TLS -->
+    <div id="tlslist" class="card" style="display:none;">
+      <h3>TLS Certificates</h3>
+      <div id="tlswrap" class="tls-grid"></div>
+    </div>
+
+    <!-- Recent scans -->
+    <div class="card">
+      <h3 style="margin-bottom:.4rem;">Recent scans (local)</h3>
+      <div id="recent" class="recent"></div>
+    </div>
+  </section>
+
+  <style>
+    .wrap { max-width: 1080px; margin: 0 auto; }
+    header h1 { margin: .2rem 0 .3rem; }
+    .sub { opacity: .9; }
+    .muted { opacity: .85; }
+
+    .card { border:1px solid var(--t-border, #30343b); border-radius: 12px; background: var(--t-bg, #0f1115);
+            padding: 14px 14px; margin: 12px 0; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 10px; }
+    label { display:flex; flex-direction:column; gap:.3rem; font-weight:600; }
+    input { padding: .7rem .8rem; border-radius: 10px; border:1px solid var(--t-border, #30343b);
+            background:#0b0d11; color:#e8eaed; }
+    .row { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin-top:.6rem; }
+    .chips { display:flex; gap:.4rem; flex-wrap:wrap; }
+    .chip { padding:.4rem .6rem; border-radius: 999px; border:1px solid #2f2f35; background:#161922; color:#ddd; cursor:pointer; }
+    .chip:hover { filter:brightness(1.15); }
+    .toggles .check { margin-right: 10px; }
+    .check { display:inline-flex; align-items:center; gap:.45rem; font-weight:500; }
+    .check.small { font-size:.95rem; font-weight:500; }
+    .hint { opacity:.75; font-weight:400; }
+    .adv summary { cursor:pointer; }
+    .bullets { margin:.4rem 0 .1rem 1.2rem; }
+    .consent { background: rgba(255,255,255,.04); border:1px dashed var(--t-border, #30343b); border-radius:10px; padding:.5rem .6rem; }
+    .actions { align-items:center; }
+    .btn { padding:.6rem .9rem; border-radius:10px; border:1px solid #2e3350; background:#171a24; color:#fff; cursor:pointer; }
+    .btn.primary { background: var(--accent, #2d6dff); border-color: var(--accent, #2d6dff); }
+    .btn.ghost { background: transparent; }
+    .btn[disabled] { opacity:.55; cursor:not-allowed; }
+    .spacer { flex:1 1 auto; }
+
+    .progress { position:relative; height:12px; background:#1a1f2b; border-radius:999px; }
+    .bar { position:absolute; left:0; top:0; bottom:0; width:0; background: var(--accent, #2d6dff); border-radius:999px; transition: width .15s linear; }
+    .progress #pct { position:absolute; right:8px; top:-22px; opacity:.8; font-size:.9rem; }
+
+    .error { background: rgba(127,29,29,.18); border-color:#7f1d1d; color:#fca5a5; }
+
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse: collapse; }
+    thead th { text-align:left; border-bottom:1px solid var(--t-border, #30343b); padding:.5rem; cursor:pointer; }
+    tbody td { border-bottom:1px dashed rgba(255,255,255,.08); padding:.5rem; vertical-align:top; }
+    .open { color:#22c55e; font-weight:700; }
+    .closed { color:#ef4444; font-weight:700; }
+    .timeout { color:#f59e0b; font-weight:700; }
+
+    .tls-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:.6rem; }
+    .tls-card { border:1px solid var(--t-border,#30343b); border-radius:10px; padding:.6rem; background:#0d0f14; }
+
+    .recent { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .pill { border:1px solid #2f3344; background:#141824; color:#dcdde3; border-radius:999px; padding:.35rem .6rem; cursor:pointer; }
+    .pill small { opacity:.75; }
+    .pill:hover { filter:brightness(1.1); }
+  </style>
+
+  <script is:inline>
+    // ---------- helpers ----------
+    const $ = (id) => document.getElementById(id);
+    const esc = (s)=> (s||"").toString().replace(/[&<>"']/g,(ch)=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+    const clamp = (n,lo,hi)=> Math.max(lo, Math.min(hi, n|0));
+    const MAX_PORTS = 2000;
+
+    function parsePorts(raw){
+      const parts=(raw||"").split(/[\s,]+/).filter(Boolean);
+      const set=new Set();
+      for(const p of parts){
+        if(/^\d+$/.test(p)){ const n=+p; if(n>=1&&n<=65535) set.add(n); }
+        else { const m=p.match(/^(\d+)-(\d+)$/); if(m){ let a=+m[1]|0,b=+m[2]|0; if(b<a)[a,b]=[b,a];
+          a=clamp(a,1,65535); b=clamp(b,1,65535); for(let n=a;n<=b;n++) set.add(n);
+        }}
+      }
+      return [...set].sort((x,y)=>x-y);
+    }
+    function toQS(obj){ const q = new URLSearchParams(); for(const [k,v] of Object.entries(obj)){ if(v!=null) q.set(k,String(v)); } return q.toString(); }
+    const showErr = (m)=>{ $("err").style.display="block"; $("err").textContent=m; };
+    const clearErr = ()=>{ $("err").style.display="none"; $("err").textContent=""; };
+
+    function setProgress(done,total){
+      const pct = total ? Math.round(done/total*100) : 0;
+      $("prog").style.display = total ? "block" : "none";
+      $("bar").style.width = pct + "%";
+      $("pct").textContent = pct + "%";
+    }
+
+    function saveRecent(entry){
+      try{
+        const key="portscan_recent";
+        const arr = JSON.parse(localStorage.getItem(key) || "[]");
+        // de-dupe by host+ports
+        const tag = entry.host + "|" + entry.ports;
+        const filtered = arr.filter(x => (x.host + "|" + x.ports) !== tag);
+        filtered.unshift({...entry, t: Date.now()});
+        localStorage.setItem(key, JSON.stringify(filtered.slice(0,10)));
+        renderRecent();
+      }catch{}
+    }
+    function renderRecent(){
+      const cont = $("recent"); if(!cont) return;
+      cont.innerHTML = "";
+      try{
+        const arr = JSON.parse(localStorage.getItem("portscan_recent") || "[]");
+        for(const x of arr){
+          const b = document.createElement("button");
+          b.className="pill";
+          b.innerHTML = `<b>${esc(x.host)}</b> <small>${esc(x.ports)}</small>`;
+          b.onclick = ()=> {
+            $("host").value = x.host;
+            $("ports").value = x.ports;
+            $("timeout").value = x.timeout;
+            $("conc").value = x.concurrency;
+            $("dns").checked = !!x.dnsFirst;
+            $("tls").checked = !!x.tlsProbe;
+            $("banner").checked = !!x.bannerGrab;
+          };
+          cont.appendChild(b);
+        }
+      }catch{}
+    }
+
+    // ---------- UI behavior ----------
+    // preset chips
+    document.addEventListener("click", (e)=>{
+      const t = e.target;
+      if(t && t.classList && t.classList.contains("chip")){
+        const val = t.getAttribute("data-ports") || "";
+        if(val) $("ports").value = val;
+        else $("ports").focus();
+      }
+    });
+
+    // sort by port toggle
+    let sortAsc = true;
+    document.querySelector('th[data-sort="port"]').addEventListener("click", ()=>{
+      sortAsc = !sortAsc;
+      const head = document.querySelector('th[data-sort="port"]');
+      head.textContent = sortAsc ? "Port ▲" : "Port ▼";
+      // re-render from lastData
+      if(window._lastData) renderTable(window._lastData);
+    });
+
+    $("openOnly").addEventListener("change", ()=>{
+      if(window._lastData) renderTable(window._lastData);
+    });
+
+    $("clear").onclick = ()=>{
+      clearErr();
+      $("pre").style.display="none";
+      $("res").style.display="none";
+      $("tlslist").style.display="none";
+      $("tbody").innerHTML="";
+      $("tlswrap").innerHTML="";
+      setProgress(0,0);
+      $("copyOpen").disabled = true;
+      $("downloadJson").disabled = true;
+    };
+
+    $("copyOpen").onclick = ()=>{
+      const rows = window._lastData?.results || [];
+      const opens = rows.filter(r=>r.status==="open").map(r=>r.port).join(",");
+      navigator.clipboard.writeText(opens || "").then(()=>{},()=>{});
+    };
+
+    $("downloadJson").onclick = ()=>{
+      const blob = new Blob([JSON.stringify(window._lastData || {}, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `portscan_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+
+    // ---------- RUN ----------
+    $("run").onclick = async ()=>{
+      clearErr();
+      if(!$("ok").checked) return showErr("Please confirm you are authorized to scan this target.");
+      const host = $("host").value.trim().toLowerCase();
+      if(!host) return showErr("Enter a target host (hostname or IPv4).");
+
+      // normalize/validate ports
+      const parsed = parsePorts($("ports").value.trim());
+      if(!parsed.length) return showErr("Enter at least one port or range (e.g., 22,80,443 or 1-1024).");
+      if(parsed.length > MAX_PORTS) return showErr("Max 2,000 ports per scan — narrow your selection.");
+
+      const timeout = clamp(+$("timeout").value || 1200, 200, 10000);
+      const concurrency = clamp(+$("conc").value || 40, 1, 100);
+
+      const params = {
+        host,
+        ports: parsed.join(","),
+        timeout,
+        concurrency,
+        dnsFirst: $("dns").checked ? 1 : 0,
+        tlsProbe: $("tls").checked ? 1 : 0,
+        bannerGrab: $("banner").checked ? 1 : 0
+      };
+
+      // Save to recents
+      saveRecent({ ...params });
+
+      // absolute URL to sibling endpoint
+      const url = new URL("/free-tools/scan", window.location.origin);
+      url.search = toQS(params);
+
+      // UI prep
+      $("tbody").innerHTML = "";
+      $("tlswrap").innerHTML = "";
+      $("pre").style.display="none";
+      $("res").style.display="none";
+      $("tlslist").style.display="none";
+      setProgress(0, parsed.length);
+
+      try{
+        const r = await fetch(url.toString(), { method:"GET", headers:{ "Accept":"application/json" } });
+        const txt = await r.text();
+
+        if(!r.ok){
+          try {
+            const j = JSON.parse(txt);
+            return showErr(`API error ${r.status}\n${j.error || ""}${j.details ? `\n${JSON.stringify(j.details, null, 2)}` : ""}`);
+          } catch {
+            return showErr(`API error ${r.status} ${r.statusText}\n${txt}`);
+          }
+        }
+
+        const data = JSON.parse(txt);
+        window._lastData = data;
+        renderPre(data);
+        renderTable(data);
+        renderTLS(data);
+        $("copyOpen").disabled = !Array.isArray(data?.results) || !data.results.length;
+        $("downloadJson").disabled = !data;
+        setProgress(parsed.length, parsed.length);
+      }catch(e){
+        showErr("Network/JS error: " + (e?.message || e));
+      }
+    };
+
+    function renderPre(data){
+      if(!data?.pre) return;
+      $("pre").style.display="block";
+      $("pre").innerHTML = `
+        <h3>Target</h3>
+        <div><strong>Host:</strong> ${esc(data.pre.host||"")}</div>
+        ${data.pre.ip? `<div><strong>Resolved IP:</strong> ${esc(data.pre.ip)}</div>` : ""}
+        ${data.pre.ptr? `<div><strong>Reverse DNS:</strong> ${esc(data.pre.ptr)}</div>` : ""}
+      `;
+    }
+
+    function renderTable(data){
+      const body = $("tbody");
+      body.innerHTML="";
+      const rows = (data?.results || []).slice().sort((a,b)=> sortAsc ? a.port-b.port : b.port-a.port);
+      const showOpenOnly = $("openOnly").checked;
+      const filtered = showOpenOnly ? rows.filter(r=>r.status==="open") : rows;
+      filtered.forEach(r=>{
+        const tr = document.createElement("tr");
+        const cls = r.status==="open" ? "open" : r.status==="closed" ? "closed" : "timeout";
+        const banner = (r.banner || r.http || r.ssh || r.smtp || "");
+        tr.innerHTML = `
+          <td>${r.port}</td>
+          <td class="${cls}">${esc(String(r.status||"").toUpperCase())}</td>
+          <td>${esc(r.service||"")}</td>
+          <td><pre style="white-space:pre-wrap;margin:0;">${esc(String(banner).slice(0,240))}</pre></td>
+          <td>${typeof r.rtt==="number" ? Math.round(r.rtt) : ""}</td>
+        `;
+        body.appendChild(tr);
+      });
+      $("res").style.display = "block";
+    }
+
+    function renderTLS(data){
+      const arr = data?.tls || [];
+      if(!arr.length) return;
+      $("tlslist").style.display="block";
+      const wrap = $("tlswrap");
+      wrap.innerHTML = "";
+      for(const cert of arr){
+        const div = document.createElement("div");
+        div.className = "tls-card";
+        div.innerHTML = `
+          <div><strong>Port:</strong> ${cert.port}</div>
+          <div><strong>Subject CN:</strong> ${esc(cert.subjectCN||"")}</div>
+          <div><strong>Issuer:</strong> ${esc(cert.issuer||"")}</div>
+          <div><strong>Valid:</strong> ${esc(cert.valid_from||"")} → ${esc(cert.valid_to||"")}</div>
+          ${Array.isArray(cert.san) && cert.san.length ? `<div><strong>SANs:</strong> <code>${cert.san.map(esc).join(", ")}</code></div>` : ""}
+          ${cert.protocol ? `<div><strong>Protocol:</strong> ${esc(cert.protocol)}</div>` : ""}
+          ${cert.alpn ? `<div><strong>ALPN:</strong> ${esc(cert.alpn)}</div>` : ""}
+        `;
+        wrap.appendChild(div);
+      }
+    }
+
+    // initial
+    renderRecent();
+  </script>
+</PageLayout>

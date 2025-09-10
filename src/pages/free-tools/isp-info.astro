@@ -1,0 +1,314 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "ISP Full Support Insights" }}>
+  <section class="isp-wrap">
+    <!-- ===== Sidebar / TOC ===== -->
+    <aside class="toc">
+      <h2>Sections</h2>
+      <nav>
+        <a href="#ip-card">IP & ASN Overview</a>
+        <a href="#ptr-card">Reverse DNS</a>
+        <a href="#rdap-card">RDAP (Owner & Contacts)</a>
+        <a href="#bgp-asn-card">BGP Overview</a>
+        <a href="#bgp-prefix-card">Announced Prefixes</a>
+        <a href="#bgp-peers-card">Peers & Relationships</a>
+        <a href="#bgp-ix-card">Internet Exchanges</a>
+        <a href="#pdb-net-card">PeeringDB Net Details</a>
+        <a href="#pdb-ixp-card">PeeringDB IXP Ports</a>
+        <a href="#pdb-fac-card">PeeringDB Facilities</a>
+        <a href="#pdb-card">PeeringDB Contacts</a>
+        <a href="#ripe-card">RIPEstat Contacts</a>
+        <a href="#rdap-asn-card">RDAP ASN</a>
+        <a href="#cs-card">Customer Support</a>
+        <a href="#client-card">Your Connection</a>
+      </nav>
+
+      <div class="legend">
+        <div><span class="dot ok"></span>Loaded</div>
+        <div><span class="dot warn"></span>Limited</div>
+        <div><span class="dot err"></span>Error</div>
+      </div>
+    </aside>
+
+    <!-- ===== Main content ===== -->
+    <div class="content">
+      <header class="page-head">
+        <div class="title">
+          <h1>ISP Intelligence Report</h1>
+        </div>
+        <div id="status" class="status" aria-live="polite">
+          <span class="dot warn"></span> Preparing…
+        </div>
+      </header>
+
+      <!-- KPI Row -->
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-label">IP</div><div class="kpi-value" id="kpi-ip">—</div></div>
+        <div class="kpi"><div class="kpi-label">ASN</div><div class="kpi-value" id="kpi-asn">—</div></div>
+        <div class="kpi"><div class="kpi-label">Org</div><div class="kpi-value" id="kpi-org">—</div></div>
+        <div class="kpi"><div class="kpi-label">Country</div><div class="kpi-value" id="kpi-country">—</div></div>
+      </div>
+
+      <!-- IP card -->
+      <details id="ip-card" class="card" open>
+        <summary>
+          <h2>IP & ASN Overview</h2>
+          <span class="exp-hint">Click to collapse</span>
+        </summary>
+        <div class="card-body">
+          <div class="grid-2 ip-grid">
+            <ul id="ip-list" class="kv"></ul>
+            <div id="loc-map" class="mini-map" style="display:none;"></div>
+          </div>
+        </div>
+      </details>
+
+      <details id="ptr-card" class="card">
+        <summary>
+          <h2>Reverse DNS (PTR)</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="ptr-list" class="kv"></ul></div>
+      </details>
+
+      <details id="rdap-card" class="card">
+        <summary>
+          <h2>RDAP (Owner & Contacts)</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body">
+          <div class="grid-2">
+            <div><h3>Network</h3><div id="rdap-owner"></div></div>
+            <div><h3>Events</h3><div id="rdap-events"></div></div>
+          </div>
+          <div><h3>Contacts</h3><div id="rdap-contacts"></div></div>
+        </div>
+      </details>
+
+      <details id="bgp-asn-card" class="card">
+        <summary>
+          <h2>BGP Overview</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="bgp-asn-list" class="kv"></ul></div>
+      </details>
+
+      <details id="bgp-prefix-card" class="card">
+        <summary>
+          <h2>Announced Prefixes</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><div id="bgp-prefixes"></div></div>
+      </details>
+
+      <details id="bgp-peers-card" class="card">
+        <summary>
+          <h2>Peers & Relationships</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body">
+          <div class="grid-3">
+            <div><h3>Peers</h3><ul id="bgp-peers" class="kv"></ul></div>
+            <div><h3>Upstreams</h3><ul id="bgp-upstreams" class="kv"></ul></div>
+            <div><h3>Downstreams</h3><ul id="bgp-downstreams" class="kv"></ul></div>
+          </div>
+        </div>
+      </details>
+
+      <details id="bgp-ix-card" class="card">
+        <summary>
+          <h2>Internet Exchange Points</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="bgp-ix" class="kv"></ul></div>
+      </details>
+
+      <details id="pdb-net-card" class="card">
+        <summary>
+          <h2>PeeringDB — Network Details</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="pdb-net" class="kv"></ul></div>
+      </details>
+
+      <details id="pdb-ixp-card" class="card">
+        <summary>
+          <h2>PeeringDB — IXP Ports</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="pdb-ixp" class="kv"></ul></div>
+      </details>
+
+      <details id="pdb-fac-card" class="card">
+        <summary>
+          <h2>PeeringDB — Facilities</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="pdb-fac" class="kv"></ul></div>
+      </details>
+
+      <details id="pdb-card" class="card">
+        <summary>
+          <h2>Registry Contacts — PeeringDB</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="pdb-list" class="kv"></ul></div>
+      </details>
+
+      <details id="ripe-card" class="card">
+        <summary>
+          <h2>Registry Contacts — RIPEstat</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="ripe-list" class="kv"></ul></div>
+      </details>
+
+      <details id="rdap-asn-card" class="card">
+        <summary>
+          <h2>RDAP — ASN Object</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="rdap-asn" class="kv"></ul></div>
+      </details>
+
+      <details id="cs-card" class="card">
+        <summary>
+          <h2>Customer Support (Curated)</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><div id="cs-card-content" class="kv"></div></div>
+      </details>
+
+      <details id="client-card" class="card">
+        <summary>
+          <h2>Your Connection (Browser Reported)</h2>
+          <span class="exp-hint">Click to expand</span>
+        </summary>
+        <div class="card-body"><ul id="client-card-content" class="kv"></ul></div>
+      </details>
+    </div>
+  </section>
+
+  <style>
+    :root{
+      --bg:#0b0b0c; --card:#121315; --muted:#a0a0a0; --fg:#e8e8e8;
+      --acc:#66d9ef; --ok:#9be38a; --warn:#ffd166; --err:#ff6b6b;
+      --br:#1e1f22; --chip:#1a1b1f;
+    }
+    html,body{max-width:100%; overflow-x:hidden;} /* no sideways scroll on mobile */
+
+    .isp-wrap{
+      display:grid; grid-template-columns:280px 1fr; gap:24px;
+      min-height:100vh; padding:24px; background:var(--bg); color:var(--fg);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Sidebar */
+    .toc{ position:sticky; top:24px; align-self:start; background:var(--card);
+      border:1px solid var(--br); border-radius:12px; padding:16px; }
+    .toc h2{font-size:1rem; margin:0 0 8px; color:var(--acc);}
+    .toc nav{display:flex; flex-direction:column; gap:6px; margin-bottom:12px;}
+    .toc a{
+      text-decoration:none; color:var(--fg); background:var(--chip); border:1px solid var(--br);
+      padding:10px 12px; border-radius:8px; font-size:.95rem; transition:transform .12s ease, background .12s ease;
+    }
+    .toc a:hover{transform:translateX(4px); background:#1f2227;}
+    .legend{display:flex; gap:8px; flex-wrap:wrap; font-size:.9rem; color:var(--muted);}
+    .dot{width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; vertical-align:middle;}
+    .dot.ok{background:var(--ok);} .dot.warn{background:var(--warn);} .dot.err{background:var(--err);}
+
+    /* Content */
+    .content{min-width:0;}
+    .page-head{ display:flex; gap:16px; align-items:flex-start; margin-bottom:10px; }
+    .page-head .title h1{font-size:1.7rem; margin:0 0 2px; line-height:1.2;}
+    .status{ margin-left:auto; background:#0f1115; border:1px dashed var(--br);
+      border-radius:10px; padding:10px 12px; min-width:260px; font-size:.95rem; line-height:1.4; }
+
+    /* KPIs */
+    .kpis{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:14px 0 8px; }
+    .kpi{ background:var(--card); border:1px solid var(--br); border-radius:12px; padding:12px 14px; }
+    .kpi-label{color:var(--muted); font-size:.85rem; margin-bottom:6px;}
+    .kpi-value{font-size:1.05rem; font-weight:600; letter-spacing:.2px; overflow-wrap:anywhere; word-break:break-word;}
+
+    /* Cards */
+    .card{ background:var(--card); border:1px solid var(--br); border-radius:14px; overflow:hidden; margin:12px 0; }
+    .card > summary{
+      list-style:none; cursor:pointer; padding:16px 16px; background:linear-gradient(180deg,#14161a,#111215);
+      border-bottom:1px solid var(--br); user-select:none; position:relative; display:flex; align-items:center; gap:10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card > summary::-webkit-details-marker{display:none;}
+    .card > summary h2{font-size:1.15rem; color:var(--acc); margin:0; flex:1;}
+    .card > summary .exp-hint{font-size:.85rem; color:var(--muted);}
+    .card[open] > summary .exp-hint{display:none;}
+
+    /* Chevron indicator */
+    .card > summary::before{
+      content:"▸"; font-size:1.05rem; color:#9bbbd1; transition:transform .15s ease;
+    }
+    .card[open] > summary::before{ transform:rotate(90deg); }
+
+    /* Tiny status dot (no text) appended by JS */
+    .badge{ width:10px; height:10px; border-radius:50%; display:inline-block; margin-left:8px; border:1px solid var(--br); }
+    .badge.ok{ background:var(--ok); }
+    .badge.warn{ background:var(--warn); }
+    .badge.err{ background:var(--err); }
+
+    .card .card-body{padding:14px 16px;}
+    .card h3{font-size:1rem; color:#7ed0df; margin:.2rem 0 .6rem;}
+
+    /* ===== Equal-height grid & full-height map ===== */
+    .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:stretch;}
+    .ip-grid{grid-auto-rows:1fr;}
+    .ip-grid > *{height:100%;}
+    #loc-map{
+      width:100%;
+      height:100%;
+      min-height:260px;
+      border:1px solid var(--br);
+      border-radius:12px;
+      overflow:hidden;
+      background:#0f0f12;
+    }
+    #loc-map iframe{ width:100%; height:100%; border:0; display:block; }
+
+    .grid-3{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;}
+
+    /* Key/Value list styling */
+    .kv{list-style:none; margin:0; padding:0;}
+    .kv li{display:flex; gap:10px; align-items:flex-start; padding:6px 8px; border-bottom:1px dashed #1b1c20;}
+    .kv li:last-child{border-bottom:0;}
+    .kv b{min-width:190px; display:inline-block; color:#bfe9f6;}
+    .kv span{overflow-wrap:anywhere; word-break:break-word;}
+    .muted{color:var(--muted);}
+    .mono{background:#16181d; border:1px solid #1f2228; padding:1px 6px; border-radius:6px; overflow-wrap:anywhere; word-break:break-word;}
+
+    /* =================== Mobile tweaks =================== */
+    @media (max-width: 980px){
+      .isp-wrap{grid-template-columns:1fr; padding:16px;}
+      .toc{position:static; margin-bottom:12px;}
+      .kpis{grid-template-columns:repeat(2,1fr);}
+      .grid-3{grid-template-columns:1fr;}
+      /* stack IP grid so map sits under details */
+      .grid-2{grid-template-columns:1fr;}
+      .ip-grid{grid-auto-rows:auto;}
+      #loc-map{ min-height:220px; }
+      .kv b{min-width:150px;}
+      .page-head{flex-direction:column; gap:8px;}
+      .status{margin-left:0; min-width:0; width:100%;}
+    }
+
+    @media (max-width: 640px){
+      .kpis{grid-template-columns:1fr;} /* one per row */
+      .page-head .title h1{font-size:1.45rem;}
+      .card > summary h2{font-size:1.05rem;}
+      .card .card-body{padding:12px;}
+      .kv b{min-width:120px;}
+      #loc-map{ min-height:180px; }
+    }
+  </style>
+
+  <script src="/js/isp-info.js" defer></script>
+</PageLayout>

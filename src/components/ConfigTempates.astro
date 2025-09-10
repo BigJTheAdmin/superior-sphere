@@ -1,0 +1,128 @@
+<script id="template-cisco-ios" type="x-tmpl-mustache">
+hostname {{hostname}}
+!
+interface {{mgmt_iface}}
+  ip address {{mgmt_ip}}
+!
+{{#snmp_enable}}
+  {{#snmp_version_v1}}snmp-server community {{snmp_community}} RO
+!
+  {{/snmp_version_v1}}
+  {{#snmp_version_v2c}}snmp-server community {{snmp_community}} RO
+!
+  {{/snmp_version_v2c}}
+  {{#snmp_version_v3}}snmp-server group SNMPv3Group v3 priv
+  snmp-server user {{snmp_v3_user}} SNMPv3Group v3 auth sha {{snmp_v3_auth}} priv aes 128 {{snmp_v3_priv}}
+!
+  {{/snmp_version_v3}}
+{{/snmp_enable}}
+{{#ntp_servers}}ntp server {{.}}
+{{/ntp_servers}}!
+logging host {{logging_host}}
+!
+username {{username}} privilege 15 password {{user_password}}
+!
+{{#vlans}}vlan {{id}}
+  name {{name}}
+!
+{{/vlans}}{{#interfaces}}interface {{name}}
+  description {{desc}}
+  ip address {{ip}}
+!
+{{/interfaces}}{{#ospf_process}}router ospf {{ospf_process}}
+  network {{ospf_network}} area {{ospf_area}}
+!
+{{/ospf_process}}{{#bgp_local_as}}router bgp {{bgp_local_as}}
+  neighbor {{bgp_neighbor_ip}} remote-as {{bgp_neighbor_as}}
+!
+{{/bgp_local_as}}end
+</script>
+
+<script id="template-juniper-junos" type="x-tmpl-mustache">
+set system host-name {{hostname}}
+set interfaces {{mgmt_iface}} unit 0 family inet address {{mgmt_ip}}
+{{#snmp_enable}}
+  {{#snmp_version_v1}}set snmp community {{snmp_community}} authorization read-only
+  {{/snmp_version_v1}}
+  {{#snmp_version_v2c}}set snmp community {{snmp_community}} authorization read-only
+  {{/snmp_version_v2c}}
+  {{#snmp_version_v3}}set snmp v3 usm user {{snmp_v3_user}} authentication-sha {{snmp_v3_auth}} privacy-algo aes encryption {{snmp_v3_priv}}
+  {{/snmp_version_v3}}
+{{/snmp_enable}}
+{{#ntp_servers}}set system ntp server {{.}}
+{{/ntp_servers}}{{#logging_host}}set system syslog host {{logging_host}} any any
+{{/logging_host}}
+set system login user {{username}} class super-user authentication plain-text-password {{user_password}}
+{{#vlans}}set vlans {{name}} vlan-id {{id}}
+{{/vlans}}{{#interfaces}}set interfaces {{name}} description "{{desc}}"
+set interfaces {{name}} unit 0 family inet address {{ip}}
+{{/interfaces}}{{#ospf_process}}set protocols ospf area {{ospf_area}} interface {{ospf_network}}
+{{/ospf_process}}{{#bgp_local_as}}set protocols bgp group external neighbor {{bgp_neighbor_ip}} peer-as {{bgp_neighbor_as}}
+{{/bgp_local_as}}
+</script>
+
+<script id="template-arista-eos" type="x-tmpl-mustache">
+hostname {{hostname}}
+!
+interface {{mgmt_iface}}
+  ip address {{mgmt_ip}}
+!
+{{#snmp_enable}}
+  {{#snmp_version_v1}}snmp-server community {{snmp_community}} ro
+!
+  {{/snmp_version_v1}}
+  {{#snmp_version_v2c}}snmp-server community {{snmp_community}} ro
+!
+  {{/snmp_version_v2c}}
+  {{#snmp_version_v3}}snmp-server group SNMPv3Group v3 priv
+  snmp-server user {{snmp_v3_user}} SNMPv3Group v3 auth sha {{snmp_v3_auth}} priv aes 128 {{snmp_v3_priv}}
+!
+  {{/snmp_version_v3}}
+{{/snmp_enable}}
+{{#ntp_servers}}ntp server {{.}}
+{{/ntp_servers}}!
+logging host {{logging_host}}
+!
+username {{username}} privilege 15 secret {{user_password}}
+!
+{{#vlans}}vlan {{id}}
+  name {{name}}
+!
+{{/vlans}}{{#interfaces}}interface {{name}}
+  description {{desc}}
+  ip address {{ip}}
+!
+{{/interfaces}}{{#ospf_process}}router ospf {{ospf_process}}
+  network {{ospf_network}} area {{ospf_area}}
+!
+{{/ospf_process}}{{#bgp_local_as}}router bgp {{bgp_local_as}}
+  neighbor {{bgp_neighbor_ip}} remote-as {{bgp_neighbor_as}}
+!
+{{/bgp_local_as}}
+</script>
+
+<script id="template-paloalto-pan-os" type="x-tmpl-mustache">
+configure
+set deviceconfig system hostname {{hostname}}
+set network interface ethernet {{mgmt_iface}} layer3 ip {{mgmt_ip}}
+{{#snmp_enable}}
+  {{#snmp_version_v1}}set deviceconfig system snmp-server community {{snmp_community}}
+  {{/snmp_version_v1}}
+  {{#snmp_version_v2c}}set deviceconfig system snmp-server community {{snmp_community}}
+  {{/snmp_version_v2c}}
+  {{#snmp_version_v3}}# SNMPv3 requires GUI-based configuration
+  {{/snmp_version_v3}}
+{{/snmp_enable}}
+{{#ntp_servers}}set deviceconfig system ntp-server primary {{.}}
+{{/ntp_servers}}{{#logging_host}}set deviceconfig system syslog-setting match-list any
+set deviceconfig system log-settings to-remote host {{logging_host}}
+{{/logging_host}}
+set mgt-config users admin password << change manually >>
+
+{{#vlans}}set network vlan {{name}} tag {{id}}
+{{/vlans}}{{#interfaces}}set network interface ethernet {{name}} layer3 ip {{ip}}
+{{/interfaces}}{{#ospf_process}}set network virtual-router default protocol ospf area {{ospf_area}} interface {{ospf_network}}
+{{/ospf_process}}{{#bgp_local_as}}set network virtual-router default protocol bgp local-as {{bgp_local_as}}
+set network virtual-router default protocol bgp peer {{bgp_neighbor_ip}} peer-as {{bgp_neighbor_as}}
+{{/bgp_local_as}}commit
+</script>

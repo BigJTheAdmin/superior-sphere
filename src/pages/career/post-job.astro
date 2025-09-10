@@ -1,0 +1,413 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+import { verifyPostToken } from "@/lib/auth";
+import { publishDraft, getDraftById } from "@/lib/jobsStore";
+
+export const prerender = false;
+
+/* ─── Server-side: URL + token ─────────────────────────────────────────── */
+const url = new URL(Astro.request.url);
+const success = url.searchParams.get("success");
+const session_id = url.searchParams.get("session_id");
+const token = url.searchParams.get("token");
+
+let claimHint = !!(success && session_id);
+
+// Verify real token
+let draft: any = null;
+let verified:
+  | null
+  | { draftId: string; email: string; plan: "standard" | "featured"; addons: string[] } = null;
+
+if (token && token !== "demo") {
+  verified = verifyPostToken(token) as any;
+  if (verified) draft = await getDraftById(verified.draftId);
+}
+
+/* Dev Preview mode: visit /breakroom/post-job?token=demo */
+let DEV_PREVIEW = false;
+if (!verified && token === "demo") {
+  DEV_PREVIEW = true;
+  verified = {
+    draftId: "demo",
+    email: "dev@local",
+    plan: "standard",
+    addons: ["highlight", "pin", "social"],
+  };
+  draft = { company: "Example Corp" };
+}
+
+const FEATURED = verified?.plan === "featured";
+const ADDONS = (verified?.addons || []) as string[];
+
+/* ─── Actions ──────────────────────────────────────────────────────────── */
+export const actions = {
+  publish: async ({ request, redirect }) => {
+    const form = await request.formData();
+    const token = String(form.get("token") || "");
+    const title = String(form.get("title") || "");
+    const company = String(form.get("company") || "");
+    const location = String(form.get("location") || "");
+    const type = String(form.get("type") || "");
+    const applyUrl = String(form.get("applyUrl") || "");
+    const comp = String(form.get("comp") || "");
+    const tags = String(form.get("tags") || "");
+    const description = String(form.get("description") || "");
+
+    const v = token === "demo" ? { draftId: "demo" } : (verifyPostToken(token) as any);
+    if (!v?.draftId) return new Response("Invalid or expired link.", { status: 400 });
+
+    if (v.draftId === "demo") {
+      // Dev Preview: don’t actually publish
+      return new Response("Dev preview mode: publishing is disabled.", { status: 400 });
+    }
+
+    await publishDraft(v.draftId, {
+      title, company, location, type, applyUrl, comp, tags, description,
+    });
+
+    return redirect("/jobs?published=1");
+  },
+};
+---
+
+<PageLayout meta={{ title: "Post Your Job" }}>
+  <section class="tool-wrapper">
+    <!-- Hero -->
+    <div class="hero tool-card">
+      <div class="hero-left">
+        <h1 class="page-title">Post Your Job</h1>
+        <p class="subtitle">
+          Submit your listing, review the preview, and publish.
+          {verified ? (
+            FEATURED ? <span class="badge featured">FEATURED</span> : <span class="badge">STANDARD</span>
+          ) : (
+            <span class="badge">STANDARD</span>
+          )}
+        </p>
+        <ul class="steps" aria-label="Submission steps">
+          <li class="done"><span>1</span> Purchase</li>
+          <li class={verified || DEV_PREVIEW ? "done" : "active"}><span>2</span> Create Listing</li>
+          <li><span>3</span> Publish</li>
+        </ul>
+      </div>
+      <div class="hero-right">
+        <div class="plan-card">
+          <div class="plan-top">
+            <strong>{FEATURED ? "Featured" : "Standard"}</strong>
+            <span class="divider">•</span>
+            <span>30 days</span>
+          </div>
+          <div class="addons-row">
+            <span class={"pill " + (ADDONS.includes("pin") ? "ok" : "na")}>Pinned 7 days</span>
+            <span class={"pill " + (ADDONS.includes("highlight") ? "ok" : "na")}>Highlight</span>
+            <span class={"pill " + (ADDONS.includes("social") ? "ok" : "na")}>Social Boost</span>
+          </div>
+          <p class="tiny">Purchased add‑ons are auto‑applied on publish.</p>
+        </div>
+      </div>
+    </div>
+
+    {claimHint && (
+      <div class="tool-card info">
+        <strong>Payment received.</strong>
+        <p>
+          Your secure “post‑your‑job” link is being generated. Check your email shortly.
+          If you don’t see it, contact support with your Checkout Session ID:
+          <code>{session_id}</code>.
+        </p>
+      </div>
+    )}
+
+    {!verified && !DEV_PREVIEW && !claimHint && (
+      <div class="tool-card warn">
+        <strong>Have a tokenized link?</strong>
+        <p>Open the unique link sent to your email after purchase to create your listing.</p>
+        <p class="tiny">Dev preview: append <code>?token=demo</code> to this URL to see the form locally.</p>
+      </div>
+    )}
+
+    {(verified || DEV_PREVIEW) && draft && (
+      <div class="grid-2">
+        <!-- Form -->
+        <form class="tool-card form" method="post" action="?/publish" id="jobForm">
+          <input type="hidden" name="token" value={DEV_PREVIEW ? "demo" : token} />
+
+          <div class="section">
+            <h3 class="section-title">Basics</h3>
+            <label>
+              Job Title
+              <input name="title" id="f_title" placeholder="e.g. Senior Network Engineer" required />
+            </label>
+
+            <label>
+              Company
+              <input
+                name="company"
+                id="f_company"
+                placeholder={`e.g. ${draft.company || "Your Company"}`}
+                value={draft.company || ""}
+              />
+            </label>
+
+            <div class="row">
+              <label class="half">
+                Location
+                <input name="location" id="f_location" placeholder="City, State or Remote" />
+              </label>
+              <label class="half">
+                Employment Type
+                <select name="type" id="f_type">
+                  <option>Full-time</option>
+                  <option>Part-time</option>
+                  <option>Contract</option>
+                  <option>Internship</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              Apply Link or Email
+              <input
+                name="applyUrl"
+                id="f_apply"
+                placeholder="https://example.com/careers/123 or jobs@example.com"
+                required
+              />
+            </label>
+
+            <div class="row">
+              <label class="half">
+                Compensation (optional)
+                <input name="comp" id="f_comp" placeholder="$120k–$150k + bonus" />
+              </label>
+              <label class="half">
+                Tags (comma‑separated)
+                <input name="tags" id="f_tags" placeholder="Palo Alto, AWS, BGP, Zero Trust" />
+              </label>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3 class="section-title">Description</h3>
+            <p class="help">
+              Markdown supported — use <code>**bold**</code>, lists, and headings for readability.
+            </p>
+            <textarea
+              name="description"
+              id="f_desc"
+              rows="12"
+              placeholder="Responsibilities, requirements, stack, perks…"
+              required
+            ></textarea>
+          </div>
+
+          <fieldset class="addons">
+            <legend>Purchased Add‑ons</legend>
+            <label class={ADDONS.includes("highlight") ? "ok" : "na"}>
+              <input type="checkbox" disabled checked={ADDONS.includes("highlight")} />
+              Highlighted Card
+            </label>
+            <label class={ADDONS.includes("pin") ? "ok" : "na"}>
+              <input type="checkbox" disabled checked={ADDONS.includes("pin")} />
+              Pinned (7 days)
+            </label>
+            <label class={ADDONS.includes("social") ? "ok" : "na"}>
+              <input type="checkbox" disabled checked={ADDONS.includes("social")} />
+              Social Boost
+            </label>
+          </fieldset>
+
+          <div class="actions">
+            <a href="/jobs" class="btn btn--neutral" role="button">Cancel</a>
+            <button type="submit" class="btn btn--primary" { ...(DEV_PREVIEW ? { disabled: true } : {}) }>
+              {DEV_PREVIEW ? "Publish (disabled in demo)" : "Publish Job"}
+            </button>
+          </div>
+        </form>
+
+        <!-- Live Preview -->
+        <aside class="tool-card preview">
+          <div class={"paid-card " + (FEATURED ? "featured" : "") + (ADDONS.includes("highlight") ? " highlight" : "")}>
+            {FEATURED && <span class="badge mini">FEATURED</span>}
+            <h4 id="p_title">Your Job Title</h4>
+            <p class="company" id="p_company">{draft.company || "Company"}</p>
+            <p class="meta" id="p_meta">Location • Type</p>
+            <p class="comp" id="p_comp" style="display:none"></p>
+            <p class="tags" id="p_tags" style="display:none"></p>
+            <hr />
+            <div class="desc" id="p_desc">
+              Write a clear, concise summary. The first 1–2 sentences should sell the role and impact.
+            </div>
+            <div class="addon-row">
+              {ADDONS.includes("pin") && <span class="pill pin">Pinned</span>}
+              {ADDONS.includes("highlight") && <span class="pill hi">Highlight</span>}
+              {ADDONS.includes("social") && <span class="pill">Social Boost</span>}
+            </div>
+            <a id="p_apply" class="btn btn--accent" href="#" onclick="return false;">Apply</a>
+          </div>
+
+          <div class="tips">
+            <h5>Tips for better results</h5>
+            <ul>
+              <li>Lead with impact and the tech stack.</li>
+              <li>List must‑have skills (≤5 bullets).</li>
+              <li>Share salary range and perks up front.</li>
+              <li>Add “Remote” or city/state for clarity.</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    )}
+  </section>
+
+  <style>
+    /* Layout */
+    .grid-2 { display:grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+    @media (max-width: 980px){ .grid-2 { grid-template-columns: 1fr; } }
+
+    /* Cards */
+    .tool-card{ background:#1b1b1b; border:1px solid #2d2d2d; border-radius:12px; padding:18px; }
+    .info{ border-left:4px solid #4aa3ff; }
+    .warn{ border-left:4px solid #f9a825; }
+    .error{ border-left:4px solid #ef5350; }
+
+    /* Hero */
+    .hero{ display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }
+    .hero-left{ flex:1; }
+    .hero-right{ width: 360px; max-width:100%; }
+    .page-title{ margin:0 0 4px; }
+    .subtitle{ color:#bbb; margin:0 0 10px; display:flex; align-items:center; gap:10px; }
+    .badge{ background:#2b2b2b; border:1px solid #3a3a3a; color:#e8e8e8; border-radius:999px; padding:3px 10px; font-weight:800; letter-spacing:.2px; }
+    .badge.featured{ background: linear-gradient(90deg,#FFD54F,#FFB300); color:#111; border-color:#FFCA28; }
+    .badge.mini{ position:absolute; top:10px; right:10px; font-size:.72rem; padding:2px 8px; }
+
+    .steps{ list-style:none; padding:0; margin:10px 0 0; display:flex; gap:16px; color:#c4c8cf; }
+    .steps li{ display:flex; align-items:center; gap:8px; }
+    .steps li span{ display:inline-grid; place-items:center; width:22px; height:22px; border-radius:999px; border:1px solid #3a3a3a; background:#151515; font-size:.82rem; }
+    .steps li.done span{ background:#10a37f22; border-color:#10a37f66; }
+    .steps li.active span{ background:#2d6dff22; border-color:#2d6dff66; }
+
+    .plan-card{ background:#171717; border:1px solid #2a2a2a; border-radius:12px; padding:14px; }
+    .plan-top{ display:flex; align-items:center; gap:8px; font-weight:800; }
+    .divider{ opacity:.6; }
+    .addons-row{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 6px; }
+    .pill{ border:1px solid #444; background:#151515; color:#eaeaea; border-radius:999px; padding:3px 8px; font-size:.75rem; font-weight:700; }
+    .pill.ok{ border-color:#4aa3ff; color:#cfe7ff; }
+    .pill.na{ opacity:.5; text-decoration:line-through; }
+    .tiny{ color:#9aa3b2; font-size:.85rem; margin:0; }
+
+    /* Form */
+    .form .section{ margin-bottom:16px; }
+    .section-title{ margin:0 0 10px; }
+    .help{ color:#9aa3b2; margin:0 0 8px; }
+    label{ display:block; margin: 12px 0; color:#ddd; }
+    input, select, textarea{
+      width:100%; padding:10px; border-radius:8px; border:1px solid #333; background:#111; color:#eee;
+    }
+    textarea{ line-height:1.5; }
+    .row{ display:flex; gap:16px; }
+    .half{ flex:1; }
+
+    .addons{ margin-top: 8px; border:1px dashed #444; padding: 10px 12px; border-radius: 8px; }
+    .addons label{ display:inline-flex; gap: 8px; align-items:center; margin-right: 16px; }
+    .addons label.na{ opacity:.45; text-decoration: line-through; }
+
+    .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:14px; }
+    .btn{
+      display:inline-block; border-radius:10px; padding:10px 14px; font-weight:700; text-decoration:none;
+      border:1px solid transparent; cursor:pointer; transition:transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn--primary{ background:#2d6dff; color:#fff; border-color:#2d6dff; }
+    .btn--primary:hover{ background:#2a61e3; }
+    .btn--neutral{ background:#2b2b2b; color:#eaeaea; border-color:#3a3a3a; }
+    .btn--neutral:hover{ background:#323232; }
+    .btn--accent{ background:#2d6dff; color:#fff; border-color:#2d6dff; }
+
+    /* Preview card */
+    .preview .paid-card{
+      position:relative;
+      display:flex; flex-direction:column; gap:6px;
+      background:#171717; border:1px solid #2a2a2a; border-radius:12px; padding:14px;
+    }
+    .preview .paid-card.featured{
+      background: linear-gradient(180deg, #1b1b1b, #252015);
+      border: 1px solid #FFC10766;
+      box-shadow: 0 0 0 2px #FFC10722 inset;
+    }
+    .highlight{ box-shadow: 0 0 0 2px #4aa3ff33 inset, 0 0 12px #4aa3ff22; }
+    .preview h4{ margin:0; font-size:1.06rem; font-weight:800; }
+    .preview .company{ margin:0; color:#ddd; }
+    .preview .meta{ margin:0; color:#aaa; }
+    .preview .comp{ margin:0; font-weight:700; }
+    .preview .tags{ margin:0; color:#cfcfcf; font-size:.9rem; }
+    .preview hr{ border:none; border-top:1px solid #2a2a2a; margin:8px 0; }
+    .preview .desc{ color:#cfcfcf; line-height:1.45; }
+    .addon-row{ display:flex; gap:8px; margin-top:8px; }
+    .pill.pin{ border-color:#6aa84f; color:#c9f7c4; }
+    .pill.hi{ border-color:#4aa3ff; color:#cfe7ff; }
+
+    code{ background:#121212; border:1px solid #2a2a2a; padding:2px 6px; border-radius:6px; }
+  </style>
+
+  <!-- Live preview binding (guarded for when form isn't rendered) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("jobForm");
+      if (!form) return; // nothing to bind (no token / not in demo)
+
+      const $ = (s) => document.querySelector(s);
+      const bind = (inputSel, outSel, transform) => {
+        const i = $(inputSel); const o = $(outSel);
+        if (!i || !o) return;
+        const run = () => { o.textContent = transform ? transform(i.value) : i.value; };
+        i.addEventListener("input", run); run();
+      };
+
+      // title/company/meta
+      bind("#f_title", "#p_title", v => v || "Your Job Title");
+      bind("#f_company", "#p_company", v => v || "Company");
+      const metaOut = document.querySelector("#p_meta");
+      const loc = document.querySelector("#f_location");
+      const typ = document.querySelector("#f_type");
+      const updateMeta = () => {
+        if (!metaOut) return;
+        const parts = [];
+        if (loc?.value) parts.push(loc.value);
+        if (typ?.value) parts.push(typ.value);
+        metaOut.textContent = parts.length ? parts.join(" • ") : "Location • Type";
+      };
+      loc?.addEventListener("input", updateMeta);
+      typ?.addEventListener("change", updateMeta);
+      updateMeta();
+
+      // comp & tags (show/hide if empty)
+      const toggleText = (inpSel, outSel) => {
+        const inp = $(inpSel); const out = $(outSel);
+        if (!inp || !out) return;
+        const run = () => {
+          out.textContent = inp.value;
+          out.style.display = inp.value.trim() ? "" : "none";
+        };
+        inp.addEventListener("input", run); run();
+      };
+      toggleText("#f_comp", "#p_comp");
+      toggleText("#f_tags", "#p_tags");
+
+      // description
+      const desc = $("#f_desc"); const pdesc = $("#p_desc");
+      if (desc && pdesc) {
+        const run = () => { pdesc.textContent = desc.value || "Write a clear, concise summary. The first 1–2 sentences should sell the role and impact."; };
+        desc.addEventListener("input", run); run();
+      }
+
+      // apply link
+      const apply = $("#f_apply"); const papply = $("#p_apply");
+      if (apply && papply) {
+        const run = () => { papply.href = apply.value || "#"; };
+        apply.addEventListener("input", run); run();
+      }
+    });
+  </script>
+</PageLayout>

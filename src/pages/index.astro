@@ -1,61 +1,102 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
-import SocialList from "@/components/SocialList.astro";
-import PostPreview from "@/components/blog/PostPreview.astro";
-import Note from "@/components/note/Note.astro";
-import { getAllPosts } from "@/data/post";
 import PageLayout from "@/layouts/Base.astro";
-import { collectionDateSort } from "@/utils/date";
-
-// Posts
-const MAX_POSTS = 10;
-const allPosts = await getAllPosts();
-const allPostsByDate = allPosts
-	.sort(collectionDateSort)
-	.slice(0, MAX_POSTS) as CollectionEntry<"post">[];
-
-// Notes
-const MAX_NOTES = 5;
-const allNotes = await getCollection("note");
-const latestNotes = allNotes.sort(collectionDateSort).slice(0, MAX_NOTES);
+import NetworkDiagnostics from "../components/NetworkDiagnostics.astro";
 ---
 
 <PageLayout meta={{ title: "Home" }}>
-	<section>
-		<h1 class="title mb-6">Hello World!</h1>
-		<p class="mb-4">
-			Hi, I’m a theme for Astro, a simple starter that you can use to create your website or blog.
-			If you want to know more about how you can customise me, add more posts, and make it your own,
-			click on the GitHub icon link below and it will take you to my repo.
-		</p>
-		<SocialList />
+	<!-- Network Diagnostics -->
+	<section class="bg-green-600 py-1">
+		<div class="container mx-auto px-8 sm:px-8">
+			<NetworkDiagnostics />
+		</div>
 	</section>
-	<section class="mt-16">
-		<h2 class="title text-accent mb-6 text-xl"><a href="/posts/">Posts</a></h2>
-		<ul class="space-y-6" role="list">
-			{
-				allPostsByDate.map((p) => (
-					<li class="grid gap-2 sm:grid-cols-[auto_1fr]">
-						<PostPreview post={p} />
-					</li>
-				))
-			}
-		</ul>
-	</section>
-	{
-		latestNotes.length > 0 && (
-			<section class="mt-16">
-				<h2 class="title text-accent mb-6 text-xl">
-					<a href="/notes/">Notes</a>
-				</h2>
-				<ul class="space-y-6" role="list">
-					{latestNotes.map((note) => (
-						<li>
-							<Note note={note} as="h3" isPreview />
-						</li>
-					))}
-				</ul>
+
+	<!-- Terminal-Style Hero -->
+	<section class="relative bg-black font-mono text-green-400">
+		<div class="container mx-auto px-4 py-16 sm:px-8">
+			<h1 class="text-5xl leading-tight md:text-6xl">$ ping &lt;network&gt;</h1>
+			<h1 class="mt-2 text-5xl leading-tight md:text-6xl">$ trace &lt;path&gt;</h1>
+			<h1 class="mt-2 text-5xl leading-tight md:text-6xl">$ fix &lt;errors&gt;</h1>
+			<h1 class="mt-2 text-5xl leading-tight md:text-6xl">$ repeat</h1>
+
+			<!-- Rotating Stats -->
+			<section class="stats-carousel mx-auto mt-6 max-w-3xl text-lg text-green-300">
+				<div class="stat-item active">
+					Troubleshooting time can be cut by up to 80% — Network monitoring and automation tools
+					reduce mean time to resolution (MTTR) by as much as four‑fifths, freeing engineers to
+					focus on higher‑value work. <em>(AIMultiple, 2025)</em>
+				</div>
+				<div class="stat-item">
+					83% of IT professionals lack full WAN visibility — Most network teams operate with blind
+					spots that delay root‑cause analysis—your toolkits help close that gap. <em
+						>(AIMultiple, 2025)</em
+					>
+				</div>
+				<div class="stat-item">
+					Only 18% of automation projects reach full success — The rest fail or underdeliver, often
+					due to poor tool integration—your pre‑packaged, ready‑to‑use toolkit eliminates that
+					barrier. <em>(NetworkWorld / EMA, 2024)</em>
+				</div>
+				<div class="stat-item">
+					60% of teams with advanced monitoring see faster incident resolution — Teams investing in
+					smarter observability report significantly quicker troubleshooting and better uptime. <em
+						>(APM Digest, 2024)</em
+					>
+				</div>
 			</section>
-		)
-	}
+
+			<div class="mt-16 flex flex-wrap gap-4">
+				<a
+					href="/career"
+					class="rounded border border-green-400 px-6 py-2 text-green-400 transition hover:bg-green-500 hover:text-black"
+				>
+					[ career tools ]
+				</a>
+				<a
+					href="/services"
+					class="rounded border border-green-400 px-6 py-2 text-green-400 transition hover:bg-green-500 hover:text-black"
+				>
+					[ view services ]
+				</a>
+			</div>
+		</div>
+	</section>
+
+
+
+	<style>
+		.stats-carousel {
+			text-align: center;
+			position: relative;
+			padding-bottom: 110px;
+			height: 5.5em; /* keeps height stable while rotating */
+		}
+		.stat-item {
+			opacity: 0;
+			position: absolute;
+			width: 100%;
+			left: 0;
+			top: 0;
+			transition: opacity 0.8s ease-in-out;
+		}
+		.stat-item.active {
+			opacity: 1;
+			position: relative;
+		}
+	</style>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", () => {
+			const stats = document.querySelectorAll(".stat-item");
+			let current = 0;
+
+			function showNextStat() {
+				stats[current].classList.remove("active");
+				current = (current + 1) % stats.length;
+				stats[current].classList.add("active");
+			}
+
+			setInterval(showNextStat, 8000); // rotate every 8 seconds
+		});
+	</script>
 </PageLayout>

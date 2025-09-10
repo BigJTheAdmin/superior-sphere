@@ -1,0 +1,89 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "The Breakroom" }}>
+  <h1>The Breakroom</h1>
+  <p>Mini-games, career boosters, and fun utilities to take a breather between tickets.</p>
+
+  <style>
+    .tools-grid-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      padding: 0 1rem;
+    }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .tool-card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 12px;
+      text-align: center;
+      padding: 20px;
+      transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .tool-card:hover {
+      transform: scale(1.05);
+      background: #262626;
+    }
+
+    .tool-card img {
+      display: block;
+      margin: 0 auto 16px auto;
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      object-fit: contain;
+    }
+
+    .tool-card a {
+      color: #0ff;
+      text-decoration: none;
+      font-weight: bold;
+      display: block;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+    }
+
+    .tool-card a:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+  <h1>Games & Career Tools</h1>
+  <div class="tools-grid-wrapper">
+    <div class="tools-grid">
+
+      <div class="tool-card">
+        <a href="/breakroom/corporate-chase">
+          <img src="/chase.png" alt="Corporate Chase" />
+          Corporate Chase
+        </a>
+      </div>
+
+      <div class="tool-card">
+        <a href="/breakroom/help-desk-hero">
+          <img src="/slap.png" alt="The Help Desk: Slap Edition" />
+          Help Desk Hero: Slap or Serve
+        </a>
+      </div>
+
+      <div class="tool-card">
+        <a href="/breakroom/rush-hour-dash">
+          <img src="/dash.png" alt="Rush Hour Dash" />
+          Rush Hour Dash
+        </a>
+      </div>
+    </div>
+  </div>
+</PageLayout>

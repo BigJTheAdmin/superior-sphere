@@ -1,0 +1,240 @@
+---
+import { onMount } from "solid-js";
+---
+<style>
+	.network-info {
+		color: #000000;
+		font-family: Consolas, monospace;
+		max-width: 900px;
+		margin: 0 auto 20px auto;
+		text-align: left;
+	}
+	.gauges {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-around;
+		max-width: 900px;
+		margin: 0 auto;
+	}
+	.gauge-item {
+		background: #1b1b1b;
+		border-radius: 12px;
+		padding: 10px;
+		margin: 10px;
+		width: 150px;
+		text-align: center;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+	}
+	.circular-chart {
+		display: block;
+		margin: 10px auto;
+		max-width: 100%;
+		max-height: 150px;
+	}
+	.circle-bg {
+		fill: none;
+		stroke: #444;
+		stroke-width: 3.8;
+	}
+	.circle {
+		fill: none;
+		stroke-width: 2.8;
+		stroke-linecap: round;
+		transition: stroke-dasharray 0.5s ease;
+	}
+	.green .circle { stroke: #00e676; }
+	.blue  .circle { stroke: #03a9f4; }
+	.yellow .circle { stroke: #ffeb3b; }
+	.red   .circle { stroke: #ff5252; }
+	.percentage { fill: white; font-size: 0.5em; text-anchor: middle; }
+</style>
+
+<!-- Info -->
+<div class="network-info">
+	<p><strong>Local IP:</strong> <span id="local-ip">Detecting...</span></p>
+	<p><strong>Public IP:</strong> <span id="public-ip">Detecting...</span></p>
+	<p><strong>ISP:</strong> <span id="isp">Detecting...</span></p>
+	<p><strong>ASN:</strong> <span id="asn">Detecting...</span></p>
+	<p><strong>Location:</strong> <span id="location">Detecting...</span></p>
+	<p><strong>NAT Type:</strong> <span id="nat">Detecting...</span></p>
+	<p><strong>Connection Type:</strong> <span id="conn-type">Detecting...</span></p>
+</div>
+
+<!-- Gauges -->
+<div class="gauges">
+	<div class="gauge-item">
+		<svg viewBox="0 0 36 36" class="circular-chart green">
+			<path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+			<path id="latency-gauge" class="circle" stroke-dasharray="0, 100" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+			<text x="18" y="20.35" class="percentage" id="latency">--</text>
+		</svg>
+		<p>Latency (ms)</p>
+	</div>
+
+	<div class="gauge-item">
+		<svg viewBox="0 0 36 36" class="circular-chart blue">
+			<path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+			<path id="download-gauge" class="circle" stroke-dasharray="0, 100" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+			<text x="18" y="20.35" class="percentage" id="download">--</text>
+		</svg>
+		<p>Download (MB/s)</p>
+	</div>
+
+	<div class="gauge-item">
+		<svg viewBox="0 0 36 36" class="circular-chart yellow">
+			<path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+			<path id="upload-gauge" class="circle" stroke-dasharray="0, 100" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+			<text x="18" y="20.35" class="percentage" id="upload">--</text>
+		</svg>
+		<p>Upload (MB/s)</p>
+	</div>
+
+	<div class="gauge-item">
+		<svg viewBox="0 0 36 36" class="circular-chart red">
+			<path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+			<path id="packet-loss-gauge" class="circle" stroke-dasharray="0, 100" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+			<text x="18" y="20.35" class="percentage" id="packet-loss">--</text>
+		</svg>
+		<p>Packet Loss (%)</p>
+	</div>
+</div>
+
+<script>
+	/* ======= CONFIG ======= */
+	const REFRESH_MS = 5000;     // update every 5s
+	const PING_URL   = "/api/ping"; // same-origin 204 endpoint you added
+
+	/* ===== Utilities ===== */
+	function updateGauge(id, value, max) {
+		const num = Number(value);
+		if (!Number.isFinite(num)) return;
+		const clamped = Math.max(0, Math.min(num, max));
+		const percent = (clamped / max) * 100;
+		const el = document.querySelector(`#${id}-gauge`);
+		if (el) el.setAttribute("stroke-dasharray", `${percent}, 100`);
+	}
+	function setText(id, txt) {
+		const el = document.getElementById(id);
+		if (el) el.textContent = txt;
+	}
+	const okStatus = (s) => s >= 200 && s < 400;
+
+	/* ===== Banner info (one-time) ===== */
+	fetch("https://ipapi.co/json/").then(r=>r.json()).then(d=>{
+		setText("public-ip", d.ip ?? "unknown");
+		setText("isp", d.org ?? d.asn ?? "unknown");
+		setText("asn", d.asn ?? "unknown");
+		setText("location", [d.city, d.region, d.country_name].filter(Boolean).join(", "));
+	}).catch(()=>{});
+	setText("local-ip", "Unavailable in browser");
+	setText("conn-type", (navigator.connection && navigator.connection.effectiveType) ? navigator.connection.effectiveType : "Unknown (Browser Limit)");
+	setText("nat", "Likely Symmetric/Restricted (Estimation)");
+
+	/* ===== Tests ===== */
+	async function testLatency(signal) {
+		const trials = 5;
+		const samples = [];
+		for (let i = 0; i < trials; i++) {
+			const start = performance.now();
+			try {
+				const r = await fetch(`${PING_URL}?t=${performance.now()}`, { cache: "no-store", signal });
+				if (okStatus(r.status)) samples.push(performance.now() - start);
+			} catch { /* ignore */ }
+		}
+		if (samples.length) {
+			samples.sort((a,b)=>a-b);
+			const med = samples[Math.floor(samples.length/2)];
+			const val = Math.max(0, med).toFixed(1);
+			setText("latency", val);
+			updateGauge("latency", Number(val), 500);
+		}
+	}
+
+	async function testPacketLoss(signal) {
+		const trials = 20;
+		let success = 0;
+		for (let i = 0; i < trials; i++) {
+			try {
+				const r = await fetch(`${PING_URL}?t=${Math.random()}`, { cache: "no-store", signal });
+				if (okStatus(r.status)) success++;
+			} catch { /* network error => counts as loss */ }
+		}
+		const loss = 100 * (1 - success / trials);
+		const val = Math.max(0, Math.min(100, loss)).toFixed(1);
+		setText("packet-loss", val);
+		updateGauge("packet-loss", Number(val), 100);
+	}
+
+	async function testDownload(signal) {
+		try {
+			// Small sample so 5s cadence doesn't hog bandwidth.
+			const sizeMB = 1;
+			const start = performance.now();
+			await fetch(`https://speed.cloudflare.com/__down?bytes=${sizeMB*1024*1024}&nocache=${Date.now()}`, { cache: "no-store", signal });
+			const secs = (performance.now() - start) / 1000;
+			const mbps = sizeMB / secs;
+			const val = mbps.toFixed(2);
+			setText("download", val);
+			updateGauge("download", Number(val), 100);
+		} catch {
+			// Keep last known value if it fails; optional: set "--"
+		}
+	}
+
+	async function testUpload(signal) {
+		try {
+			const sizeMB = 0.5; // lighter upload for frequent runs
+			const data = new Uint8Array(sizeMB * 1024 * 1024);
+			const start = performance.now();
+			await fetch("https://httpbin.org/post", { method: "POST", body: data, signal });
+			const secs = (performance.now() - start) / 1000;
+			const mbps = sizeMB / secs;
+			const val = mbps.toFixed(2);
+			setText("upload", val);
+			updateGauge("upload", Number(val), 50);
+		} catch {
+			// Keep last known value if it fails; optional: set "--"
+		}
+	}
+
+	/* ===== Scheduler (every 5s, no overlaps, pause when hidden) ===== */
+	let timer = null;
+	let inFlight = null; // AbortController for the current cycle
+
+	async function runCycle() {
+		// Cancel any previous cycle still running
+		if (inFlight) inFlight.abort();
+		inFlight = new AbortController();
+		const { signal } = inFlight;
+
+		// Run in parallel to finish quicker, but protect with AbortController
+		await Promise.allSettled([
+			testLatency(signal),
+			testPacketLoss(signal),
+			testDownload(signal),
+			testUpload(signal),
+		]);
+	}
+
+	function startLoop() {
+		if (timer) return;
+		runCycle(); // kick once immediately
+		timer = setInterval(() => {
+			if (document.hidden) return; // soft pause when tab not visible
+			runCycle();
+		}, REFRESH_MS);
+	}
+
+	function stopLoop() {
+		if (timer) { clearInterval(timer); timer = null; }
+		if (inFlight) { inFlight.abort(); inFlight = null; }
+	}
+
+	document.addEventListener("visibilitychange", () => {
+		if (document.hidden) stopLoop();
+		else startLoop();
+	});
+
+	// Start
+	startLoop();
+</script>

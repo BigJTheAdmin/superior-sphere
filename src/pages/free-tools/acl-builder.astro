@@ -1,0 +1,55 @@
+---
+import Layout from "@/layouts/Base.astro";
+---
+
+<Layout title="ACL / Rule Builder">
+	<h1>ACL / Rule Builder</h1>
+	<p>Fill out the form to generate vendor-specific ACLs.</p>
+
+	<select id="vendor">
+		<option value="cisco">Cisco</option>
+		<option value="juniper">Juniper</option>
+		<option value="paloalto">Palo Alto</option>
+		<option value="arista">Arista</option>
+	</select>
+
+	<input type="text" id="src" placeholder="Source IP" />
+	<input type="text" id="dst" placeholder="Destination IP" />
+	<input type="text" id="port" placeholder="Port" />
+
+	<select id="protocol">
+		<option value="tcp">TCP</option>
+		<option value="udp">UDP</option>
+		<option value="ip">IP</option>
+	</select>
+
+	<select id="action">
+		<option value="permit">Permit</option>
+		<option value="deny">Deny</option>
+	</select>
+
+	<button id="generate-acl">Generate</button>
+
+	<pre id="acl-output" style="background: #111; padding: 10px; margin-top: 10px;"></pre>
+
+	<script is:inline>
+		document.addEventListener("DOMContentLoaded", function () {
+			document.getElementById("generate-acl")?.addEventListener("click", function () {
+				const vendor = document.getElementById("vendor").value;
+				const src = document.getElementById("src").value;
+				const dst = document.getElementById("dst").value;
+				const port = document.getElementById("port").value;
+				const protocol = document.getElementById("protocol").value;
+				const action = document.getElementById("action").value;
+
+				if (!src || !dst || !port) {
+					document.getElementById("acl-output").textContent = "Please fill out all fields.";
+					return;
+				}
+
+				const rule = `[${vendor.toUpperCase()} ACL]\n${action.toUpperCase()} ${protocol} from ${src} to ${dst} port ${port}`;
+				document.getElementById("acl-output").textContent = rule;
+			});
+		});
+	</script>
+</Layout>

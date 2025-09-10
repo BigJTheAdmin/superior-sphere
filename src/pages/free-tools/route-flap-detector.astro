@@ -1,0 +1,36 @@
+---
+import Layout from "@/layouts/Base.astro";
+---
+
+<Layout title="ISP Route Flap Detector">
+	<h1>ISP Route Flap Detector</h1>
+	<p>Enter a host to monitor for route changes.</p>
+	<input type="text" id="host" placeholder="example.com" />
+	<button id="start-monitoring">Start Monitoring</button>
+
+	<table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+		<thead>
+			<tr>
+				<th style="border: 1px solid #555; padding: 5px;">Time</th>
+				<th style="border: 1px solid #555; padding: 5px;">Route</th>
+			</tr>
+		</thead>
+		<tbody id="log"></tbody>
+	</table>
+
+	<script is:inline>
+		document.addEventListener("DOMContentLoaded", function () {
+			document.getElementById("start-monitoring")?.addEventListener("click", function () {
+				const host = document.getElementById("host").value;
+				if (!host) {
+					alert("Please enter a host to monitor.");
+					return;
+				}
+				const now = new Date().toLocaleTimeString();
+				const route = `Simulated route for ${host} at ${now}`;
+				const row = `<tr><td style="border:1px solid #555; padding:5px;">${now}</td><td style="border:1px solid #555; padding:5px;">${route}</td></tr>`;
+				document.getElementById("log").insertAdjacentHTML("beforeend", row);
+			});
+		});
+	</script>
+</Layout>

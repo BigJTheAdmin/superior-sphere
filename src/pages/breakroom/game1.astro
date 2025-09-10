@@ -1,0 +1,36 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Breakroom Game 1" }}>
+	<section class="tool-wrapper">
+		<h1>Game 1</h1>
+		<p>Unplug, reload... and play.</p>
+
+		<div class="coming-soon">
+			<h2>Coming Soon</h2>
+			<p>A terminal-themed arcade experience built for IT warriors.</p>
+		</div>
+	</section>
+
+	<style>
+		.coming-soon {
+			text-align: center;
+			margin-top: 3rem;
+			padding: 2rem;
+			border-radius: 12px;
+			background: #1a1a1a;
+			border: 1px solid #444;
+		}
+
+		.coming-soon h2 {
+			font-size: 2rem;
+			color: #ff00ff;
+		}
+
+		.coming-soon p {
+			margin-top: 0.75rem;
+			color: #bbb;
+		}
+	</style>
+</PageLayout>

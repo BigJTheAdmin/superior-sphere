@@ -1,0 +1,858 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+<PageLayout meta={{ title: "NOC Mode Dashboard" }}>
+  <section class="tool-wrapper">
+    <h1>NOC Mode</h1>
+    <p>
+      Live diagnostics from the browser, external APIs, and (with your consent) rich LAN checks.
+      Some tests may be limited by browser/HTTPS policy.
+    </p>
+
+    <div class="tool-card">
+      <!-- Gauges -->
+      <div class="gauges">
+        <div class="gauge-item">
+          <svg viewBox="0 0 36 36" class="circular-chart green">
+            <path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path id="latency-gauge" class="circle" stroke-dasharray="0, 100" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <text x="18" y="20.35" class="percentage" id="latency">--</text>
+          </svg>
+          <p>Latency (ms)</p>
+        </div>
+        <div class="gauge-item">
+          <svg viewBox="0 0 36 36" class="circular-chart purple">
+            <path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path id="jitter-gauge" class="circle" stroke-dasharray="0, 100" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <text x="18" y="20.35" class="percentage" id="jitter">--</text>
+          </svg>
+          <p>Jitter (ms)</p>
+        </div>
+        <div class="gauge-item">
+          <svg viewBox="0 0 36 36" class="circular-chart blue">
+            <path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path id="download-gauge" class="circle" stroke-dasharray="0, 100" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <text x="18" y="20.35" class="percentage" id="download">--</text>
+          </svg>
+          <p>Download <strong>(MB/s)</strong></p>
+        </div>
+        <div class="gauge-item">
+          <svg viewBox="0 0 36 36" class="circular-chart yellow">
+            <path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path id="upload-gauge" class="circle" stroke-dasharray="0, 100" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <text x="18" y="20.35" class="percentage" id="upload">--</text>
+          </svg>
+          <p>Upload <strong>(MB/s)</strong></p>
+        </div>
+        <div class="gauge-item">
+          <svg viewBox="0 0 36 36" class="circular-chart red">
+            <path class="circle-bg" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path id="packet-loss-gauge" class="circle" stroke-dasharray="0, 100" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <text x="18" y="20.35" class="percentage" id="packet-loss">--</text>
+          </svg>
+          <p>Packet Loss (%)</p>
+        </div>
+      </div>
+
+      <p class="muted" style="margin-top:-.5rem">
+        Throughput shown in <strong>MB/s</strong> (megabytes/second). 1&nbsp;MB/s ≈ 8&nbsp;Mbps.
+      </p>
+
+      <div class="tool-grid" id="noc-data"></div>
+      <div id="map"></div>
+
+      <div class="two-col">
+        <div class="tool-card">
+          <h3>First Upstream Hop</h3>
+          <div id="up-body" class="kv">Resolving…</div>
+          <div id="up-note" class="muted" style="margin-top:.5rem;"></div>
+        </div>
+
+        <div class="tool-card">
+          <div class="weather-top">
+            <h3>Weather (Current)</h3>
+            <div class="unit-toggle" role="group" aria-label="Temperature units">
+              <button id="w-c" class="btn btn-small" data-unit="celsius">°C</button>
+              <button id="w-f" class="btn btn-small" data-unit="fahrenheit">°F</button>
+              <button id="w-loc" class="btn btn-small" title="Use precise device location">Use Precise Location</button>
+            </div>
+          </div>
+          <div class="weather-main">
+            <img id="weather-icon" alt="Weather icon" referrerpolicy="no-referrer" />
+            <div id="weather" class="kv"></div>
+          </div>
+          <div class="tool-card subtle" id="weather-alerts">
+            <h4>Severe Weather Alerts</h4>
+            <div id="alerts-body" class="alerts"></div>
+          </div>
+          <p class="muted" style="margin:.5rem 0 0">Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>.</p>
+        </div>
+      </div>
+
+      <div class="tool-card" id="lan-card">
+        <h2>LAN Insights</h2>
+        <p class="muted">
+          Local checks use browser-only methods. Best results on <strong>http://localhost</strong>.
+          HTTPS may block private network HTTP requests.
+        </p>
+
+        <div class="kv" id="lan-webrtc"></div>
+
+        <div class="lan-actions">
+          <button id="btn-webrtc" class="btn">Collect WebRTC LAN Details</button>
+          <button id="btn-gw" class="btn">Find Gateways</button>
+          <span class="sep"></span>
+          <label class="probe-opts">
+            Hosts to scan:
+            <select id="probe-size">
+              <option value="32">32</option>
+              <option value="64">64</option>
+              <option value="128">128</option>
+              <option value="254" selected>254 (full /24)</option>
+            </select>
+          </label>
+          <label class="probe-opts">
+            Concurrency:
+            <select id="probe-conc">
+              <option value="8">8</option>
+              <option value="16" selected>16</option>
+              <option value="32">32</option>
+            </select>
+          </label>
+          <button id="btn-scan" class="btn btn-accent">Run LAN Scan (asks first)</button>
+          <button id="btn-cancel" class="btn btn-danger" disabled>Cancel</button>
+        </div>
+
+        <div id="lan-warnings" class="muted"></div>
+        <div id="gw-results"></div>
+        <div id="scan-summary" class="summary"></div>
+
+        <div class="table-wrap">
+          <table class="scan-table" id="scan-table">
+            <thead>
+              <tr><th>IP</th><th>Open Ports</th><th>RTT ms</th><th>Tags</th><th>Fav</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div id="scan-progress" class="progress"><div class="bar"></div><span class="label"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" is:inline>
+    // ---------- Helpers ----------
+    const log = (...a) => console.debug("[NOC]", ...a);
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    const qs = (s) => document.querySelector(s);
+    function kv(rows){
+      const items = rows
+        .filter(([_,v]) => v!==undefined && v!==null && v!=="")
+        .map(([k,v]) => "<div><strong>"+k+":</strong> <span>"+v+"</span></div>")
+        .join("");
+      return '<div class="kv">'+items+"</div>";
+    }
+    async function tryJSON(url, opts){
+      // strict (for things we want errors for)
+      const r = await fetch(url, Object.assign({cache:"no-store", credentials:"omit", mode:"cors"}, opts||{}));
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      return await r.json();
+    }
+    async function safeJSON(url, opts){
+      // never throws; used for APIs that can legitimately return 404/429/etc
+      try {
+        const r = await fetch(url, Object.assign({cache:"no-store", credentials:"omit", mode:"cors"}, opts||{}));
+        if(!r.ok) return null;
+        return await r.json();
+      } catch { return null; }
+    }
+    function stddev(a){ const n=a.length; if(n<=1)return 0; const m=a.reduce((x,y)=>x+y,0)/n; const v=a.reduce((x,y)=>(x+(y-m)*(y-m)),0)/(n-1); return Math.sqrt(v); }
+    function updateGauge(id, value, max){
+      try{
+        const g=document.querySelector("#"+id+"-gauge"); if(!g) return;
+        const v=Number(value);
+        const pct=Number.isFinite(v)?Math.min((v/max)*100,100):0;
+        g.setAttribute("stroke-dasharray", pct+", 100");
+        const lbl=document.getElementById(id);
+        if(lbl) lbl.textContent = Number.isFinite(v)?(v>=10?Math.round(v):v.toFixed(1)):"--";
+      }catch{}
+    }
+
+    // ---------- Map ----------
+    async function ensureLeaflet(){
+      if (window.L) return true;
+      try {
+        await new Promise((res, rej) => {
+          const s = document.createElement("script");
+          s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+          s.async = true; s.onload = res; s.onerror = rej;
+          document.head.appendChild(s);
+        });
+        return !!window.L;
+      } catch { return false; }
+    }
+    async function initMap(mapId){
+      await ensureLeaflet();
+      if (!window.L) return null;
+      const map = L.map(mapId).setView([20,0], 2);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(map);
+      return map;
+    }
+
+    // ---------- Public IP + GEO (quiet, CORS-safe) ----------
+    const _geoCache = new Map();
+    async function getPublicIPv4(){
+      const j = await safeJSON("https://api.ipify.org?format=json");
+      return j?.ip || null;
+    }
+    async function geoLookup(ip){
+      if (!ip) return {};
+      if (_geoCache.has(ip)) return _geoCache.get(ip);
+      let out = {};
+      // Primary: ipwho.is (CORS-friendly)
+      const j = await safeJSON("https://ipwho.is/"+encodeURIComponent(ip));
+      if (j && j.success !== false) {
+        out = {
+          ip,
+          hostname: j.hostname || "",
+          asn: j.connection?.asn || "",
+          org: j.connection?.org || j.isp || "",
+          city: j.city || "",
+          region: j.region || j.region_name || "",
+          country: j.country || "",
+          latitude: j.latitude,
+          longitude: j.longitude
+        };
+      } else {
+        // Fallback via proxy to avoid CORS noise
+        const k = await safeJSON("https://corsproxy.io/?https://ipapi.co/"+encodeURIComponent(ip)+"/json/");
+        if (k) {
+          out = {
+            ip,
+            hostname: k.hostname || "",
+            asn: k.asn || "",
+            org: k.org || k.org_name || k.company || "",
+            city: k.city || "",
+            region: k.region || "",
+            country: k.country_name || k.country || "",
+            latitude: k.latitude,
+            longitude: k.longitude
+          };
+        } else {
+          out = { ip };
+        }
+      }
+      _geoCache.set(ip, out);
+      return out;
+    }
+
+    async function addPublicIPCardAndMarker(map){
+      const ip = await getPublicIPv4();
+      const geo = await geoLookup(ip || "");
+      const card = document.getElementById("noc-data");
+      if(card){
+        card.insertAdjacentHTML(
+          "beforeend",
+          '<div class="tool-card"><h3>Public IP & Geo</h3>'+
+            kv([
+              ["Public IP", geo.ip || "—"],
+              ["ASN", geo.asn || "—"],
+              ["Org/ISP", geo.org || "—"],
+              ["City", geo.city || "—"],
+              ["Region", geo.region || "—"],
+              ["Country", geo.country || "—"],
+              ["Latitude", (geo.latitude!=null?geo.latitude:"—")],
+              ["Longitude", (geo.longitude!=null?geo.longitude:"—")]
+            ])+
+          "</div>"
+        );
+      }
+      if(map && geo.latitude!=null && geo.longitude!=null && window.L){
+        L.marker([geo.latitude, geo.longitude]).addTo(map).bindPopup("Public IP Location").openPopup();
+        map.setView([geo.latitude, geo.longitude], 6);
+      }
+      if (geo.latitude!=null && geo.longitude!=null) {
+        window._USERLOC = {lat: geo.latitude, lon: geo.longitude};
+      }
+    }
+
+    // ---------- WAN Gauges (MB/s) ----------
+    const PING_URL = "/api/ping";
+    const okStatus = (s) => s >= 200 && s < 400;
+    const REFRESH_MS = 5000;
+
+    async function rttSamples(n, signal) {
+      const arr = [];
+      for (let i = 0; i < n; i++) {
+        const t0 = performance.now();
+        try {
+          const r = await fetch(PING_URL+"?t="+Math.random(), { cache: "no-store", signal });
+          if (okStatus(r.status)) arr.push(performance.now() - t0);
+        } catch {}
+      }
+      return arr;
+    }
+    function median(a) {
+      if (!a.length) return NaN;
+      const b = a.slice().sort((x,y)=>x-y);
+      const m = Math.floor(b.length/2);
+      return b.length%2 ? b[m] : (b[m-1]+b[m])/2;
+    }
+
+    async function streamedDownloadMBps(sizeBytes, signal){
+      const url = "https://speed.cloudflare.com/__down?cors=true&bytes="+sizeBytes+"&ts="+Date.now();
+      const t0 = performance.now();
+      const r = await fetch(url, { cache:"no-store", signal });
+      if (!r.body) throw new Error("No readable body");
+      const reader = r.body.getReader();
+      let received = 0;
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (value) received += value.length;
+      }
+      const s = (performance.now() - t0) / 1000;
+      if (!isFinite(s) || s <= 0) return NaN;
+      return (received/1e6) / s;
+    }
+    async function opaqueDownloadMBps(sizeBytes, signal){
+      const url = "https://speed.cloudflare.com/__down?bytes="+sizeBytes+"&nocache="+Date.now();
+      const t0 = performance.now();
+      await fetch(url, { cache:"no-store", mode:"no-cors", signal });
+      const s = (performance.now() - t0) / 1000;
+      if (!isFinite(s) || s <= 0) return NaN;
+      return (sizeBytes/1e6) / s;
+    }
+    async function downloadMBps(signal){
+      const sizeBytes = 12 * 1024 * 1024;
+      try {
+        const a = await streamedDownloadMBps(sizeBytes, signal);
+        const b = await streamedDownloadMBps(sizeBytes, signal);
+        if (isFinite(a) && isFinite(b)) return (a + b) / 2;
+        if (isFinite(a)) return a;
+        if (isFinite(b)) return b;
+      } catch(e) {
+        try{
+          const a = await opaqueDownloadMBps(sizeBytes, signal);
+          const b = await opaqueDownloadMBps(sizeBytes, signal);
+          if (isFinite(a) && isFinite(b)) return (a + b) / 2;
+          if (isFinite(a)) return a;
+          if (isFinite(b)) return b;
+        } catch {}
+      }
+      return NaN;
+    }
+    async function postSizedMBps(url, sizeBytes, signal){
+      const data = new Uint8Array(sizeBytes);
+      const t0 = performance.now();
+      await fetch(url, { method:"POST", body:data, mode:"no-cors", cache:"no-store", signal });
+      const s = (performance.now() - t0) / 1000;
+      if (!isFinite(s) || s <= 0) return NaN;
+      return (sizeBytes/1e6) / s;
+    }
+    async function uploadMBps(signal){
+      const sizeBytes = 3 * 1024 * 1024;
+      const endpoints = [
+        "https://speed.cloudflare.com/__up?nocache="+Date.now(),
+        "https://httpbin.org/post",
+        "https://postman-echo.com/post"
+      ];
+      for (const u of endpoints){
+        try{
+          const v = await postSizedMBps(u, sizeBytes, signal);
+          if (isFinite(v)) return v;
+        }catch{}
+      }
+      return NaN;
+    }
+    async function runWANProbesCycle(signal){
+      const N = 20;
+      const samples = await rttSamples(N, signal);
+      if (samples.length) {
+        const med = median(samples);
+        const jit = stddev(samples);
+        const lossPct = 100 * (1 - samples.length / N);
+        updateGauge("latency", med, 500);
+        updateGauge("jitter",  jit, 200);
+        updateGauge("packet-loss", lossPct, 100);
+      } else {
+        updateGauge("latency", 0, 500);
+        updateGauge("jitter",  0, 200);
+        updateGauge("packet-loss", 100, 100);
+      }
+      try { updateGauge("download", await downloadMBps(signal), 125); } catch {}
+      try { updateGauge("upload", await uploadMBps(signal), 50); } catch {}
+    }
+    async function runWANProbes(){
+      let timer = null;
+      let inFlight = null;
+      async function cycle(){
+        if (inFlight) inFlight.abort();
+        inFlight = new AbortController();
+        const signal = inFlight.signal;
+        await runWANProbesCycle(signal);
+      }
+      function start(){ if (timer) return; cycle(); timer = setInterval(()=>{ if(!document.hidden) cycle(); }, 5000); }
+      function stop(){ if (timer){ clearInterval(timer); timer=null; } if (inFlight){ inFlight.abort(); inFlight=null; } }
+      document.addEventListener("visibilitychange", ()=> document.hidden ? stop() : start());
+      start();
+    }
+
+    // ---------- Provider edge ----------
+    const PRIVATE_RE = /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/;
+    const CGN_RE     = /^100\.(6[4-9]|[7-9]\d|1[0-1]\d|12[0-7])\./;
+    const isPrivate  = (ip) => PRIVATE_RE.test(ip||"");
+    const isCGN      = (ip) => CGN_RE.test(ip||"");
+    const isNonInternet = (ip) => isPrivate(ip) || isCGN(ip);
+    function bestRttFromHop(h){
+      if (typeof h?.rtt === "number") return Math.round(h.rtt);
+      if (Array.isArray(h?.rtts) && h.rtts.length) return Math.round(Math.min(...h.rtts));
+      return null;
+    }
+    async function fetchTraceJSON(){
+      const urls = [
+        "/api/trace.json?target=1.1.1.1",
+        "https://api.iptrace.dev/api/trace/1.1.1.1",
+        "https://corsproxy.io/?https://api.iptrace.dev/api/trace/1.1.1.1"
+      ];
+      for (const u of urls){
+        try{
+          const r = await fetch(u, { cache:"no-store" });
+          const j = await r.json();
+          if (j && Array.isArray(j.hops)) return j;
+        }catch{}
+      }
+      throw new Error("All trace endpoints blocked or unavailable.");
+    }
+    function normalizeHops(hopsRaw){
+      const hops = [];
+      for (const h of (hopsRaw||[])) {
+        const ip = h?.ip || h?.address || h?.ipAddress;
+        if (!ip) continue;
+        const rtt = bestRttFromHop(h);
+        if (hops.length===0 || hops[hops.length-1].ip !== ip) hops.push({ ip, rtt });
+      }
+      return hops;
+    }
+    function pickProviderEdge(hops, myV4, destination="1.1.1.1"){
+      let startIdx = 0;
+      if (myV4) {
+        const idx = hops.findIndex(h => h.ip === myV4);
+        if (idx >= 0) startIdx = idx + 1;
+      }
+      if (startIdx === 0) {
+        const gwIdx = hops.findIndex(h => isNonInternet(h.ip));
+        if (gwIdx >= 0) startIdx = gwIdx + 1;
+      }
+      for (let i=startIdx; i<hops.length; i++){
+        const ip = hops[i].ip;
+        if (!ip) continue;
+        if (isNonInternet(ip)) continue;
+        if (ip === destination) continue;
+        return hops[i];
+      }
+      return null;
+    }
+    function haversine(a,b){
+      const R=6371, t=x=>x*Math.PI/180;
+      const dLat=t(b.lat-a.lat), dLon=t(b.lon-a.lon);
+      const s1=Math.sin(dLat/2)**2 + Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dLon/2)**2;
+      const c=2*Math.atan2(Math.sqrt(s1),Math.sqrt(1-s1));
+      const km=R*c, mi=km*0.621371;
+      return {km:Math.round(km*10)/10, mi:Math.round(mi*10)/10};
+    }
+    let _hopMarker=null, _hopLine=null;
+    async function updateUpstreamCard(map){
+      const body = qs("#up-body"), note = qs("#up-note");
+      if (!body) return;
+      try{
+        body.textContent = "Resolving…";
+        const myV4 = await getPublicIPv4();
+        const trace   = await fetchTraceJSON();
+        const hops    = normalizeHops(trace.hops);
+        const edgeHop = pickProviderEdge(hops, myV4, "1.1.1.1");
+
+        if(!edgeHop){
+          body.innerHTML = '<div class="muted">Failed to resolve provider edge (no public hop before destination).</div>';
+          if (note) note.textContent = "Auto-refresh every 60s.";
+          return;
+        }
+
+        const ip = edgeHop.ip;
+        const rtt = edgeHop.rtt;
+        const geo = await geoLookup(ip);
+        const hostname = geo.hostname || "n/a";
+        const city=geo.city||"", region=geo.region||"", country=(geo.country||"");
+        const lat = (typeof geo.latitude === "number") ? geo.latitude : null;
+        const lon = (typeof geo.longitude === "number") ? geo.longitude : null;
+
+        let distance = "n/a";
+        if (window._USERLOC && lat!=null && lon!=null) {
+          const d = haversine(window._USERLOC, {lat, lon});
+          distance = d.km+" km ("+d.mi+" mi)";
+        }
+
+        body.innerHTML = kv([
+          ["IP", ip],
+          ["Hostname", hostname],
+          ["Latency (RTT)", (rtt!=null ? (rtt+" ms") : "n/a")],
+          ["Location", ([city, region, country].filter(Boolean).join(", ")) || "—"],
+          ["Latitude", (lat!=null?lat:"—")],
+          ["Longitude", (lon!=null?lon:"—")],
+          ["Distance from you", distance]
+        ]);
+        if (note) note.textContent = "Auto-refresh every 60s.";
+
+        try{
+          if(map && window.L && lat!=null && lon!=null){
+            if (_hopMarker) { map.removeLayer(_hopMarker); _hopMarker=null; }
+            if (_hopLine)   { map.removeLayer(_hopLine);   _hopLine=null; }
+            _hopMarker = L.marker([lat, lon]).addTo(map).bindPopup("Provider Edge: "+ip+(hostname && hostname!=="n/a" ? "<br>"+hostname : ""));
+            if (window._USERLOC?.lat != null && window._USERLOC?.lon != null) {
+              _hopLine = L.polyline([[window._USERLOC.lat, window._USERLOC.lon],[lat,lon]], {color:"#4ea3ff"}).addTo(map);
+              map.fitBounds(_hopLine.getBounds(), {padding:[30,30]});
+            } else {
+              map.setView([lat, lon], 7);
+            }
+          }
+        }catch(e){}
+      }catch(e){
+        body.innerHTML = '<div class="muted">Failed to resolve provider edge.</div>';
+        if (note) note.textContent = "Auto-refresh every 60s.";
+      }
+    }
+
+    // ---------- Weather ----------
+    let weatherUnit=localStorage.getItem("weatherUnit")||"fahrenheit";
+    let weatherLoc=null;
+    function setUnitButtons(){ const c=qs("#w-c"), f=qs("#w-f"); if(!c||!f) return; c.classList.toggle("active",weatherUnit==="celsius"); f.classList.toggle("active",weatherUnit==="fahrenheit"); }
+    function wmoToIconName(code,isDay){
+      if(code===0)return isDay?"clear-day":"clear-night";
+      if(code===1||code===2)return isDay?"partly-cloudy-day":"partly-cloudy-night";
+      if(code===3)return"overcast";
+      if(code===45||code===48)return"fog";
+      if(code===51||code===53||code===55)return"drizzle";
+      if(code===56||code===57)return"freezing-drizzle";
+      if(code===61||code===63||code===65)return"rain";
+      if(code===66||code===67)return"freezing-rain";
+      if(code===71||code===73||code===75||code===77)return"snow";
+      if(code===80||code===81||code===82)return"rain-showers";
+      if(code===85||code===86)return"snow-showers";
+      if(code===95)return"thunderstorm";
+      if(code===96||code===99)return"thunderstorm-hail";
+      return isDay?"partly-cloudy-day":"partly-cloudy-night";
+    }
+    function setWeatherIcon(code,isDay){
+      const img=qs("#weather-icon"); if(!img) return;
+      const name=wmoToIconName(code,!!isDay);
+      img.style.display="";
+      // quiet image load; if blocked/aborted we hide it without error
+      img.onload = function(){};
+      img.onerror=function(){
+        img.style.display="none";
+        const old=document.querySelector(".emoji-fallback"); if(old) old.remove();
+        const f=document.createElement("div"); f.className="emoji-fallback"; f.textContent=isDay?"☀️":"🌙"; img.after(f);
+      };
+      img.src="https://open-meteo.com/images/weather-icons/"+name+".png";
+      img.alt=name.replace(/-/g," ");
+    }
+    function nearestHourIndex(times){
+      const now=Date.now(); let best=0,bestDiff=Infinity;
+      for(let i=0;i<times.length;i++){ const t=new Date(times[i]).getTime(); const d=Math.abs(t-now); if(d<bestDiff){best=i;bestDiff=d;} }
+      return best;
+    }
+    async function renderWeather(lat,lon){
+      const unitParam=weatherUnit==="fahrenheit"?"fahrenheit":"celsius";
+      const windUnit=weatherUnit==="fahrenheit"?"mph":"ms";
+      const base="latitude="+encodeURIComponent(lat)+"&longitude="+encodeURIComponent(lon)+"&timezone=auto";
+      const current="temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,cloud_cover,wind_speed_10m,wind_direction_10m,weather_code,is_day";
+      const hourly="precipitation_probability,precipitation";
+      const url="https://api.open-meteo.com/v1/forecast?"+base+"&current="+current+"&hourly="+hourly+"&temperature_unit="+unitParam+"&wind_speed_unit="+windUnit+"&forecast_days=2";
+      const w=await safeJSON(url);
+      if(!w){ qs("#weather").textContent="Weather API failed."; const icon=qs("#weather-icon"); if(icon) icon.style.display="none"; return; }
+      const c=w.current||{}; setWeatherIcon((c.weather_code!=null?c.weather_code:0),c.is_day);
+      let nowP="n/a", max6="n/a";
+      try{
+        const H=w.hourly||{}; const times=H.time||[]; const probs=H.precipitation_probability||[];
+        if(times.length&&probs.length){
+          const idx=nearestHourIndex(times);
+          const slice=probs.slice(idx,Math.min(idx+6,probs.length)).filter(v=>typeof v==="number");
+          if(typeof probs[idx]==="number") nowP=probs[idx]+" %";
+          if(slice.length) max6=Math.max.apply(null, slice)+" %";
+        }
+      }catch{}
+      const tU=weatherUnit==="fahrenheit"?"°F":"°C", wU=weatherUnit==="fahrenheit"?"mph":"m/s";
+      qs("#weather").innerHTML=kv([
+        ["Temp", (c.temperature_2m!==undefined?(c.temperature_2m+" "+tU):"n/a")],
+        ["Feels Like", (c.apparent_temperature!==undefined?(c.apparent_temperature+" "+tU):"n/a")],
+        ["Chance of Rain (now)", nowP],
+        ["Chance of Rain (≤6h max)", max6],
+        ["Precip (current)", (c.precipitation!==undefined?(c.precipitation+" mm"):"n/a")],
+        ["Humidity", (c.relative_humidity_2m!==undefined?(c.relative_humidity_2m+" %"):"n/a")],
+        ["Cloud Cover", (c.cloud_cover!==undefined?(c.cloud_cover+" %"):"n/a")],
+        ["Wind", (c.wind_speed_10m!==undefined?(c.wind_speed_10m+" "+wU):"n/a")],
+        ["Wind Dir", (c.wind_direction_10m!==undefined?(c.wind_direction_10m+"°"):"n/a")],
+        ["Daytime", c.is_day?"Yes":"No"]
+      ]);
+    }
+    async function renderAlerts(lat,lon){
+      const el=qs("#alerts-body"); el.textContent="Checking alerts…";
+      // Try Open-Meteo warnings quietly (no console errors on 404/429)
+      const om = await safeJSON("https://api.open-meteo.com/v1/warnings?latitude="+encodeURIComponent(lat)+"&longitude="+encodeURIComponent(lon)+"&timezone=auto");
+      if (om && Array.isArray(om.alerts||om.warnings) && (om.alerts||om.warnings).length){
+        const alerts=(om.alerts||om.warnings).slice(0,5);
+        el.innerHTML = alerts.map(function(a){
+          const t=a.event||a.headline||"Alert";
+          const sev=a.severity||"";
+          const eff=a.effective||a.onset||a.start||"";
+          const exp=a.expires||a.end||"";
+          const src=a.sender||a.sender_name||a.source||"";
+          const body=((a.description||a.instruction||"")+"").slice(0,200);
+          return '<div class="alert">'+
+            '<div class="alert-title">'+t+(sev?(' · <span class="sev">'+sev+'</span>'):"")+'</div>'+
+            '<div class="alert-meta">'+(eff?('Start: '+eff):"")+(exp?(' · End: '+exp):"")+(src?(' · '+src):"")+'</div>'+
+            (body?('<div class="alert-desc">'+body+((a.description&&a.description.length>200)?"…":"")+'</div>'):"")+
+          '</div>';
+        }).join("");
+        return;
+      }
+      // Fallback: US NWS (quiet)
+      const nws=await safeJSON("https://api.weather.gov/alerts/active?point="+lat+","+lon);
+      const feats=Array.isArray(nws?.features)?nws.features:[];
+      if (feats.length){
+        el.innerHTML = feats.slice(0,5).map(function(f){
+          const p=f.properties||{};
+          const ttl=p.headline||p.event||"Alert";
+          const sev=p.severity||"";
+          const eff=p.effective||"";
+          const exp=p.expires||"";
+          const desc=(p.description||"").slice(0,220);
+          const url=p.id||p["@id"]||p.uri||"";
+          return '<div class="alert">'+
+            '<div class="alert-title">'+ttl+(sev?(' · <span class="sev">'+sev+'</span>'):"")+'</div>'+
+            '<div class="alert-meta">'+(eff?('Start: '+eff):"")+(exp?(' · End: '+exp):"")+'</div>'+
+            (desc?('<div class="alert-desc">'+desc+((p.description&&p.description.length>220)?"…":"")+'</div>'):"")+
+            (url?('<div class="alert-link"><a href="'+url+'" target="_blank" rel="noopener">Details</a></div>'):"")+
+          '</div>';
+        }).join("");
+        return;
+      }
+      el.innerHTML='<div class="muted">No active alerts or alert service unavailable.</div>';
+    }
+
+    // ---------- LAN scanner (unchanged functional) ----------
+    async function getWebRTCDetails(ms){
+      ms = ms || 3000;
+      const info={hostIPs:new Set(), srflxIPs:new Set(), relay:false, mdns:new Set(), raw:[]};
+      try{
+        const pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+        pc.createDataChannel("probe");
+        pc.onicecandidate=function(ev){
+          try{
+            if(!ev||!ev.candidate) return;
+            const c=ev.candidate.candidate||"";
+            info.raw.push(c);
+            const m=c.match(/(\d{1,3}(?:\.\d{1,3}){3})/);
+            const addr=m?m[1]:null;
+            if(addr && /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(addr)) info.hostIPs.add(addr);
+            if(c.indexOf("typ srflx")>-1 && addr) info.srflxIPs.add(addr);
+            if(c.indexOf("typ relay")>-1) info.relay=true;
+            if(c.indexOf(".local")>-1) info.mdns.add(c);
+          }catch{}
+        };
+        await pc.setLocalDescription(await pc.createOffer());
+        await Promise.race([new Promise(function(r){pc.onicegatheringstatechange=function(){if(pc.iceGatheringState==="complete") r();};}), sleep(ms)]);
+        pc.close();
+      }catch{}
+      return {hostIPs:[...info.hostIPs], srflxIPs:[...info.srflxIPs], relayUsed:info.relay, mdnsCandidates:[...info.mdns].slice(0,3), rawCount:info.raw.length};
+    }
+    async function opaquePing(url,ms){
+      ms = ms || 1500;
+      const ac=new AbortController(); const t=setTimeout(function(){ac.abort();},ms);
+      const t0=performance.now();
+      try{ await fetch(url,{mode:"no-cors",cache:"no-store",signal:ac.signal}); return Number((performance.now()-t0).toFixed(1)); }
+      catch{return null;}
+      finally{ clearTimeout(t); }
+    }
+    function ipToSubnet24(ip){ const p=ip.split("."); if(p.length!==4) return null; return p[0]+"."+p[1]+"."+p[2]+"."; }
+    function deriveGatewayCandidates(ip){
+      const p=ip.split("."); if(p.length!==4) return ["192.168.1.1","192.168.0.1","10.0.0.1","172.16.0.1"];
+      const base=p[0]+"."+p[1]+"."+p[2]+".";
+      return Array.from(new Set([base+"1",base+"254",base+"2",p[0]+"."+p[1]+".0.1",p[0]+".0.0.1"]));
+    }
+    function tagHost(open){
+      const t=[]; if(open.indexOf(80)>-1||open.indexOf(443)>-1||open.indexOf(8443)>-1) t.push("Web Admin?");
+      if(open.indexOf(32400)>-1) t.push("Media/Plex");
+      if(open.indexOf(8123)>-1) t.push("Home Assistant");
+      if(open.indexOf(8080)>-1) t.push("Alt UI");
+      if(open.indexOf(8888)>-1) t.push("Dev/UI");
+      return t.length?t.join(", "):"—";
+    }
+    function makeFaviconCell(ip){
+      const img=new Image(); img.loading="lazy"; img.referrerPolicy="no-referrer"; img.width=16; img.height=16; img.src="http://"+ip+"/favicon.ico";
+      const span=document.createElement("span"); span.className="favwrap";
+      img.onerror=function(){span.textContent="—";};
+      img.onload=function(){span.appendChild(img);};
+      setTimeout(function(){ if(!img.complete) span.textContent="—"; },2500);
+      return span;
+    }
+    async function runScanner(){
+      const btnScan=qs("#btn-scan"), btnCancel=qs("#btn-cancel"), tableBody=document.querySelector("#scan-table tbody"), summaryEl=qs("#scan-summary"), prog=qs("#scan-progress"), progBar=prog?prog.querySelector(".bar"):null, progLabel=prog?prog.querySelector(".label"):null, sizeSel=qs("#probe-size"), concSel=qs("#probe-conc");
+      if(!btnScan||!btnCancel||!tableBody||!summaryEl) return;
+      let cancel=false; btnCancel.addEventListener("click",function(){cancel=true;});
+      btnScan.addEventListener("click", async function(){
+        const consent=confirm("Run a rich LAN scan?\n- Tests ports: 80,443,8080,8443,8888,5000,32400,8123\n- Displays favicons when available\n- Results stay in your browser");
+        if(!consent) return;
+        btnScan.disabled=true; btnCancel.disabled=false; cancel=false; tableBody.innerHTML=""; summaryEl.textContent=""; if(progBar) progBar.style.width="0%"; if(progLabel) progLabel.textContent="";
+        const details=await getWebRTCDetails(2000); const baseIP=(details.hostIPs[0]||"192.168.1.100"); const subnet=ipToSubnet24(baseIP); const total=parseInt((sizeSel?sizeSel.value:"254"),10)||254; const conc=parseInt((concSel?concSel.value:"16"),10)||16; const ports=[80,443,8080,8443,8888,5000,32400,8123];
+        const hosts=[]; for(let i=1;i<=Math.min(254,total);i++) hosts.push(subnet+i);
+        let done=0,found=0; const update=function(){done++; if(progBar&&progLabel){const pct=Math.min(100,Math.round((done/hosts.length)*100)); progBar.style.width=pct+"%"; progLabel.textContent=done+"/"+hosts.length;}};
+        const sem=[]; const push=function(fn){ const p=fn().then(function(){sem.splice(sem.indexOf(p),1);}).catch(function(){sem.splice(sem.indexOf(p),1);}); sem.push(p); if(sem.length>=conc) return Promise.race(sem); return Promise.resolve(); };
+        const start=performance.now();
+        for(const ip of hosts){
+          if(cancel) break;
+          await push(async function(){
+            const rtts={};
+            for(const port of ports){ const proto=(port===443||port===8443)?"https":"http"; rtts[port]=await opaquePing(proto+"://"+ip+":"+port+"/",1100); }
+            const open=ports.filter(function(p){ return rtts[p]!==null; });
+            if(open.length){
+              found++;
+              const tr=document.createElement("tr");
+              const tdIP=document.createElement("td"); tdIP.textContent=ip;
+              const tdPorts=document.createElement("td"); tdPorts.textContent=open.slice().sort(function(a,b){return a-b;}).join(", ");
+              const tdRTT=document.createElement("td"); tdRTT.textContent=open.map(function(p){return p+":"+rtts[p]+"ms";}).join("  ");
+              const tdTags=document.createElement("td"); tdTags.textContent=tagHost(open);
+              const tdFav=document.createElement("td"); tdFav.appendChild(makeFaviconCell(ip));
+              tr.append(tdIP,tdPorts,tdRTT,tdTags,tdFav); tableBody.appendChild(tr);
+            }
+            update();
+          });
+        }
+        await Promise.allSettled(sem);
+        const dur=((performance.now()-start)/1000).toFixed(1);
+        summaryEl.innerHTML='Found <strong>'+found+'</strong> responsive host(s) out of '+hosts.length+' in '+dur+'s.'+(cancel?' <span class="muted">(scan cancelled)</span>':'');
+        btnScan.disabled=false; btnCancel.disabled=true;
+      });
+    }
+
+    // ---------- Bootstrap ----------
+    window.addEventListener("load", async function(){
+      const map = await initMap("map");
+      await addPublicIPCardAndMarker(map);
+      await runWANProbes();
+
+      await updateUpstreamCard(map);
+      setInterval(function(){ updateUpstreamCard(map); }, 60000);
+
+      if (location.protocol === "https:") {
+        const w=qs("#lan-warnings");
+        if (w) w.textContent = "⚠️ HTTPS page: browsers often block HTTP to private IPs. Run from http://localhost for fullest LAN results.";
+      }
+
+      if (window._USERLOC) { weatherLoc = {lat:window._USERLOC.lat, lon:window._USERLOC.lon}; }
+      const setUnit=async function(unit){ weatherUnit=unit; localStorage.setItem("weatherUnit",unit); setUnitButtons(); if(weatherLoc) await renderWeather(weatherLoc.lat,weatherLoc.lon); };
+      setUnitButtons();
+      const btnC=qs("#w-c"), btnF=qs("#w-f"), btnLoc=qs("#w-loc");
+      if(btnC) btnC.addEventListener("click",function(){ setUnit("celsius"); });
+      if(btnF) btnF.addEventListener("click",function(){ setUnit("fahrenheit"); });
+      if(btnLoc) btnLoc.addEventListener("click",function(){
+        if(!("geolocation" in navigator)) return;
+        navigator.geolocation.getCurrentPosition(async function(pos){
+          weatherLoc={lat:pos.coords.latitude,lon:pos.coords.longitude};
+          window._USERLOC={lat:weatherLoc.lat, lon:weatherLoc.lon};
+          await renderWeather(weatherLoc.lat,weatherLoc.lon);
+          await renderAlerts(weatherLoc.lat,weatherLoc.lon);
+        });
+      });
+      if(weatherLoc){ await renderWeather(weatherLoc.lat,weatherLoc.lon); await renderAlerts(weatherLoc.lat,weatherLoc.lon); }
+
+      const btnWebRTC=qs("#btn-webrtc");
+      if(btnWebRTC) btnWebRTC.addEventListener("click", async function(){
+        const d=await getWebRTCDetails(3000);
+        qs("#lan-webrtc").innerHTML=kv([
+          ["Host (private) IPs", d.hostIPs.length?d.hostIPs.join(", ") :"none"],
+          ["STUN reflexive (public) IPs", d.srflxIPs.length?d.srflxIPs.join(", ") :"none"],
+          ["Relay Used", d.relayUsed?"Yes":"No"],
+          ["mDNS candidates", d.mdnsCandidates.length?d.mdnsCandidates.join(" | "):"—"],
+          ["ICE candidates seen", d.rawCount]
+        ]);
+      });
+
+      const btnGw=qs("#btn-gw");
+      if(btnGw) btnGw.addEventListener("click", async function(){
+        const det=await getWebRTCDetails(1500);
+        const base=(det.hostIPs[0]||"192.168.1.100");
+        const cands=deriveGatewayCandidates(base);
+        const rows=[];
+        for(const ip of cands){ const rtt=await opaquePing("http://"+ip+"/",1400); rows.push([ip, rtt===null?"unreachable/blocked":(rtt+" ms")]); }
+        const fastest = rows
+          .map(function(x){ return [x[0], parseFloat((x[1]||"").replace(" ms",""))]; })
+          .filter(function(x){ return !isNaN(x[1]); })
+          .sort(function(a,b){ return a[1]-b[1]; })[0];
+        qs("#gw-results").innerHTML='<h3>Gateway Candidates (opaque RTT)</h3>'+kv(rows)+(fastest?('<p class="muted">Fastest: <strong>'+fastest[0]+'</strong> (~'+fastest[1]+' ms)</p>'):"");
+      });
+
+      await runScanner();
+    });
+  </script>
+
+  <style>
+    @import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    .tool-wrapper { padding: 2rem; font-family: Consolas, monospace; background: #0d0d0d; color: #e0e0e0; min-height: 100vh; }
+    .muted { opacity: .75; }
+    .tool-card { background: rgba(255,255,255,.05); backdrop-filter: blur(12px); padding: 1.5rem; border-radius: 12px; border: 1px solid #222; }
+    .tool-card.subtle { background: rgba(255,255,255,.04); border: 1px dashed #333; margin-top: .75rem; }
+    .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .gauges { display:flex; flex-wrap:wrap; justify-content:space-around; margin-bottom:1.25rem; gap:1rem; }
+    .gauge-item { width:150px; text-align:center; }
+    .circular-chart { display:block; margin:10px auto; max-width:100%; max-height:150px; }
+    .circle-bg { fill:none; stroke:#444; stroke-width:3.8; }
+    .circle { fill:none; stroke-width:2.8; stroke-linecap:round; transition: stroke-dasharray .5s ease; }
+    .green .circle{stroke:#00e676;} .blue .circle{stroke:#03a9f4;} .yellow .circle{stroke:#ffeb3b;} .red .circle{stroke:#ff5252;} .purple .circle{stroke:#b388ff;}
+    .percentage { fill:#fff; font-size:.5em; text-anchor:middle; }
+    #map { width:100%; height:500px; margin-top:1rem; border-radius:12px; overflow:hidden; }
+    .two-col { display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem; margin-top:1rem; }
+    .weather-top { display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+    .weather-main { display:grid; grid-template-columns:120px 1fr; gap:.75rem; align-items:center; }
+    #weather-icon { width:112px; height:112px; image-rendering:-webkit-optimize-contrast; }
+    .emoji-fallback { font-size:72px; line-height:1; text-align:center; }
+    .alerts { display:grid; gap:8px; }
+    .alert { border:1px solid #333; border-radius:8px; padding:8px 10px; background:rgba(255,255,255,.03); }
+    .alert-title { font-weight:700; }
+    .alert-meta { font-size:.85rem; opacity:.8; margin-top:2px; }
+    .alert-desc { margin-top:4px; }
+    .alert-link a { color:#9fd2ff; text-decoration:underline; }
+    .sev { text-transform:capitalize; }
+    .kv { display:grid; grid-template-columns:1fr 1fr; gap:6px 16px; word-break:break-word; }
+    .kv > div { display:contents; }
+    .lan-actions { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin:.75rem 0 .5rem; }
+    .sep { width:12px; }
+    .btn { background:#2a2a2a; border:1px solid #444; color:#eee; padding:.5rem .9rem; border-radius:8px; cursor:pointer; transition:background .2s ease; }
+    .btn:hover{ background:#353535; } .btn:disabled{ opacity:.6; cursor:not-allowed; }
+    .btn-accent{ background:#294a63; border-color:#3a6b8c; } .btn-accent:hover{ background:#2f5876; }
+    .btn-danger{ background:#5a2b2b; border-color:#7a3a3a; } .btn-danger:hover{ background:#723636; }
+    .btn-small{ padding:.35rem .6rem; font-size:.9rem; }
+    .unit-toggle .btn{ opacity:.7; } .unit-toggle .btn.active{ opacity:1; border-color:#6ea8d6; background:#2f5876; }
+    .probe-opts{ display:inline-flex; gap:.4rem; align-items:center; }
+    .summary{ margin:.5rem 0; }
+    .table-wrap{ overflow-x:auto; margin-top:.5rem; }
+    .scan-table{ width:100%; border-collapse:collapse; font-size:.95rem; }
+    .scan-table th,.scan-table td{ border-bottom:1px solid #303030; padding:6px 8px; vertical-align:middle; }
+    .scan-table th{ text-align:left; color:#bfbfbf; }
+    .favwrap{ display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; }
+    .progress{ position:relative; height:10px; background:#1c1c1c; border:1px solid #333; border-radius:6px; margin-top:8px; }
+    .progress .bar{ position:absolute; left:0; top:0; bottom:0; width:0%; background:#3e7db6; border-radius:6px; }
+    .progress .label{ position:absolute; top:-22px; right:0; font-size:.8rem; opacity:.8; }
+
+    @media (max-width:640px){
+      .kv{ grid-template-columns:1fr; }
+      .gauge-item{ width:130px; }
+      #map{ height:360px; }
+      .scan-table{ font-size:.88rem; }
+      .weather-main{ grid-template-columns:96px 1fr; }
+      #weather-icon{ width:96px; height:96px; }
+      .emoji-fallback{ font-size:60px; }
+    }
+  </style>
+</PageLayout>

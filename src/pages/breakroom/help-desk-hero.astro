@@ -1,0 +1,130 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Help Desk Hero: Slap or Serve" }}>
+  <section class="tool-wrapper">
+    <div class="game-shell" id="game-shell" style="position:relative;display:grid;place-items:center;">
+      <!-- Shadow DOM overlay host (menus render here; immune to global CSS) -->
+      <div id="overlay" style="display:none;position:absolute;inset:0;place-items:center;z-index:50"></div>
+
+      <div class="card" id="game-card" style="width:min(900px,96%);">
+        <h1>Help Desk Hero: Slap or Serve</h1>
+        <p class="sub">Read the ticket. If it’s ridiculous, slap the user. If it’s valid, pick the correct fix. Three mistakes and you’re fired.</p>
+
+        <!-- GAME AREA -->
+        <div id="game">
+          <div class="stats">
+            <span id="questions">Question: 1/50</span>
+            <span id="lives">Lives: 3</span>
+            <span id="slaps">Wrong Slaps: 0</span>
+          </div>
+
+          <div id="character-area" class="character-area">
+            <!-- background layer -->
+            <div id="char-bg" class="char-bg" aria-hidden="true"></div>
+
+            <!-- characters -->
+            <img id="hero-img" src="/help-desk-hero/hero-neutral.png" alt="IT Hero" class="char-img">
+            <img id="slap-effect" src="/help-desk-hero/slap_effect.png" alt="Slap Effect" class="slap-effect">
+            <img id="user-img" src="/help-desk-hero/male1-neutral.png" alt="End User" class="char-img">
+          </div>
+
+          <div id="scenario" class="scenario">
+            <div id="user-info">
+              <strong id="user-name"></strong> – <span id="user-title"></span>
+            </div>
+            <p id="user-report"></p>
+          </div>
+
+          <div class="buttons">
+            <button id="btn-valid" class="btn btn-primary">Valid Request</button>
+            <button id="btn-ridiculous" class="btn btn-danger">Ridiculous</button>
+            <button id="btn-pause" class="btn btn-secondary" title="Pause (Esc)">Pause</button>
+          </div>
+
+          <div id="fix-options" class="fix-options">
+            <h3>Pick the correct fix:</h3>
+            <div id="fix-buttons" class="fix-button-grid"></div>
+          </div>
+
+          <div id="result" class="result"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    /* Card + base theme */
+    #game-card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 14px;
+      padding: 18px 18px 22px;
+      text-align: center;
+      box-shadow: 0 16px 60px rgba(0,0,0,.45);
+    }
+    #game-card h1 { margin: 0 0 6px; font-size: clamp(1.2rem, 3vw, 1.6rem); }
+    #game-card .sub { margin: 4px 0 10px; color:#bfc6d0; }
+
+    .stats {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom: 14px; color:#cfd7e3; font-weight:700;
+    }
+
+    .character-area {
+      display:flex; align-items:center; justify-content:center; gap:46px;
+      position:relative; margin-bottom:12px; min-height:240px;
+      border:1px solid #2b2f36; border-radius:12px; background:#15171b;
+      overflow:hidden;
+    }
+    .char-bg {
+      position:absolute; inset:0; z-index:0; opacity:.22;
+      background-size: cover; background-position: center;
+      background-repeat: no-repeat;
+    }
+    .char-img { max-height: 210px; transition: transform 0.06s; user-select:none; position:relative; z-index:1; }
+    .slap-effect {
+      display:none; position:absolute; z-index:2; width:130px; height:auto; pointer-events:none;
+      left:50%; top:50%; transform:translate(-50%, -50%) scale(1);
+    }
+
+    .scenario {
+      margin-top: .75rem; color:#d7dde6; background:#15171b;
+      border:1px solid #2b2f36; border-radius:12px; padding:12px;
+    }
+    .buttons { display:flex; gap:.6rem; justify-content:center; margin-top: .9rem; flex-wrap:wrap; }
+    .btn {
+      padding: 10px 16px; font-size: 1rem; border-radius: 10px; border:1px solid #2a3347; cursor:pointer;
+      background: linear-gradient(180deg,#1a2030,#121726); color:#e7eefc; font-weight:700;
+    }
+    .btn-primary { background: linear-gradient(180deg,#4da3ff,#7cc4ff); color:#081018; border-color:#1a5db8; box-shadow:0 10px 24px rgba(77,163,255,.25); }
+    .btn-danger  { background: linear-gradient(180deg,#ff5b6e,#ff7f8c); color:#12070a; border-color:#8c2430; }
+    .btn-secondary { background: #232734; color:#e8eef9; }
+    .btn:hover { filter: brightness(1.05); }
+
+    .fix-options { display:none; margin-top: .9rem; color:#d9e1ee; }
+    .fix-button-grid {
+      display:grid; gap:.6rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top:.4rem;
+    }
+    .fix-options .btn,
+    .fix-options button {
+      background:#232734; color:#e7eefc; border-radius:10px; padding:10px 12px; border:1px solid #2a3347; cursor:pointer; text-align:left;
+    }
+    .fix-options .btn:hover { filter:brightness(1.05); }
+    .result { margin-top:10px; font-weight:800; min-height:1.6em; color:#fff; }
+
+    /* Smooth screen shake (toggled by JS on #game) */
+    @keyframes screen-shake {
+      0%,100% { transform: translate(0,0); }
+      20% { transform: translate(-3px,2px); }
+      40% { transform: translate(3px,-2px); }
+      60% { transform: translate(-2px,-1px); }
+      80% { transform: translate(2px,1px); }
+    }
+    #game.shake { animation: screen-shake .25s linear 1; }
+  </style>
+
+  <script defer src="/game/slap-game.js"></script>
+</PageLayout>

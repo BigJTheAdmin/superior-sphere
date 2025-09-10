@@ -1,0 +1,208 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+const updated = "September 9, 2025";
+---
+
+<PageLayout meta={{ title: "Terms of Service" }}>
+  <section class="legal-wrapper">
+    <!-- Hero -->
+    <header class="hero">
+      <h1>Terms of Service</h1>
+      <p class="kicker">Use tools only on authorized networks</p>
+      <p class="updated">Last updated: {updated}</p>
+    </header>
+
+    <!-- Main card -->
+    <article class="legal-card">
+      <div class="legal-grid">
+        <!-- Content -->
+        <div class="legal-copy">
+          <p class="lede">
+            Welcome to <strong>PingTraceSSH</strong>. These Terms govern your use of our site, tools, and professional services.
+            They protect both you and us. If you do not agree, please do not use the site or services.
+          </p>
+
+          <section id="acceptable-use" class="block">
+            <h2 class="section-title">
+              <span class="num">1</span>Acceptable Use
+            </h2>
+            <ul class="bullets">
+              <li>Operate only on systems and networks you own or are explicitly authorized to test.</li>
+              <li>No abuse, spam, denial-of-service, data scraping, or attempts to bypass security without consent.</li>
+              <li>We may suspend or terminate access for violations of these rules.</li>
+            </ul>
+          </section>
+
+          <section id="services" class="block">
+            <h2 class="section-title">
+              <span class="num">2</span>Professional Services
+            </h2>
+            <p class="para">
+              We deliver consulting and audits with commercially reasonable expertise aligned with vendor and industry best practices.
+              While we aim for robust outcomes, no service can guarantee absolute prevention of incidents or 100% uptime.
+            </p>
+          </section>
+
+          <section id="payments" class="block">
+            <h2 class="section-title">
+              <span class="num">3</span>Payments & Refunds
+            </h2>
+            <ul class="bullets">
+              <li>Payments are processed securely via Stripe. Fees are due at purchase or booking unless otherwise agreed in writing.</li>
+              <li>Consulting and digital deliverables are generally non-refundable once work begins; exceptions may be granted at our discretion.</li>
+            </ul>
+          </section>
+
+          <section id="ip" class="block">
+            <h2 class="section-title">
+              <span class="num">4</span>Intellectual Property
+            </h2>
+            <p class="para">
+              All original content, branding, and software developed by PingTraceSSH remain our property.
+              You receive a license to use deliverables for your internal needs, not to resell, redistribute, or sublicense without permission.
+            </p>
+          </section>
+
+          <section id="liability" class="block">
+            <h2 class="section-title">
+              <span class="num">5</span>Limitation of Liability
+            </h2>
+            <p class="para">
+              To the maximum extent allowed by law, we are not liable for indirect, incidental, or consequential damages.
+              Our total liability for any claim is limited to fees paid for the service in the preceding three (3) months.
+            </p>
+          </section>
+
+          <section id="law" class="block">
+            <h2 class="section-title">
+              <span class="num">6</span>Governing Law
+            </h2>
+            <p class="para">
+              These Terms are governed by the laws of the State of Florida, USA. Venue and jurisdiction reside in Florida courts.
+            </p>
+          </section>
+
+          <hr class="divider" />
+
+          <section class="meta">
+            <ul class="badges">
+              <li><span class="chip">Security-First</span></li>
+              <li><span class="chip">Authorized Use Only</span></li>
+              <li><span class="chip">Stripe Payments</span></li>
+            </ul>
+
+            <div class="cta-row">
+              <a class="btn primary" href="/services">Book a Service</a>
+              <a class="btn" href="mailto:hello@pingtracessh.com">Contact Support</a>
+            </div>
+          </section>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="legal-aside">
+          <nav class="toc">
+            <div class="toc-title">On this page</div>
+            <ul class="toc-list">
+              <li><a href="#acceptable-use">Acceptable Use</a></li>
+              <li><a href="#services">Professional Services</a></li>
+              <li><a href="#payments">Payments & Refunds</a></li>
+              <li><a href="#ip">Intellectual Property</a></li>
+              <li><a href="#liability">Limitation of Liability</a></li>
+              <li><a href="#law">Governing Law</a></li>
+            </ul>
+          </nav>
+
+          <div class="callout ok">
+            <strong>Trust & Safety</strong><br />
+            Use tools only on authorized networks. Payments handled by Stripe.
+          </div>
+        </aside>
+      </div>
+    </article>
+  </section>
+
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card: #1b1b1b;
+      --card-border: #2a2a2a;
+      --muted: #9aa0a6;
+      --text: #e8eaed;
+      --accent: #22d3ee; /* cyan vibe */
+      --accent-2: #7c3aed; /* purple vibe */
+      --chip: #242424;
+      --chip-border: #333;
+      --shadow: 0 6px 24px rgba(0,0,0,.35);
+      --radius-lg: 14px;
+      --radius-sm: 8px;
+      --ok: #10b981;
+      --ok-bg: rgba(16,185,129,.12);
+      --cyan: #06b6d4;
+      --cyan-bg: rgba(6,182,212,.12);
+    }
+
+    .legal-wrapper { padding: 32px 1rem 60px; }
+    .hero { text-align: center; margin-bottom: 18px; }
+    .hero h1 { margin: 0; font-size: clamp(1.8rem, 2.5vw, 2.4rem); letter-spacing: .2px; }
+    .kicker { margin-top: 8px; color: var(--muted); font-size: .98rem; letter-spacing: .8px; text-transform: uppercase; }
+    .updated { margin-top: 4px; color: var(--muted); font-size: .85rem; }
+
+    .legal-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 2vw, 26px);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .legal-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .9fr;
+      gap: clamp(18px, 3vw, 36px);
+      align-items: start;
+    }
+    @media (max-width: 900px) { .legal-grid { grid-template-columns: 1fr; } .legal-aside { position: static; top: auto; } }
+
+    .legal-copy { font-size: 1.02rem; line-height: 1.75; color: var(--text); }
+    .lede { font-size: 1.08rem; line-height: 1.8; margin: 0 0 12px; }
+
+    .block { margin: 22px 0 0; }
+    .section-title { display: flex; align-items: center; gap: 10px; font-size: 1.12rem; margin: 0 0 8px; }
+    .num {
+      display: inline-grid; place-items: center;
+      width: 26px; height: 26px; border-radius: 8px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: #051316; font-weight: 800; font-size: .9rem;
+    }
+
+    .para { margin: 10px 0; }
+    .bullets { margin: 8px 0 0; padding-left: 20px; }
+    .bullets li { margin: 6px 0; }
+
+    .divider { margin: 22px 0 10px; border: 0; height: 1px; background: linear-gradient(to right, transparent, #2f2f2f, transparent); }
+
+    .meta { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+    @media (max-width: 700px) { .meta { grid-template-columns: 1fr; } }
+
+    .badges { list-style: none; padding: 0; margin: 0; display: flex; gap: 10px; flex-wrap: wrap; }
+    .chip { display: inline-block; padding: 7px 10px; background: var(--chip); border: 1px solid var(--chip-border); border-radius: 999px; font-size: .9rem; color: var(--muted); }
+
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--card-border); background: #212121; color: var(--text); text-decoration: none; font-weight: 600; transition: transform .15s ease, background .15s ease, border .15s ease; }
+    .btn:hover { transform: translateY(-1px); background: #262626; border-color: #3a3a3a; }
+    .btn.primary { background: linear-gradient(90deg, var(--accent), var(--accent-2)); border: none; color: #051316; }
+    .btn.primary:hover { filter: brightness(1.05); }
+
+    .legal-aside { position: sticky; top: 24px; display: grid; gap: 12px; }
+    .toc { background: #151515; border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 12px; }
+    .toc-title { font-weight: 700; color: var(--text); font-size: .9rem; margin-bottom: 8px; }
+    .toc-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    .toc-list a { color: var(--muted); text-decoration: none; }
+    .toc-list a:hover { color: var(--text); }
+
+    .callout { border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 12px; background: #151515; color: var(--muted); font-size: .92rem; }
+    .callout.ok { border-color: rgba(16,185,129,.35); background: var(--ok-bg); color: #c7ffec; }
+  </style>
+</PageLayout>

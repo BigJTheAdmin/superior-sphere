@@ -1,0 +1,211 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Traceroute (Local) – All Hops" }}>
+  <section class="tool-wrapper">
+    <h1>Traceroute Map</h1>
+    <p>Runs on <b>your machine</b> and shows <b>every</b> hop. Unknown/private hops are placed <i>approximately</i> and labeled.</p>
+
+    <div class="tool-card">
+      <div class="row">
+        <label class="full">Target:
+          <input id="target" placeholder="example.com" />
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="check">
+          <input type="checkbox" id="addOrigin" checked />
+          Add approximate origin (geolocate my public IP)
+        </label>
+        <button id="runBtn" class="primary">Run Local Traceroute</button>
+        <button id="clearBtn" class="ghost">Clear</button>
+      </div>
+
+      <div class="legend">
+        <span class="dot known"></span> known
+        <span class="dot approx"></span> approx (unlocated)
+        <span class="seg known"></span> known→known
+        <span class="seg approx"></span> segment with approx hop(s)
+      </div>
+
+      <div class="status" id="status">Idle</div>
+
+      <div class="layout">
+        <div class="map-wrap"><div id="map"></div></div>
+        <div class="list-wrap">
+          <h3>Hops</h3>
+          <ol id="hopList" class="hop-list"></ol>
+        </div>
+      </div>
+
+      <details class="debug" id="debugBox">
+        <summary>Debug</summary>
+        <pre id="debug"></pre>
+      </details>
+
+      <p class="note">Unknown/private “*” hops are spaced between nearest known points (or near origin if at start) and marked as approximate.</p>
+    </div>
+  </section>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+
+  <script>
+    const dbg = (x,label="")=>{
+      const el=document.getElementById("debug"); if(!el) return;
+      el.textContent += (label?label+":\n":"") + (typeof x==="string"?x:JSON.stringify(x,null,2)) + "\n\n";
+    };
+    const openDebug = ()=>{ const d=document.getElementById("debugBox"); if(d && !d.open) d.open = true; };
+
+    window.addEventListener("load", ()=>{
+      const map = L.map("map").setView([20,0],2);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:'&copy; OpenStreetMap'}).addTo(map);
+      const overlay=L.layerGroup().addTo(map);
+
+      const statusEl=document.getElementById("status");
+      const dbgEl=document.getElementById("debug");
+      const runBtn=document.getElementById("runBtn");
+      const clearBtn=document.getElementById("clearBtn");
+      const input=document.getElementById("target");
+      const addOrigin=document.getElementById("addOrigin");
+      const hopList=document.getElementById("hopList");
+
+      runBtn.addEventListener("click", runLocal);
+      clearBtn.addEventListener("click", ()=>{overlay.clearLayers(); dbgEl.textContent=""; hopList.innerHTML=""; statusEl.textContent="Cleared."; map.setView([20,0],2);});
+
+      const lerp=(a,b,t)=>a+(b-a)*t;
+
+      async function runLocal(){
+        dbgEl.textContent=""; hopList.innerHTML="";
+        const target=input.value.trim(); if(!target){alert("Enter a target"); return;}
+        statusEl.textContent="Running local traceroute…"; overlay.clearLayers();
+
+        let originIp=""; if(addOrigin.checked){ try{ const j=await fetch("https://api.ipify.org?format=json").then(r=>r.ok?r.json():null); if(j?.ip) originIp=j.ip; }catch{} }
+
+        try{
+          const res=await fetch("/api/local-traceroute.json",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({target,originIp})});
+          const text=await res.text(); dbg(text,"server response"); if(!res.ok) throw new Error(`HTTP ${res.status} ${text}`);
+          const data = JSON.parse(text);
+
+          // If the API parsed zero hops, surface that loudly and auto-open debug
+          if (!Array.isArray(data.hops) || data.hops.length === 0) {
+            statusEl.textContent = "No hops parsed. See Debug for raw traceroute output & command used.";
+            openDebug();
+          }
+          plot(data);
+        }catch(e){
+          dbg(String(e),"error"); openDebug();
+          statusEl.textContent="Traceroute failed (see Debug)."; alert("Traceroute failed. See Debug.");
+        }
+      }
+
+      function plot(data){
+        const hops=Array.isArray(data.hops)?data.hops:[]; const origin=data.origin||null;
+
+        const nodes=[];
+        if(origin && typeof origin.lat==="number" && typeof origin.lon==="number"){
+          nodes.push({type:"origin",lat:origin.lat,lon:origin.lon,ip:origin.ip||null,approx:false,label:"Origin"});
+        }
+        for(const h of hops){
+          nodes.push({type:"hop", ip:h?.ip??null, rtt:(h?.rtt??null), lat:(typeof h?.lat==="number"?h.lat:null), lon:(typeof h?.lon==="number"?h.lon:null), approx:false, city:h?.city, country:h?.country});
+        }
+
+        // Interpolate unknown positions
+        const anchors=[]; nodes.forEach((n,i)=>{ if(typeof n.lat==="number" && typeof n.lon==="number") anchors.push(i); });
+        const lerp=(a,b,t)=>a+(b-a)*t;
+        if(anchors.length){
+          for(let a=0;a<anchors.length-1;a++){
+            const i0=anchors[a], i1=anchors[a+1]; const A=nodes[i0], B=nodes[i1]; const span=i1-i0;
+            for(let k=i0+1;k<i1;k++){ const N=nodes[k]; if(N.lat==null||N.lon==null){ const t=(k-i0)/span; N.lat=lerp(A.lat,B.lat,t); N.lon=lerp(A.lon,B.lon,t); N.approx=true; } }
+          }
+          const first=anchors[0];
+          for(let k=0;k<first;k++){ const N=nodes[k]; if(N.lat==null||N.lon==null){ const A=nodes[first]; const t=(first-k)/(first+1); N.lat=A.lat+0.05*t; N.lon=A.lon-0.05*t; N.approx=true; } }
+          const last=anchors[anchors.length-1];
+          for(let k=last+1;k<nodes.length;k++){ const N=nodes[k]; if(N.lat==null||N.lon==null){ const A=nodes[last]; const t=(k-last); N.lat=A.lat+0.05*t; N.lon=A.lon+0.05*t; N.approx=true; } }
+        }else{
+          let baseLat=0,baseLon=0; if(nodes.length && nodes[0].type==="origin"){ baseLat=nodes[0].lat; baseLon=nodes[0].lon; }
+          nodes.forEach((N,idx)=>{ if(N.lat==null||N.lon==null){ N.lat=baseLat+0.03*idx; N.lon=baseLon+0.03*idx; N.approx=true; }});
+        }
+
+        overlay.clearLayers();
+        hopList.innerHTML="";
+        let prev=null; const bounds=[]; let hopNum=0;
+
+        nodes.forEach((n)=>{
+          const latLng=[n.lat,n.lon];
+          const isHop=n.type==="hop";
+          const colorPoint=n.approx?"#888888":"#00ffff";
+          const colorLine =(n.approx || (prev&&prev.approx)) ? "#9aa4aa" : "#00ffff";
+          const dash = (n.approx || (prev&&prev.approx)) ? "6,6" : null;
+
+          let label; if(isHop){ hopNum++; const ipText=n.ip||"*"; label=`${hopNum}: ${ipText}${n.approx?" (approx)":""}`; } else { label="🏠 Origin"; }
+
+          const mk=L.circleMarker(latLng,{radius:isHop?6:7,color:colorPoint,weight:2,fillColor:colorPoint,fillOpacity:n.approx?0.35:0.9}).addTo(overlay);
+          const pop=[];
+          if(isHop){ pop.push(`<b>Hop ${hopNum}${n.approx?" (approx)":""}</b>`); if(n.ip) pop.push(n.ip); if(typeof n.rtt==="number") pop.push(`${n.rtt} ms`); if(n.city||n.country) pop.push(`${n.city?n.city+", ":""}${n.country||""}`); }
+          else { pop.push("<b>Origin</b>"); if(n.ip) pop.push(n.ip); }
+          mk.bindPopup(pop.join("<br>"));
+          mk.bindTooltip(label,{permanent:true,direction:"right",offset:[10,0],className:"hop-label"}).openTooltip();
+
+          if(prev){ L.polyline([[prev.lat,prev.lon],latLng],{color:colorLine,weight:3,opacity:0.8,dashArray:dash}).addTo(overlay); }
+          prev=n; bounds.push(latLng);
+
+          if(isHop){
+            const li=document.createElement("li");
+            li.innerHTML = `<code>${n.ip||"*"}${n.approx?" (approx)":""}</code> ${typeof n.rtt==="number"?`— ${n.rtt} ms`:""} ${n.city||n.country?`<span class="muted">(${n.city?n.city+", ":""}${n.country||""})</span>`:""}`;
+            hopList.appendChild(li);
+          }
+        });
+
+        if(bounds.length){
+          const unique=new Set(bounds.map(b=>b.join(",")));
+          if(unique.size>=2) map.fitBounds(bounds,{padding:[30,30]}); else map.setView(bounds[0],7);
+          const totalHops = hops.length;
+          statusEl.textContent = `Done. Plotted ${totalHops} hop${totalHops===1?"":"s"}.`;
+        }else{
+          statusEl.textContent="No hops to plot.";
+        }
+
+        // Pretty-print key diagnostics at top of Debug for convenience
+        const diag = {
+          used: data.used,
+          rawPreview: data.rawPreview?.slice(0, 800) || ""
+        };
+        dbg(diag, "diagnostics");
+      }
+    });
+  </script>
+
+  <style>
+    .tool-wrapper{padding:2rem;font-family:Consolas,monospace;background:#0d0d0d;color:#e0e0e0;min-height:100vh}
+    .tool-card{background:rgba(255,255,255,.05);backdrop-filter:blur(12px);padding:1.5rem;border-radius:12px}
+    .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.5rem}
+    .full{width:100%}
+    input,button,label{background:#111;border:1px solid #333;color:#fff;border-radius:6px;padding:.5rem}
+    input{width:100%}
+    .check{display:inline-flex;align-items:center;gap:.4rem}
+    button{cursor:pointer;font-weight:700}
+    .primary{background:#0ff;color:#000;border-color:#09c}
+    .ghost{background:transparent;color:#8ad;border-color:#234}
+    .legend{margin-top:.5rem;font-size:.85rem;color:#bcd;display:flex;gap:1rem;flex-wrap:wrap}
+    .legend .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:.35rem;vertical-align:middle}
+    .legend .dot.known{background:#00ffff}
+    .legend .dot.approx{background:#888;opacity:.7}
+    .legend .seg{display:inline-block;width:36px;height:0;border-top:3px solid #00ffff;margin:0 .35rem -.2rem .35rem}
+    .legend .seg.approx{border-top-color:#9aa4aa;border-top-style:dashed}
+    .layout{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-top:.75rem}
+    #map{height:560px;border-radius:8px;overflow:hidden}
+    .list-wrap{background:#0b0b0b;border:1px solid #222;border-radius:8px;padding:.75rem;max-height:560px;overflow:auto}
+    .hop-list{margin:.25rem 0 0 .9rem;padding:0}
+    .hop-list li{margin:.2rem 0}
+    .muted{color:#9bb}
+    .status{margin-top:.5rem;font-size:.9rem;color:#8ad}
+    .debug{margin-top:.5rem;user-select:text}
+    .debug>pre{white-space:pre-wrap;word-break:break-word;background:#0b0b0b;border:1px solid #222;padding:.75rem;border-radius:8px;max-height:300px;overflow:auto}
+    .hop-label{background:rgba(0,0,0,.8);color:#0ff;font-size:12px;border:none;padding:2px 4px;border-radius:4px}
+    .note{margin-top:.5rem;font-size:.85rem;color:#9bb;opacity:.9}
+    @media (max-width:1000px){.layout{grid-template-columns:1fr}}
+  </style>
+</PageLayout>

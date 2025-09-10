@@ -1,0 +1,310 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+import ConfigTemplates from "@/components/ConfigTemplates.astro";
+---
+
+<PageLayout meta={{ title: "Multi-Vendor Config Generator" }}>
+	<section class="tool-wrapper">
+		<h1>Multi-Vendor Config Generator</h1>
+		<p>
+			Fill out the form to generate vendor-specific configurations for Cisco, Juniper, Arista, and
+			Palo Alto.
+		</p>
+
+		<div class="container">
+			<form id="config-form">
+				<section>
+					<label for="vendor-select">Vendor</label>
+					<select id="vendor-select">
+						<option value="cisco-ios">Cisco IOS</option>
+						<option value="juniper-junos">Juniper Junos</option>
+						<option value="arista-eos">Arista EOS</option>
+						<option value="paloalto-pan-os">Palo Alto PAN-OS</option>
+					</select>
+				</section>
+
+				<section>
+					<label for="hostname">Hostname</label>
+					<input id="hostname" placeholder="e.g. edge-router-1" />
+					<label for="mgmt_iface">Mgmt Interface</label>
+					<input id="mgmt_iface" placeholder="e.g. GigabitEthernet0/0" />
+					<label for="mgmt_ip">Mgmt IP (CIDR)</label>
+					<input id="mgmt_ip" placeholder="e.g. 10.0.0.1/24" />
+				</section>
+
+				<section>
+					<label><input type="checkbox" id="snmp-enable" /> Include SNMP</label>
+					<label for="snmp_version">SNMP Version</label>
+					<select id="snmp_version">
+						<option value="v1">v1</option>
+						<option value="v2c">v2c</option>
+						<option value="v3">v3</option>
+					</select>
+					<div id="snmp-common">
+						<label for="snmp_community">SNMP Community (v1/v2c)</label>
+						<input id="snmp_community" placeholder="e.g. public" />
+					</div>
+					<div id="snmp-v3" style="display: none;">
+						<label for="snmp_v3_user">v3 Username</label>
+						<input id="snmp_v3_user" placeholder="e.g. user1" />
+						<label for="snmp_v3_auth">Auth Password</label>
+						<input id="snmp_v3_auth" type="password" />
+						<label for="snmp_v3_priv">Priv Password</label>
+						<input id="snmp_v3_priv" type="password" />
+					</div>
+				</section>
+
+				<section>
+					<label for="ntp_servers">NTP Servers (one per line)</label>
+					<textarea id="ntp_servers" placeholder="e.g. 192.168.1.10"></textarea>
+				</section>
+
+				<section>
+					<label for="logging_host">Syslog Host</label>
+					<input id="logging_host" placeholder="e.g. 10.0.0.20" />
+				</section>
+
+				<section>
+					<label for="username">Admin Username</label>
+					<input id="username" placeholder="e.g. admin" />
+					<label for="user_password">Password</label>
+					<input id="user_password" type="password" />
+				</section>
+
+				<section>
+					<label for="vlan_list">VLANs (id,name per line)</label>
+					<textarea id="vlan_list" placeholder="10,Users"></textarea>
+				</section>
+
+				<section>
+					<label for="iface_list">Interfaces (name,desc,ip/CIDR per line)</label>
+					<textarea id="iface_list" placeholder="Ethernet1,To Core,192.168.10.2/24"></textarea>
+				</section>
+
+				<section>
+					<label for="ospf_process">OSPF Process</label>
+					<input id="ospf_process" placeholder="1" />
+					<label for="ospf_area">OSPF Area</label>
+					<input id="ospf_area" placeholder="0" />
+					<label for="ospf_network">OSPF Network (CIDR)</label>
+					<input id="ospf_network" placeholder="192.168.10.0/24" />
+				</section>
+
+				<section>
+					<label for="bgp_local_as">BGP Local AS</label>
+					<input id="bgp_local_as" placeholder="65001" />
+					<label for="bgp_neighbor_ip">BGP Neighbor IP</label>
+					<input id="bgp_neighbor_ip" placeholder="10.0.0.2" />
+					<label for="bgp_neighbor_as">BGP Neighbor AS</label>
+					<input id="bgp_neighbor_as" placeholder="65002" />
+				</section>
+
+				<section>
+					<button id="generate-btn" type="button">Generate</button>
+					<button id="copy-btn" type="button">Copy to Clipboard</button>
+					<a id="download-link" style="display: none;">Download Config</a>
+				</section>
+			</form>
+
+			<pre id="preview" class="output-card"></pre>
+		</div>
+
+		<footer>ping.trace.SSH ver 1</footer>
+	</section>
+
+	<!-- Mustache Template Engine -->
+	<script src="https://cdn.jsdelivr.net/npm/mustache@4.2.0/mustache.min.js"></script>
+
+	<!-- Template Scripts -->
+	<script type="module" src="/scripts/config-generator.js"></script>
+
+	<!-- Mustache Templates -->
+<script id="template-cisco-ios" type="x-tmpl-mustache">
+hostname {{hostname}}
+!
+interface {{mgmt_iface}}
+  ip address {{mgmt_ip}}
+!
+{{#snmp_enable}}
+  {{#snmp_version_v1}}snmp-server community {{snmp_community}} RO
+!
+  {{/snmp_version_v1}}
+  {{#snmp_version_v2c}}snmp-server community {{snmp_community}} RO
+!
+  {{/snmp_version_v2c}}
+  {{#snmp_version_v3}}snmp-server group SNMPv3Group v3 priv
+  snmp-server user {{snmp_v3_user}} SNMPv3Group v3 auth sha {{snmp_v3_auth}} priv aes 128 {{snmp_v3_priv}}
+!
+  {{/snmp_version_v3}}
+{{/snmp_enable}}
+{{#ntp_servers}}ntp server {{.}}
+{{/ntp_servers}}!
+logging host {{logging_host}}
+!
+username {{username}} privilege 15 password {{user_password}}
+!
+{{#vlans}}vlan {{id}}
+  name {{name}}
+!
+{{/vlans}}{{#interfaces}}interface {{name}}
+  description {{desc}}
+  ip address {{ip}}
+!
+{{/interfaces}}{{#ospf_process}}router ospf {{ospf_process}}
+  network {{ospf_network}} area {{ospf_area}}
+!
+{{/ospf_process}}{{#bgp_local_as}}router bgp {{bgp_local_as}}
+  neighbor {{bgp_neighbor_ip}} remote-as {{bgp_neighbor_as}}
+!
+{{/bgp_local_as}}end
+</script>
+
+<script id="template-juniper-junos" type="x-tmpl-mustache">
+set system host-name {{hostname}}
+set interfaces {{mgmt_iface}} unit 0 family inet address {{mgmt_ip}}
+{{#snmp_enable}}
+  {{#snmp_version_v1}}set snmp community {{snmp_community}} authorization read-only
+  {{/snmp_version_v1}}
+  {{#snmp_version_v2c}}set snmp community {{snmp_community}} authorization read-only
+  {{/snmp_version_v2c}}
+  {{#snmp_version_v3}}set snmp v3 usm user {{snmp_v3_user}} authentication-sha {{snmp_v3_auth}} privacy-algo aes encryption {{snmp_v3_priv}}
+  {{/snmp_version_v3}}
+{{/snmp_enable}}
+{{#ntp_servers}}set system ntp server {{.}}
+{{/ntp_servers}}{{#logging_host}}set system syslog host {{logging_host}} any any
+{{/logging_host}}
+set system login user {{username}} class super-user authentication plain-text-password {{user_password}}
+{{#vlans}}set vlans {{name}} vlan-id {{id}}
+{{/vlans}}{{#interfaces}}set interfaces {{name}} description "{{desc}}"
+set interfaces {{name}} unit 0 family inet address {{ip}}
+{{/interfaces}}{{#ospf_process}}set protocols ospf area {{ospf_area}} interface {{ospf_network}}
+{{/ospf_process}}{{#bgp_local_as}}set protocols bgp group external neighbor {{bgp_neighbor_ip}} peer-as {{bgp_neighbor_as}}
+{{/bgp_local_as}}
+</script>
+
+<script id="template-arista-eos" type="x-tmpl-mustache">
+hostname {{hostname}}
+!
+interface {{mgmt_iface}}
+  ip address {{mgmt_ip}}
+!
+{{#snmp_enable}}
+  {{#snmp_version_v1}}snmp-server community {{snmp_community}} ro
+!
+  {{/snmp_version_v1}}
+  {{#snmp_version_v2c}}snmp-server community {{snmp_community}} ro
+!
+  {{/snmp_version_v2c}}
+  {{#snmp_version_v3}}snmp-server group SNMPv3Group v3 priv
+  snmp-server user {{snmp_v3_user}} SNMPv3Group v3 auth sha {{snmp_v3_auth}} priv aes 128 {{snmp_v3_priv}}
+!
+  {{/snmp_version_v3}}
+{{/snmp_enable}}
+{{#ntp_servers}}ntp server {{.}}
+{{/ntp_servers}}!
+logging host {{logging_host}}
+!
+username {{username}} privilege 15 secret {{user_password}}
+!
+{{#vlans}}vlan {{id}}
+  name {{name}}
+!
+{{/vlans}}{{#interfaces}}interface {{name}}
+  description {{desc}}
+  ip address {{ip}}
+!
+{{/interfaces}}{{#ospf_process}}router ospf {{ospf_process}}
+  network {{ospf_network}} area {{ospf_area}}
+!
+{{/ospf_process}}{{#bgp_local_as}}router bgp {{bgp_local_as}}
+  neighbor {{bgp_neighbor_ip}} remote-as {{bgp_neighbor_as}}
+!
+{{/bgp_local_as}}
+</script>
+
+<script id="template-paloalto-pan-os" type="x-tmpl-mustache">
+configure
+set deviceconfig system hostname {{hostname}}
+set network interface ethernet {{mgmt_iface}} layer3 ip {{mgmt_ip}}
+{{#snmp_enable}}
+  {{#snmp_version_v1}}set deviceconfig system snmp-server community {{snmp_community}}
+  {{/snmp_version_v1}}
+  {{#snmp_version_v2c}}set deviceconfig system snmp-server community {{snmp_community}}
+  {{/snmp_version_v2c}}
+  {{#snmp_version_v3}}# SNMPv3 requires GUI-based configuration
+  {{/snmp_version_v3}}
+{{/snmp_enable}}
+{{#ntp_servers}}set deviceconfig system ntp-server primary {{.}}
+{{/ntp_servers}}{{#logging_host}}set deviceconfig system syslog-setting match-list any
+set deviceconfig system log-settings to-remote host {{logging_host}}
+{{/logging_host}}
+set mgt-config users admin password << change manually >>
+
+{{#vlans}}set network vlan {{name}} tag {{id}}
+{{/vlans}}{{#interfaces}}set network interface ethernet {{name}} layer3 ip {{ip}}
+{{/interfaces}}{{#ospf_process}}set network virtual-router default protocol ospf area {{ospf_area}} interface {{ospf_network}}
+{{/ospf_process}}{{#bgp_local_as}}set network virtual-router default protocol bgp local-as {{bgp_local_as}}
+set network virtual-router default protocol bgp peer {{bgp_neighbor_ip}} peer-as {{bgp_neighbor_as}}
+{{/bgp_local_as}}commit
+</script>
+
+
+	<style>
+		.container {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1.5rem;
+		}
+		form {
+			flex: 1;
+			min-width: 300px;
+			background: #1f1f1f;
+			padding: 1rem;
+			border-radius: 8px;
+			border: 1px solid #333;
+		}
+		form label {
+			display: block;
+			margin: 0.5rem 0 0.2rem;
+			font-weight: bold;
+		}
+		input,
+		select,
+		textarea {
+			width: 100%;
+			background: #2d2d2d;
+			color: #eee;
+			border: 1px solid #444;
+			padding: 0.4rem;
+			border-radius: 4px;
+			font-family: Consolas, monospace;
+		}
+		textarea {
+			height: 4rem;
+		}
+		button,
+		a {
+			margin-top: 0.5rem;
+			margin-right: 0.5rem;
+			padding: 0.4rem 1rem;
+			background: #333;
+			border: 1px solid #06a800;
+			color: #fff;
+			cursor: pointer;
+			border-radius: 4px;
+			text-decoration: none;
+		}
+		.output-card {
+			flex: 1;
+			background: #000;
+			color: rgb(253, 255, 253);
+			border: 1px solid #333;
+			padding: 1rem;
+			font-family: Consolas, monospace;
+			white-space: pre-wrap;
+			border-radius: 8px;
+			min-height: 300px;
+			overflow: auto;
+		}
+	</style>
+</PageLayout>

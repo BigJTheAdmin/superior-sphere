@@ -1,0 +1,109 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Career" }}>
+  <section class="tool-wrapper">
+    <h1>Career</h1>
+    <p class="subtitle">All of your career boosters in one place: job search, raise strategy, and LinkedIn/Resumé upgrades.</p>
+
+    <style>
+      .tools-grid-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        padding: 0 1rem;
+      }
+      .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        width: 100%;
+        max-width: 1200px;
+      }
+
+      .tool-card {
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        text-align: center;
+        padding: 20px;
+        transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      }
+      .tool-card:hover {
+        transform: translateY(-2px);
+        background: #232323;
+        border-color: #3e3e3e;
+      }
+
+      .tool-card img {
+        display: block;
+        margin: 0 auto 16px auto;
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        aspect-ratio: 4 / 3;
+        object-fit: contain;
+      }
+
+      .tool-card a {
+        color: #0ff;
+        text-decoration: none;
+        font-weight: bold;
+        display: block;
+        font-size: clamp(1rem, 2vw, 1.2rem);
+      }
+      .tool-card a:hover { text-decoration: underline; }
+
+      /* Header badges */
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 12px 0 24px;
+      }
+      .badge {
+        background: #0b2530;
+        color: #8bf3ff;
+        border: 1px solid #15424f;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 0.9rem;
+      }
+    </style>
+
+    <div class="badge-row">
+      <span class="badge">Career Hub</span>
+      <span class="badge">For Network/Cloud/Sec Engineers</span>
+      <span class="badge">Fast & Practical</span>
+    </div>
+
+    <div class="tools-grid-wrapper">
+      <div class="tools-grid">
+        <!-- Job Finder -->
+        <div class="tool-card">
+          <a href="/career/jobs">
+            <img src="/jobfinder.png" alt="Job Finder" />
+            Job Finder
+          </a>
+        </div>
+
+        <!-- Raise Planner -->
+        <div class="tool-card">
+          <a href="/career/raise-planner">
+            <img src="/raiseplanner.png" alt="Raise Planner" />
+            Raise Planner
+          </a>
+        </div>
+
+        <!-- LinkedIn & Resume Services -->
+        <div class="tool-card">
+          <a href="/career/career-services">
+            <img src="/career.png" alt="Career Services" />
+            LinkedIn & Resumé Services
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</PageLayout>

@@ -1,0 +1,221 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Rush Hour Dash" }}>
+  <section class="tool-wrapper">
+    <div class="game-card">
+      <!-- HUD -->
+      <div class="hud">
+        <div class="hud-left">
+          <span id="timeText">Time: 30</span>
+          <span id="scoreText">Score: 0</span>
+          <span id="levelText">Level: 1</span>
+          <span id="livesText">Lives: 3</span>
+        </div>
+        <div class="hud-right">
+          <span id="trafficText">Traffic: Normal</span>
+          <span id="powerupsText">Power-ups: —</span>
+          <button id="pauseBtn" class="btn btn-ghost" aria-label="Pause">Pause</button>
+          <button id="restartBtn" class="btn" style="display:none;">Restart</button>
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="canvas-wrap">
+        <canvas
+          id="commuteCanvas"
+          width="800"
+          height="500"
+          aria-label="Rush Hour Dash Game"
+        ></canvas>
+
+        <!-- Preloader overlay -->
+        <div id="loader" class="loader">
+          <div class="loader-inner">
+            <div class="bar"><span id="loadBar" style="width:0%;"></span></div>
+            <div id="loadLabel" class="load-label">Loading…</div>
+            <button id="startBtn" class="btn" style="display:none;">Start</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Intermission / overlays -->
+      <div id="banner" class="banner" style="display:none;"></div>
+
+      <!-- Meta / Missions -->
+      <div class="meta-row">
+        <div class="meta-card">
+          <h3>Daily Challenge</h3>
+          <p id="missionText">Loading…</p>
+          <p id="missionProgress" class="muted">—</p>
+          <p id="streakText" class="muted">Streak: 0 days</p>
+        </div>
+        <div class="meta-card">
+          <h3>Career Stats</h3>
+          <ul class="stats-list">
+            <li><span>Total Time Survived:</span> <strong id="statTime">0s</strong></li>
+            <li><span>Total Cars Dodged:</span> <strong id="statDodged">0</strong></li>
+            <li><span>Power-ups Collected:</span> <strong id="statPups">0</strong></li>
+          </ul>
+        </div>
+        <div class="meta-card">
+          <h3>Cosmetics</h3>
+          <label for="colorSelect">Player Color</label>
+          <select id="colorSelect" class="select"></select>
+          <p class="muted" id="unlockHint">Unlock more colors by completing missions and milestones.</p>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="instructions">
+        <h3>How to Play</h3>
+        <ul>
+          <li>Move with Arrow Keys (or swipe on mobile).</li>
+          <li>Avoid traffic. Survive the level timer to advance.</li>
+          <li>Collect power-ups: 🛡️ Shield (5s), 🐌 Slow‑Mo (4s), ✖️2 Double Score (8s).</li>
+          <li>Press <strong>P</strong> to pause/resume anytime.</li>
+          <li>Boss vans block two lanes. Shield‑ram to break them (from Level 4).</li>
+        </ul>
+        <p id="statsLine" class="stats-line">Best: Level 1 • Score 0 • Runs 0</p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .tool-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 24px 12px 48px;
+    }
+    .game-card {
+      width: 100%;
+      max-width: 1024px;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #181818;
+      border: 1px solid #2b2b2b;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      flex-wrap: wrap;
+    }
+    .hud-left, .hud-right { display: flex; gap: 14px; align-items: center; }
+    .banner {
+      margin-top: 10px;
+      background: #1b2735;
+      border: 1px solid #2d3a4c;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #d8e0ea;
+      text-align: center;
+      font-weight: 700;
+    }
+    .canvas-wrap {
+      position: relative;
+      background: #0d0d0d;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .canvas-wrap {
+      --dash-bg: none;
+      background-image: var(--dash-bg);
+      background-size: cover;
+      background-position: center;
+    }
+    canvas#commuteCanvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      touch-action: none;
+    }
+
+    /* Loader overlay */
+    .loader {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
+    }
+    .loader-inner { width: min(360px, 90%); text-align: center; }
+    .bar {
+      width: 100%; height: 10px; background: #222; border: 1px solid #333;
+      border-radius: 6px; overflow: hidden; margin-bottom: 10px;
+    }
+    .bar span { display: block; height: 100%; background: #2f6feb; }
+    .load-label { color: #ddd; margin-bottom: 10px; }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .meta-card {
+      background: #151515;
+      border: 1px solid #272727;
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #ddd;
+      line-height: 1.5;
+    }
+    .stats-list { list-style: none; padding: 0; margin: 0; }
+    .stats-list li { display: flex; justify-content: space-between; padding: 4px 0; }
+    .muted { opacity: 0.9; }
+
+    .instructions {
+      margin-top: 14px;
+      background: #151515;
+      border: 1px solid #272727;
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #ddd;
+      line-height: 1.5;
+    }
+    .stats-line { opacity: 0.9; margin-top: 8px; }
+
+    .btn {
+      background: #2f6feb;
+      color: white;
+      border: 0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .btn-ghost {
+      background: transparent;
+      color: #ddd;
+      border: 1px solid #3a3a3a;
+    }
+    .btn-ghost:hover { background: #232323; }
+
+    .select {
+      width: 100%;
+      background: #1a1a1a;
+      color: #eee;
+      border: 1px solid #313131;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .game-card { padding: 12px; }
+      .hud { font-size: 0.95rem; }
+    }
+  </style>
+
+  <!-- Game script -->
+  <script type="module" src="/game/rush-hour-dash.js"></script>
+</PageLayout>

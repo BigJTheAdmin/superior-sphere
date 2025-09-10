@@ -1,0 +1,394 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Download — PingTraceSSH" }}>
+  <section class="download-hero">
+    <h1>Download PingTraceSSH</h1>
+    <p class="sub">
+      Detects your device and gives you the right installer. Enter your email to unlock the download — your license will be created and tied to that email.
+    </p>
+  </section>
+
+  <section class="download-card">
+    <!-- Step 1: Detected platform -->
+    <div id="detected" class="detected">
+      <div>
+        <h2 id="detected-title">Detecting your platform…</h2>
+        <p id="detected-note" class="muted">If we guess wrong, you can choose another below.</p>
+      </div>
+      <div class="chip" id="chip">Auto</div>
+    </div>
+
+    <!-- Step 2: Email gate -->
+    <form id="email-form" class="gate">
+      <label>
+        Email (required)
+        <input type="email" id="email" name="email" placeholder="you@company.com" required>
+      </label>
+
+      <label class="terms">
+        <input type="checkbox" id="agree" required>
+        I agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+      </label>
+
+      <!-- tiny honeypot for bots -->
+      <input type="text" id="hp" name="hp" tabindex="-1" autocomplete="off" class="hp">
+
+      <button type="submit" id="unlock-btn" class="cta">Unlock Download</button>
+
+      <p id="form-msg" class="msg"></p>
+    </form>
+
+    <!-- Step 3: Revealed download section -->
+    <div id="download-reveal" class="reveal hidden">
+      <div class="license-box">
+        <div>
+          <h3>Your License</h3>
+          <p class="muted">Keep this safe — it’s tied to <span id="email-bound"></span>.</p>
+        </div>
+        <code id="license-key">••••••••••••</code>
+        <button id="copy-lic" class="copy">Copy</button>
+      </div>
+
+      <div class="primary-download">
+        <h3 id="primary-title">Recommended Download</h3>
+        <a id="primary-link" href="#" class="primary-btn" rel="noopener">Download</a>
+        <p id="primary-label" class="muted">Platform: —</p>
+      </div>
+
+      <div class="other-dls">
+        <h4>Other Downloads</h4>
+        <div id="other-list" class="grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .download-hero {
+      text-align: center;
+      padding: 2.5rem 1rem 1rem;
+    }
+    .download-hero h1 {
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .sub { color: var(--muted, #9aa3ae); max-width: 48rem; margin: 0.5rem auto 0; }
+
+    .download-card {
+      margin: 1.5rem auto 3rem;
+      max-width: 840px;
+      background: rgba(20,20,24,.6);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.35);
+      padding: 1.25rem;
+    }
+
+    .detected {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0,200,140,.08), rgba(0,150,255,.06));
+      border: 1px solid rgba(255,255,255,.08);
+      margin-bottom: 1rem;
+    }
+    .chip {
+      font-size: .85rem;
+      padding: .35rem .6rem;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+    }
+    .muted { color: #9aa3ae; }
+
+    .gate {
+      display: grid; gap: .75rem;
+      padding: 1rem 1.25rem;
+      border: 1px dashed rgba(255,255,255,.14);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+    }
+    .gate label { display: grid; gap: .35rem; font-weight: 600; }
+    .gate input[type="email"] {
+      background: #0f1216; color: #e8eef6;
+      border: 1px solid #2a2f37; border-radius: 10px;
+      padding: .7rem .8rem; font-size: 1rem;
+    }
+    .terms { display: flex; gap: .6rem; align-items: center; font-weight: 500; }
+    .cta {
+      justify-self: start;
+      background: linear-gradient(90deg, #21d07a, #18a0fb);
+      color: #0a0c10; font-weight: 800; letter-spacing: .3px;
+      padding: .8rem 1.1rem; border-radius: 10px; border: none; cursor: pointer;
+    }
+    .msg { min-height: 1.25rem; }
+
+    .reveal { margin-top: 1rem; display: grid; gap: 1rem; }
+    .hidden { display: none; }
+
+    .license-box {
+      display: grid; grid-template-columns: 1fr auto auto; gap: .75rem; align-items: center;
+      padding: .9rem 1rem; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.35);
+    }
+    code#license-key { background: rgba(255,255,255,.06); padding: .45rem .6rem; border-radius: 8px; }
+    .copy { background: transparent; border: 1px solid rgba(255,255,255,.18); border-radius: 8px; color: #e8eef6; padding: .4rem .6rem; cursor: pointer; }
+
+    .primary-download {
+      display: grid; gap: .4rem;
+      padding: 1rem 1.25rem; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(135deg, rgba(40,250,160,.08), rgba(24,160,251,.06));
+    }
+    .primary-btn {
+      display: inline-block;
+      background: #21d07a; color: #0a0c10; font-weight: 800;
+      padding: .8rem 1.1rem; border-radius: 10px; text-decoration: none;
+    }
+
+    .other-dls .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .6rem; }
+    .dl-item {
+      display: grid; gap: .35rem; padding: .7rem .8rem;
+      border: 1px solid rgba(255,255,255,.12); border-radius: 10px; background: rgba(255,255,255,.03);
+    }
+    .dl-item a { text-decoration: none; color: #e8eef6; font-weight: 600; }
+    .hp { display:none !important; }
+
+    @media (max-width: 540px) {
+      .license-box { grid-template-columns: 1fr; align-items: stretch; }
+      .copy { justify-self: start; }
+    }
+  </style>
+
+  <script type="module">
+    import { supabase } from "@/lib/supabaseClient";
+
+    const detectedTitle = document.getElementById("detected-title");
+    const detectedNote  = document.getElementById("detected-note");
+    const chip          = document.getElementById("chip");
+    const emailInput    = document.getElementById("email");
+    const agree         = document.getElementById("agree");
+    const hp            = document.getElementById("hp");
+    const form          = document.getElementById("email-form");
+    const msg           = document.getElementById("form-msg");
+    const reveal        = document.getElementById("download-reveal");
+    const emailBound    = document.getElementById("email-bound");
+    const licenseKeyEl  = document.getElementById("license-key");
+    const copyBtn       = document.getElementById("copy-lic");
+    const primaryTitle  = document.getElementById("primary-title");
+    const primaryLink   = document.getElementById("primary-link");
+    const primaryLabel  = document.getElementById("primary-label");
+    const otherList     = document.getElementById("other-list");
+
+    const DEFAULT_PLAN = import.meta.env.PUBLIC_DEFAULT_PLAN || "free";
+
+    // Basic platform detection
+    function detectPlatform() {
+      const ua = navigator.userAgent || "";
+      const p = navigator.platform || "";
+
+      const isAndroid = /Android/i.test(ua);
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const isMac = /Mac/i.test(p) || /Macintosh/i.test(ua);
+      const isWin = /Win/i.test(p) || /Windows/i.test(ua);
+      const isLinux = !isAndroid && !isIOS && (/Linux/i.test(p) || /X11/i.test(ua));
+
+      if (isAndroid) return { key: "android", label: "Android" };
+      if (isIOS)     return { key: "ios",     label: "iOS" };
+      if (isWin)     return { key: "windows", label: "Windows" };
+      if (isMac)     return { key: "macos",   label: "macOS" };
+      if (isLinux)   return { key: "linux",   label: "Linux" };
+      return { key: "windows", label: "Windows" }; // Fallback
+    }
+
+    const platform = detectPlatform();
+    detectedTitle.textContent = `We think you're on ${platform.label}`;
+    chip.textContent = platform.label;
+
+    // Prefill email from localStorage (nice touch for repeat visitors)
+    const savedEmail = localStorage.getItem("pts_email");
+    if (savedEmail) emailInput.value = savedEmail;
+
+    // Fetch downloads list for all platforms
+    let allDownloads = [];
+    async function loadDownloads() {
+      const { data, error } = await supabase.from("downloads").select("*").order("platform", { ascending: true });
+      if (error) {
+        console.error(error);
+        msg.textContent = "Error loading download options. Please refresh.";
+        return;
+      }
+      allDownloads = data || [];
+    }
+
+    function randomChunk(n=4) {
+      // make a short human-friendly license suffix
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let s = "";
+      for (let i=0; i<n; i++) s += chars[Math.floor(Math.random()*chars.length)];
+      return s;
+    }
+
+    function buildLicense() {
+      // Example format: PTS-FREE-XXXX-XXXX-XXXX
+      const tier = DEFAULT_PLAN.toUpperCase();
+      return `PTS-${tier}-${randomChunk()}-${randomChunk()}-${randomChunk()}`;
+    }
+
+    async function upsertUser(email) {
+      // Try to find existing
+      let { data: found, error: selErr } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle();
+
+      if (selErr) {
+        console.error(selErr);
+        throw new Error("Unable to look up user.");
+      }
+
+      if (found) return found;
+
+      // Insert new
+      const { data: inserted, error: insErr } = await supabase
+        .from("users")
+        .insert({ email })
+        .select("*")
+        .single();
+
+      if (insErr) {
+        console.error(insErr);
+        throw new Error("Unable to create user.");
+      }
+      return inserted;
+    }
+
+    async function createOrReuseLicense(userId, plan=DEFAULT_PLAN) {
+      // Reuse existing active license for this plan if present
+      const { data: existing, error: exErr } = await supabase
+        .from("licenses")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("plan", plan)
+        .eq("status", "active")
+        .limit(1);
+
+      if (exErr) {
+        console.error(exErr);
+        throw new Error("Unable to check existing license.");
+      }
+      if (existing && existing.length) return existing[0];
+
+      // Create fresh
+      const key = buildLicense();
+      const { data: lic, error: licErr } = await supabase
+        .from("licenses")
+        .insert({ user_id: userId, license_key: key, plan, status: "active" })
+        .select("*")
+        .single();
+
+      if (licErr) {
+        console.error(licErr);
+        throw new Error("Unable to create license.");
+      }
+      return lic;
+    }
+
+    function renderOtherDownloads(downloads, primaryId) {
+      otherList.innerHTML = "";
+      downloads
+        .filter(d => d.id !== primaryId)
+        .forEach(d => {
+          const item = document.createElement("div");
+          item.className = "dl-item";
+          item.innerHTML = `
+            <div>${d.platform.toUpperCase()}</div>
+            <a href="${d.url}" rel="noopener">${d.label}</a>
+          `;
+          otherList.appendChild(item);
+        });
+    }
+
+    async function revealDownloads(email, licenseKey) {
+      emailBound.textContent = email;
+      licenseKeyEl.textContent = licenseKey;
+
+      const preferred = allDownloads.filter(d => d.platform === platform.key);
+      // Pick default=true if exists, else first
+      const primary = preferred.find(d => d.is_default) || preferred[0] || allDownloads[0];
+
+      if (!primary) {
+        primaryTitle.textContent = "No downloads published yet";
+        primaryLabel.textContent = "—";
+        primaryLink.style.display = "none";
+      } else {
+        primaryTitle.textContent = "Recommended Download";
+        primaryLink.href = primary.url;
+        primaryLink.textContent = `Get ${primary.label}`;
+        primaryLabel.textContent = `Platform: ${primary.platform.toUpperCase()}`;
+      }
+
+      renderOtherDownloads(allDownloads, primary?.id);
+      reveal.classList.remove("hidden");
+      // Scroll into view
+      reveal.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    copyBtn.addEventListener("click", () => {
+      const text = licenseKeyEl.textContent || "";
+      navigator.clipboard.writeText(text);
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => (copyBtn.textContent = "Copy"), 1200);
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "";
+      if (hp.value) { return; } // bot
+
+      const email = emailInput.value.trim().toLowerCase();
+      if (!email) { msg.textContent = "Please enter a valid email."; return; }
+      if (!agree.checked) { msg.textContent = "You must agree to continue."; return; }
+
+      // Disable button
+      const btn = document.getElementById("unlock-btn");
+      btn.disabled = true; btn.textContent = "Creating license…";
+
+      try {
+        await loadDownloads();
+        const user = await upsertUser(email);
+        const license = await createOrReuseLicense(user.id, DEFAULT_PLAN);
+
+        // Cache email for convenience
+        localStorage.setItem("pts_email", email);
+
+        await revealDownloads(email, license.license_key);
+        msg.textContent = "Download unlocked!";
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "Something went wrong. Please try again.";
+      } finally {
+        btn.disabled = false; btn.textContent = "Unlock Download";
+      }
+    });
+
+    // If they arrive with ?email=... (e.g., from Stripe success page), prefill
+    const params = new URLSearchParams(location.search);
+    const pEmail = params.get("email");
+    if (pEmail && !emailInput.value) {
+      emailInput.value = pEmail;
+    }
+
+    // If they arrive with ?platform=windows|macos|...
+    const pPlatform = params.get("platform");
+    if (pPlatform) {
+      chip.textContent = pPlatform;
+      detectedTitle.textContent = `Using selected platform: ${pPlatform}`;
+      detectedNote.textContent = "Auto-detect overridden by your selection.";
+    }
+  </script>
+</PageLayout>

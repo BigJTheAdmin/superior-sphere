@@ -1,0 +1,336 @@
+---
+/* File: src/pages/job-pricing.astro
+   Purpose: High‑converting, dark‑theme pricing page for JOB POSTS only.
+   Notes:
+   - Replace the STRIPE links below with your real Payment Links or keep /checkout?plan=...
+   - Matches your site’s dark style: rounded cards, neon accent, subtle glass.
+*/
+import PageLayout from "@/layouts/Base.astro";
+
+const LINKS = {
+  single:  "https://buy.stripe.com/YOUR_SINGLE_POST_LINK",     // or "/checkout?plan=single"
+  starter: "https://buy.stripe.com/YOUR_STARTER_MONTHLY_LINK", // or "/checkout?plan=starter"
+  pro:     "https://buy.stripe.com/YOUR_PRO_MONTHLY_LINK",     // or "/checkout?plan=pro"
+  ent:     "https://buy.stripe.com/YOUR_ENTERPRISE_MONTHLY_LINK"     // or "/checkout?plan=enterprise"
+};
+---
+
+<PageLayout meta={{ title: "Post a Job — Pricing" }}>
+  <section class="hero">
+    <div class="glow"></div>
+    <h1>Hire Elite Network Engineers — <span class="accent">Fast</span></h1>
+    <p class="tagline">
+      Stop shouting into the void. Get your roles in front of a laser‑targeted audience of Cisco, Palo Alto, AWS & core networking pros.
+      <br/>No tourists. No time‑wasters. Just people who can ship.
+    </p>
+    <div class="hero-cta">
+      <a href="#pricing" class="btn primary">Show me the plans</a>
+      <a href="#proof" class="btn ghost">Why this works</a>
+    </div>
+    <div class="hero-trust">
+      <span>Secure checkout with Stripe</span>
+      <span>Cancel anytime</span>
+      <span>Featured placement options</span>
+    </div>
+  </section>
+
+  <section id="pricing" class="pricing">
+    <h2>Pick your firepower.</h2>
+    <p class="subtitle">Whether you’re filling one seat or building a team — we’ve got the throttle for it.</p>
+
+    <div class="grid">
+      <!-- Single Post -->
+      <article class="card">
+        <div class="ribbon">Best for One Role</div>
+        <header>
+          <h3>Single Job Post</h3>
+          <p class="price">
+            <span class="amount">$99</span> <span class="term">/ 30 days</span>
+          </p>
+        </header>
+        <ul class="features">
+          <li>Live for 30 days</li>
+          <li>Included in weekly jobs digest</li>
+          <li>Edit anytime, instant updates</li>
+          <li>Targeted to Network / Cloud / Security engineers</li>
+        </ul>
+        <a class="btn primary" href={LINKS.single} data-plan="single">Post for $99</a>
+        <p class="fineprint">Add‑ons available at checkout: <strong>Featured (+$50)</strong>, <strong>Pinned (+$100)</strong></p>
+      </article>
+
+      <!-- Starter -->
+      <article class="card pop">
+        <div class="badge">Most Popular</div>
+        <header>
+          <h3>Starter</h3>
+          <p class="price">
+            <span class="amount">$199</span> <span class="term">/ month</span>
+          </p>
+        </header>
+        <ul class="features">
+          <li><strong>Up to 5 active listings</strong> (rollover unused)</li>
+          <li><strong>1 Featured upgrade / month</strong></li>
+          <li>Basic candidate inbox + email alerts</li>
+          <li>Company profile & logo branding</li>
+          <li>Priority in weekly digest</li>
+        </ul>
+        <a class="btn primary" href={LINKS.starter} data-plan="starter">Get Starter</a>
+        <p class="fineprint">Scale when you’re ready. Cancel anytime.</p>
+      </article>
+
+      <!-- Pro -->
+      <article class="card">
+        <header>
+          <h3>Pro</h3>
+          <p class="price">
+            <span class="amount">$399</span> <span class="term">/ month</span>
+          </p>
+        </header>
+        <ul class="features">
+          <li><strong>Unlimited job postings</strong></li>
+          <li><strong>3 Featured upgrades / month</strong></li>
+          <li>Resume database access (opt‑in candidates)</li>
+          <li>“High‑Intent” badge on listings</li>
+          <li>Analytics: views, clicks, applies</li>
+        </ul>
+        <a class="btn primary" href={LINKS.pro} data-plan="pro">Get Pro</a>
+        <p class="fineprint">Perfect for agencies & fast‑growing teams.</p>
+      </article>
+
+      <!-- Enterprise -->
+      <article class="card">
+        <header>
+          <h3>Enterprise</h3>
+          <p class="price">
+            <span class="amount">$799</span> <span class="term">/ month</span>
+          </p>
+        </header>
+        <ul class="features">
+          <li><strong>Unlimited postings</strong> + all jobs Featured</li>
+          <li><strong>Pinned homepage slots</strong> (rotating)</li>
+          <li>Dedicated account manager</li>
+          <li>Custom sourcing campaigns</li>
+          <li>Newsletter banner placement</li>
+        </ul>
+        <a class="btn primary" href={LINKS.pro} data-plan="pro">Get Enterprise</a>
+        <p class="fineprint">We’ll build your hiring pipeline together.</p>
+      </article>
+    </div>
+
+    <div class="guarantee">
+      <h4>No fluff. No lock‑in.</h4>
+      <p>If your listing gets <strong>zero qualified clicks in 14 days</strong>, we’ll <strong>boost it for free</strong> with a Featured upgrade.</p>
+    </div>
+  </section>
+
+  <section id="proof" class="proof">
+    <div class="proof-grid">
+      <article class="proof-card">
+        <h5>Laser‑Targeted Audience</h5>
+        <p>We’re built for network pros: Cisco, Juniper, Palo Alto, Arista, AWS networking, BGP, SD‑WAN, firewalling, automation. Your posting isn’t drowning in irrelevant traffic — it’s <em>punching above its weight</em>.</p>
+      </article>
+      <article class="proof-card">
+        <h5>Momentum > Mass</h5>
+        <p>You don’t need 10,000 random views. You need <strong>50 engineers who can actually do the job</strong>. That’s what our niche delivers.</p>
+      </article>
+      <article class="proof-card">
+        <h5>Conversion‑First Layouts</h5>
+        <p>Clean listings, clear CTAs, weekly digests, and Featured/Pinned upgrades to keep your role top‑of‑mind. The page sells for you — <strong>Wolf‑approved</strong>.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="addons">
+    <h2>Make it impossible to ignore.</h2>
+    <div class="addon-grid">
+      <div class="addon">
+        <h4>Featured (+$50)</h4>
+        <p>Glow up your listing with color, badge, and prime placement in search + digest.</p>
+      </div>
+      <div class="addon">
+        <h4>Pinned (+$100)</h4>
+        <p>Own the top of the board. Your role stays above the fold — period.</p>
+      </div>
+      <div class="addon">
+        <h4>Resume Boosts</h4>
+        <p>Optional: let candidates boost visibility — drives more high‑intent applies to you.</p>
+      </div>
+      <div class="addon">
+        <h4>Brand Spotlight</h4>
+        <p>Your logo on the board & newsletter for the month. Instant familiarity & trust.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq">
+    <h2>FAQs</h2>
+    <div class="qa">
+      <button class="q" aria-expanded="false">How fast will my listing go live?</button>
+      <div class="a">Immediately after checkout. You’ll get a link to submit/edit details — updates are instant.</div>
+    </div>
+    <div class="qa">
+      <button class="q" aria-expanded="false">Can I edit or pause my post?</button>
+      <div class="a">Yes. Edit anytime. Starter/Pro can rotate which roles are active to maximize visibility.</div>
+    </div>
+    <div class="qa">
+      <button class="q" aria-expanded="false">What’s a “qualified click”?</button>
+      <div class="a">A click‑through to your application page from a signed‑in user or a verified engineer session — not a bot, not junk traffic.</div>
+    </div>
+    <div class="qa">
+      <button class="q" aria-expanded="false">Refunds?</button>
+      <div class="a">Listings are a service, but if you receive zero qualified clicks in 14 days we upgrade you to Featured at no charge.</div>
+    </div>
+  </section>
+
+  <section class="closer">
+    <h2>Ready to fill the seat?</h2>
+    <p>If you want results this month, you need attention today. Put your role in front of the right engineers — now.</p>
+    <div class="cta-row">
+      <a class="btn primary xl" href={LINKS.single}>Post a Job — $99</a>
+      <a class="btn ghost xl" href={LINKS.starter}>Get Starter — $199/mo</a>
+    </div>
+    <p class="micro">Hiring at scale? <a href={LINKS.ent}>Talk to Sales</a> for Enterprise.</p>
+  </section>
+
+  <style>
+    :root{
+      --bg:#0e0f13;
+      --card:#15161c;
+      --glass:rgba(255,255,255,.06);
+      --line:#262833;
+      --text:#e8eaf2;
+      --muted:#a9afc3;
+      --accent:#4cafef;
+      --accent-2:#7fe3ff;
+      --good:#36d399;
+      --warn:#ffd166;
+    }
+    section{position:relative}
+    .accent{color:var(--accent)}
+    .hero{
+      padding:86px 1rem 40px;
+      text-align:center;
+      background:
+        radial-gradient(1200px 400px at 50% -10%, rgba(76,175,239,.15), transparent 60%),
+        linear-gradient(to bottom, rgba(124,58,237,.08), transparent 30%);
+      overflow:hidden;
+    }
+    .hero .glow{
+      position:absolute; inset:-40px -40px auto -40px; height:220px;
+      background: radial-gradient(600px 160px at 50% 20%, rgba(127,227,255,.15), transparent 60%);
+      filter: blur(10px); pointer-events:none;
+    }
+    .hero h1{
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      line-height:1.1; margin:0 auto 10px; color:var(--text);
+      text-shadow: 0 0 24px rgba(76,175,239,.25);
+    }
+    .tagline{
+      max-width:900px; margin:10px auto 18px; color:var(--muted); font-size:1.05rem;
+    }
+    .hero-cta{display:flex; gap:14px; justify-content:center; margin:16px 0 10px;}
+    .hero-trust{display:flex; gap:18px; justify-content:center; color:#8f96ad; font-size:.95rem; flex-wrap:wrap}
+    .btn{
+      display:inline-block; border-radius:12px; padding:12px 18px; font-weight:800; text-decoration:none; cursor:pointer;
+      border:1px solid var(--line); transition: transform .08s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+    }
+    .btn.primary{ background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#031018; border-color:transparent; box-shadow: 0 8px 30px rgba(76,175,239,.25);}
+    .btn.primary:hover{ transform: translateY(-1px); box-shadow: 0 12px 36px rgba(76,175,239,.35);}
+    .btn.ghost{ color:var(--text); background:transparent; border-color:var(--line);}
+    .btn.ghost:hover{ border-color:var(--accent); color:var(--accent);}
+    .btn.outline{ color:var(--accent); background:transparent; border-color:var(--accent);}
+    .btn.xl{ padding:14px 22px; font-size:1.05rem; border-radius:14px}
+    .pricing{ padding:40px 1rem }
+    .pricing h2{ text-align:center; font-size: clamp(1.6rem, 2.5vw, 2rem); margin:0 0 6px;}
+    .pricing .subtitle{ text-align:center; color:var(--muted); margin:0 0 22px}
+    .grid{
+      display:grid; gap:22px; max-width:1200px; margin:0 auto;
+      grid-template-columns: repeat( auto-fit, minmax(260px, 1fr) );
+    }
+    .card{
+      position:relative; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid var(--line); border-radius:16px; padding:22px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 10px 30px rgba(0,0,0,.25);
+    }
+    .card.pop{ outline: 1px solid rgba(76,175,239,.45); box-shadow: 0 20px 60px rgba(76,175,239,.12), inset 0 1px 0 rgba(255,255,255,.05); }
+    .badge{
+      position:absolute; top:12px; right:12px; background: linear-gradient(135deg, #22e1ff, #1d8cf8);
+      color:#031018; font-weight:900; font-size:.8rem; padding:6px 10px; border-radius:999px; box-shadow: 0 10px 30px rgba(33,150,243,.3);
+    }
+    .card {
+  position: relative;
+  overflow: visible;  /* allow the ribbon to stick out */
+}
+.ribbon {
+  position: absolute;
+  top: -12px;   /* float above card */
+  left: 16px;
+  background: #4cafef;
+  color: #031018;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+    .card header h3{ margin:0 0 6px; font-size:1.2rem }
+    .price{ margin:0 0 12px; }
+    .amount{ font-size:1.9rem; font-weight:900; color:var(--accent) }
+    .term{ color:#8ea2b3; margin-left:6px }
+    .features{ list-style:none; padding:0; margin:0 0 16px; color:#c9d1ea }
+    .features li{ margin:8px 0; display:flex; gap:10px; align-items:flex-start }
+    .features li::before{
+      content:""; width:8px; height:8px; margin-top:7px; border-radius:2px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow:0 0 10px rgba(76,175,239,.6);
+      flex:0 0 auto;
+    }
+    .fineprint{ color:#8f96ad; font-size:.86rem; margin-top:10px }
+    .guarantee{
+      max-width:980px; margin:26px auto 0; padding:14px 18px; text-align:center; color:#d9e2ff;
+      border:1px dashed rgba(127,227,255,.45); border-radius:14px; background:rgba(127,227,255,.05);
+    }
+    .proof{ padding:40px 1rem 10px }
+    .proof-grid{ display:grid; gap:18px; max-width:1100px; margin:0 auto; grid-template-columns: repeat( auto-fit, minmax(260px, 1fr) ); }
+    .proof-card{ background:var(--card); border:1px solid var(--line); padding:18px; border-radius:14px; color:#d7dcf0 }
+    .proof-card h5{ margin:0 0 6px; font-size:1.02rem }
+    .addons{ padding:30px 1rem 10px }
+    .addons h2{ text-align:center; margin-bottom:14px }
+    .addon-grid{ display:grid; gap:16px; max-width:1100px; margin:0 auto; grid-template-columns: repeat( auto-fit, minmax(220px, 1fr) ); }
+    .addon{ background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); border:1px solid var(--line); padding:16px; border-radius:14px; color:#d7dcf0 }
+    .faq{ padding:36px 1rem }
+    .faq h2{ text-align:center; margin-bottom:12px }
+    .qa{ max-width:900px; margin:0 auto 10px; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card) }
+    .q{
+      width:100%; text-align:left; background:transparent; color:var(--text); padding:14px; font-weight:800; border:0; cursor:pointer;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .q::after{ content:"+"; color:var(--accent) }
+    .q[aria-expanded="true"]::after{ content:"–" }
+    .a{ display:none; color:#c8cfe3; padding:0 14px 14px }
+    .qa.open .a{ display:block }
+    .closer{ text-align:center; padding:30px 1rem 60px }
+    .closer h2{ margin-bottom:6px }
+    .cta-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:12px 0 6px }
+    .micro{ color:#8ea2b3; font-size:.9rem }
+  </style>
+
+  <script is:inline>
+    // Simple FAQ accordion
+    document.querySelectorAll('.qa .q').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const qa = btn.closest('.qa');
+        const open = qa.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(open));
+      });
+    });
+
+    // Optional: Lightweight click tracking for plans (can pipe into your analytics)
+    document.querySelectorAll('[data-plan]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        try { window.localStorage.setItem('last_selected_plan', el.dataset.plan); } catch(e){}
+      });
+    });
+  </script>
+</PageLayout>

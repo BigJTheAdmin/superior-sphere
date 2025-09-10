@@ -1,0 +1,217 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Subnet Calculator" }}>
+	<section class="tool-wrapper">
+		<h1>Subnet Calculator with VLSM</h1>
+
+		<div class="tool-card">
+			<h3>Understanding IP Subnetting</h3>
+			<p>
+				Subnetting is a method of dividing a larger IP network into smaller, more manageable
+				sub-networks (subnets). Each subnet has its own network address, broadcast address, and
+				usable host range.
+			</p>
+			<p>
+				In IPv4, a subnet is defined by its CIDR notation — for example, <code>192.168.1.0/24</code>
+				indicates the first 24 bits are reserved for the network, and the remaining bits define host
+				addresses.
+			</p>
+			<p>
+				The number after the slash (/) is the prefix length, and it determines how many IP addresses
+				are in the subnet. The smaller the prefix, the more host addresses available. For example:
+			</p>
+			<ul>
+				<li><code>/24</code> = 256 total IPs, 254 usable hosts</li>
+				<li><code>/26</code> = 64 total IPs, 62 usable hosts</li>
+				<li><code>/30</code> = 4 total IPs, 2 usable (often used for point-to-point links)</li>
+			</ul>
+			<p>
+				This tool also demonstrates Variable Length Subnet Masking (VLSM), where larger networks are
+				subdivided into smaller blocks based on specific size needs.
+			</p>
+			<p>
+				Enter any CIDR block below to get key subnetting information and a breakdown of all usable
+				IP ranges.
+			</p>
+		</div>
+
+		<div class="input-group">
+			<input id="cidr" placeholder="192.168.0.0/22" />
+			<button id="calcBtn">Calculate</button>
+		</div>
+
+		<pre id="results">Enter a CIDR to calculate subnet details.</pre>
+
+		<div id="ip-chart" class="tool-card">
+			<h3>IPv4 Reference Chart (/8 → /30)</h3>
+			<ul>
+				<li>/8 → 16,777,216 addresses (16,777,214 usable) — 65,536 /24 networks</li>
+				<li>/9 → 8,388,608 addresses (8,388,606 usable) — 32,768 /24 networks</li>
+				<li>/10 → 4,194,304 addresses (4,194,302 usable) — 16,384 /24 networks</li>
+				<li>/11 → 2,097,152 addresses (2,097,150 usable) — 8,192 /24 networks</li>
+				<li>/12 → 1,048,576 addresses (1,048,574 usable) — 4,096 /24 networks</li>
+				<li>/13 → 524,288 addresses (524,286 usable) — 2,048 /24 networks</li>
+				<li>/14 → 262,144 addresses (262,142 usable) — 1,024 /24 networks</li>
+				<li>/15 → 131,072 addresses (131,070 usable) — 512 /24 networks</li>
+				<li>/16 → 65,536 addresses (65,534 usable) — 256 /24 networks</li>
+				<li>/17 → 32,768 addresses (32,766 usable) — 128 /24 networks</li>
+				<li>/18 → 16,384 addresses (16,382 usable) — 64 /24 networks</li>
+				<li>/19 → 8,192 addresses (8,190 usable) — 32 /24 networks</li>
+				<li>/20 → 4,096 addresses (4,094 usable) — 16 /24 networks</li>
+				<li>/21 → 2,048 addresses (2,046 usable) — 8 /24 networks</li>
+				<li>/22 → 1,024 addresses (1,022 usable) — 4 /24 networks</li>
+				<li>/23 → 512 addresses (510 usable) — 2 /24 networks</li>
+				<li>/24 → 256 addresses (254 usable) — 1 /24 network</li>
+				<li>/25 → 128 addresses (126 usable)</li>
+				<li>/26 → 64 addresses (62 usable)</li>
+				<li>/27 → 32 addresses (30 usable)</li>
+				<li>/28 → 16 addresses (14 usable)</li>
+				<li>/29 → 8 addresses (6 usable)</li>
+				<li>/30 → 4 addresses (2 usable)</li>
+			</ul>
+		</div>
+	</section>
+
+	<style>
+		.tool-wrapper {
+			padding: 2rem;
+			font-family: Consolas, monospace;
+			background: #0d0d0d;
+			color: #e0e0e0;
+			min-height: 100vh;
+		}
+		h1 {
+			font-size: 2rem;
+			margin-bottom: 1.5rem;
+			text-align: center;
+			color: #0ff;
+		}
+		.input-group {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			max-width: 320px;
+			margin: 0 auto 2rem;
+		}
+		input {
+			padding: 0.75rem;
+			background: #111;
+			border: 1px solid #333;
+			border-radius: 6px;
+			color: #fff;
+			font-size: 1rem;
+		}
+		button {
+			padding: 0.75rem;
+			background: #0ff;
+			color: #000;
+			border: none;
+			border-radius: 6px;
+			font-weight: bold;
+			cursor: pointer;
+			transition: background 0.2s;
+		}
+		button:hover {
+			background: #00e0e0;
+		}
+		pre {
+			background: #1a1a1a;
+			padding: 1rem;
+			border-radius: 8px;
+			white-space: pre-wrap;
+			margin: 0 auto 2rem;
+			max-width: 720px;
+			font-size: 0.95rem;
+		}
+		.tool-card {
+			background: rgba(255, 255, 255, 0.05);
+			backdrop-filter: blur(12px);
+			padding: 1.5rem;
+			border-radius: 12px;
+			margin: 0 auto 2rem;
+			max-width: 720px;
+		}
+		h3 {
+			color: #0ff;
+			margin-bottom: 1rem;
+		}
+		ul {
+			padding-left: 1rem;
+			line-height: 1.6;
+		}
+		li {
+			margin: 0.2rem 0;
+		}
+	</style>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", () => {
+			const calcBtn = document.getElementById("calcBtn");
+			const results = document.getElementById("results");
+
+			calcBtn.addEventListener("click", () => {
+				const cidrInput = document.getElementById("cidr").value.trim();
+				if (!cidrInput.includes("/")) {
+					alert("Please enter in CIDR notation, e.g., 192.168.1.0/24");
+					return;
+				}
+
+				try {
+					const [ip, prefix] = cidrInput.split("/");
+					const ipParts = ip.split(".").map(Number);
+					const cidr = parseInt(prefix);
+
+					if (
+						ipParts.length !== 4 ||
+						ipParts.some((o) => o < 0 || o > 255) ||
+						isNaN(cidr) ||
+						cidr < 0 ||
+						cidr > 32
+					) {
+						throw new Error("Invalid CIDR notation");
+					}
+
+					const ipToInt = (ip) => (ip[0] << 24) | (ip[1] << 16) | (ip[2] << 8) | ip[3];
+					const intToIP = (int) =>
+						[(int >>> 24) & 255, (int >>> 16) & 255, (int >>> 8) & 255, int & 255].join(".");
+
+					const ipInt = ipToInt(ipParts);
+					const mask = (0xffffffff << (32 - cidr)) >>> 0;
+					const wildcard = ~mask >>> 0;
+					const network = ipInt & mask;
+					const broadcast = network | wildcard;
+					const totalIPs = 2 ** (32 - cidr);
+					const numHosts = cidr >= 31 ? (cidr === 31 ? 2 : 1) : totalIPs - 2;
+
+					// Define the chunk subnet size
+					let splitCidr = cidr < 26 ? 26 : cidr;
+					let blockSize = 2 ** (32 - splitCidr);
+					let numSubnets = Math.floor(totalIPs / blockSize);
+					let ranges = [];
+
+					for (let i = 0; i < numSubnets; i++) {
+						const subnetBase = network + i * blockSize;
+						const firstUsable = splitCidr >= 31 ? subnetBase : subnetBase + 1;
+						const lastUsable =
+							splitCidr >= 31 ? subnetBase + blockSize - 1 : subnetBase + blockSize - 2;
+						ranges.push(`${intToIP(firstUsable)} - ${intToIP(lastUsable)}`);
+					}
+
+					results.textContent = `
+CIDR:              ${cidrInput}
+Subnet Mask:       ${intToIP(mask)}
+Wildcard Mask:     ${intToIP(wildcard)}
+Network Address:   ${intToIP(network)}
+Broadcast Address: ${intToIP(broadcast)}
+Usable Hosts:      ${numHosts}
+Usable IP Range:   ${ranges.join(", ")}
+					`.trim();
+				} catch (e) {
+					results.textContent = "Error: " + e.message;
+				}
+			});
+		});
+	</script>
+</PageLayout>

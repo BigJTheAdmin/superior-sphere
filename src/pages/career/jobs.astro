@@ -1,0 +1,638 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+import { getLiveJobs } from "@/lib/jobsStore";
+
+// Server-side: load paid listings
+const { featured = [], pinned = [], standard = [] } = await getLiveJobs();
+
+function daysLeft(ts?: number) {
+  if (!ts) return null;
+  const ms = ts - Date.now();
+  if (ms <= 0) return 0;
+  return Math.ceil(ms / (24 * 60 * 60 * 1000));
+}
+
+// Helper to render tag text gracefully (array or string)
+function formatTags(t?: string | string[]) {
+  if (!t) return "";
+  return Array.isArray(t) ? t.join(", ") : t;
+}
+
+// Dev preview so the Featured bar is visible locally if you have no featured posts yet
+const devPreview = !import.meta.env.PROD && featured.length === 0 ? [
+  {
+    title: "Senior Network Engineer",
+    company: "Acme Cloud",
+    location: "Remote (US)",
+    type: "FULLTIME",
+    comp: "$150k–$185k + equity",
+    tags: ["BGP", "EVPN", "Terraform"].join(", "),
+    liveUntil: Date.now() + 1000 * 60 * 60 * 24 * 21,
+    applyUrl: "/career/post-job"
+  },
+  {
+    title: "NGFW Architect (Palo Alto)",
+    company: "PacketWorks",
+    location: "Tampa, FL",
+    type: "CONTRACTOR",
+    comp: "$95–$125/hr",
+    tags: "Panorama, NAT, Threat Profiles",
+    liveUntil: Date.now() + 1000 * 60 * 60 * 24 * 10,
+    applyUrl: "/career/post-job"
+  }
+] : [];
+
+const visibleFeatured = featured.length > 0 ? featured : devPreview;
+
+// JSON-LD for real Featured listings (skip dev previews)
+const featuredJsonLd = featured.map((j) => {
+  const validThrough = j.liveUntil ? new Date(j.liveUntil).toISOString() : undefined;
+  const employmentType = j.type || "FULL_TIME";
+  return {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: j.title,
+    description: (j.description || j.tags || "")?.toString()?.slice(0, 300),
+    hiringOrganization: j.company ? { "@type": "Organization", name: j.company } : undefined,
+    jobLocationType: (j.location && /remote/i.test(j.location)) ? "TELECOMMUTE" : undefined,
+    employmentType,
+    validThrough,
+    applicantLocationRequirements: j.location || undefined,
+    datePosted: j.postedAt ? new Date(j.postedAt).toISOString() : undefined,
+    url: j.applyUrl,
+  };
+});
+---
+
+<PageLayout meta={{ title: "Job Search" }}>
+  <section class="tool-wrapper">
+    <h1>Job Search</h1>
+    <p class="subtitle">Use keywords, filters, and your location to find career opportunities.</p>
+
+    <!-- ===== Featured Jobs (Paid) — ALWAYS visible ===== -->
+    <div class="tool-card featured-bar" aria-labelledby="featured-jobs-title">
+      <div class="featured-header">
+        <h3 id="featured-jobs-title">Featured Jobs</h3>
+        <p class="featured-note">
+          Premium listings from employers hiring now
+          {featured.length === 0 && <span class="muted"> — none live yet</span>}
+        </p>
+        <a class="btn btn--accent" href="/career/post-job">Feature a Job</a>
+      </div>
+
+      {visibleFeatured.length > 0 ? (
+        <div class="featured-scroll" role="list" aria-label="Featured jobs">
+          {visibleFeatured.map((j) => (
+            <a
+              class="paid-card featured"
+              role="listitem"
+              href={j.applyUrl}
+              target="_blank"
+              rel="noopener"
+              aria-label={`Apply: ${j.title} at ${j.company || "Company"}`}
+            >
+              <span class="badge" aria-hidden="true">FEATURED</span>
+              <span class="title">{j.title}</span>
+              <span class="company">{j.company}</span>
+              <span class="meta">{j.location || "Flexible"} • {j.type || "Role"}</span>
+              {j.comp && <span class="comp">{j.comp}</span>}
+              {j.tags && <span class="tags">{formatTags(j.tags)}</span>}
+              {j.liveUntil && <span class="lifespan">{daysLeft(j.liveUntil)} days left</span>}
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="featured-empty">
+          <p>No featured jobs yet.</p>
+          <a class="btn btn--accent" href="/career/post-job">Post a Featured Job</a>
+        </div>
+      )}
+
+      {!import.meta.env.PROD && featured.length === 0 && (
+        <p class="dev-hint" role="note">Dev preview only — this bar will show real Featured posts once you add them via the intake form.</p>
+      )}
+    </div>
+
+    <!-- ===== Pinned Jobs (Paid add-on) ===== -->
+    {pinned.length > 0 && (
+      <div class="tool-card paid-section" aria-labelledby="pinned-jobs-title">
+        <div class="paid-header">
+          <h3 id="pinned-jobs-title">Pinned</h3>
+          <p class="paid-note">Boosted to the top for 7 days</p>
+        </div>
+        <div class="paid-grid">
+          {pinned.map((j) => (
+            <a
+              class={"paid-card " + (j.highlight ? "highlight" : "")}
+              href={j.applyUrl}
+              target="_blank"
+              rel="noopener"
+              aria-label={`Apply: ${j.title} at ${j.company || "Company"}`}
+            >
+              <div class="pill-row">
+                <span class="pill pin">Pinned</span>
+                {j.highlight && <span class="pill hi">Highlighted</span>}
+              </div>
+              <span class="title">{j.title}</span>
+              <span class="company">{j.company}</span>
+              <span class="meta">{j.location || "Flexible"} • {j.type || "Role"}</span>
+              {j.comp && <span class="comp">{j.comp}</span>}
+              {j.tags && <span class="tags">{formatTags(j.tags)}</span>}
+              <div class="footer-row">
+                {j.pinUntil && <span class="lifespan">{daysLeft(j.pinUntil)} days pinned</span>}
+                {j.liveUntil && <span class="lifespan">{daysLeft(j.liveUntil)} days left</span>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- ===== Standard Paid Listings ===== -->
+    {standard.length > 0 && (
+      <div class="tool-card paid-section" aria-labelledby="paid-listings-title">
+        <div class="paid-header">
+          <h3 id="paid-listings-title">Paid Listings</h3>
+          <p class="paid-note">Standard job posts (30 days)</p>
+        </div>
+        <div class="paid-grid">
+          {standard.map((j) => (
+            <a
+              class={"paid-card " + (j.highlight ? "highlight" : "")}
+              href={j.applyUrl}
+              target="_blank"
+              rel="noopener"
+              aria-label={`Apply: ${j.title} at ${j.company || "Company"}`}
+            >
+              {j.highlight && (
+                <div class="pill-row">
+                  <span class="pill hi">Highlighted</span>
+                </div>
+              )}
+              <span class="title">{j.title}</span>
+              <span class="company">{j.company}</span>
+              <span class="meta">{j.location || "Flexible"} • {j.type || "Role"}</span>
+              {j.comp && <span class="comp">{j.comp}</span>}
+              {j.tags && <span class="tags">{formatTags(j.tags)}</span>}
+              {j.liveUntil && <span class="lifespan">{daysLeft(j.liveUntil)} days left</span>}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Employer CTA -->
+    <div class="post-job-cta">
+      <p>Are you hiring? <a href="/career/job-pricing" class="btn btn--accent">Post a Job</a></p>
+    </div>
+
+    <!-- ===== External Job Search (kept intact) ===== -->
+    <div class="tool-card">
+      <form id="search-form" class="search-form" aria-label="External job search form">
+        <input id="keyword" placeholder="e.g. Network Engineer" required aria-label="Keyword" />
+
+        <div class="location-row">
+          <input id="location" placeholder="e.g. Tampa, FL" required aria-label="Location" />
+          <button id="use-location" type="button">Use My Location</button>
+        </div>
+
+        <label class="inline">
+          <input type="checkbox" id="remote" />
+          Remote Only
+        </label>
+
+        <label>
+          Job Type:
+          <select id="jobType">
+            <option value="">Any</option>
+            <option value="FULLTIME">Full-time</option>
+            <option value="PARTTIME">Part-time</option>
+            <option value="CONTRACTOR">Contract</option>
+            <option value="INTERN">Intern</option>
+            <option value="TEMPORARY">Temporary</option>
+          </select>
+        </label>
+
+        <label>
+          Posted:
+          <select id="postedAt">
+            <option value="">Anytime</option>
+            <option value="today">Today</option>
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+          </select>
+        </label>
+
+        <label>
+          Seniority Level:
+          <input id="seniority" placeholder="e.g. Entry Level, Mid Level" />
+        </label>
+
+        <label>
+          Company Name:
+          <input id="company" placeholder="e.g. Cisco, Google" />
+        </label>
+
+        <label>
+          Specific Job Title:
+          <input id="jobtitle" placeholder="e.g. Network Administrator" />
+        </label>
+
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    <div id="results" class="tool-card results">
+      <p id="status">Enter a search above to begin.</p>
+    </div>
+  </section>
+
+  {featuredJsonLd.length > 0 && (
+    <script type="application/ld+json">
+      {JSON.stringify(featuredJsonLd)}
+    </script>
+  )}
+
+  <script type="module">
+    // ===== Config (LOCAL ONLY: use serverless proxy for prod) =====
+    const API_ENDPOINT = "https://jsearch.p.rapidapi.com/search";
+    const RAPID_KEY = "786a520219msh323c43a502464dcp125036jsn3bcfda766cd1";
+
+    const STORAGE_KEY = "saved_jobs_v1";
+    const postedMap = { today: "today", "7days": "week", "30days": "month" };
+    const $ = (s) => document.querySelector(s);
+
+    function getSaved() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+      catch { return []; }
+    }
+    const isSaved = (id) => getSaved().some((j) => j.job_id === id);
+    function saveJob(job) {
+      const list = getSaved();
+      if (!list.some((j) => j.job_id === job.job_id)) {
+        list.push({
+          job_id: job.job_id || "",
+          job_title: job.job_title || "",
+          employer_name: job.employer_name || "",
+          job_city: job.job_city || "",
+          job_state: job.job_state || "",
+          job_apply_link: job.job_apply_link || job.job_google_link || "",
+          saved_at: Date.now(),
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      }
+    }
+    function removeSaved(id) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(getSaved().filter((j) => j.job_id !== id)));
+    }
+
+    async function detectLocation() {
+      const locationInput = $("#location");
+      locationInput.value = "Detecting location...";
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        locationInput.value = "";
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        async ({ coords: { latitude, longitude } }) => {
+          try {
+            const r = await fetch("https://nominatim.openstreetmap.org/reverse?lat=" + latitude + "&lon=" + longitude + "&format=json");
+            const d = await r.json();
+            const city = d.address.city || d.address.town || d.address.village || "";
+            const state = d.address.state || "";
+            locationInput.value = city && state ? city + ", " + state : "";
+            if (!city || !state) alert("Unable to determine city/state from your location.");
+          } catch (e) {
+            console.error("Reverse geocoding error:", e);
+            locationInput.value = "";
+            alert("Failed to reverse geocode your location.");
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          locationInput.value = "";
+          alert("Location access denied or unavailable.");
+        },
+      );
+    }
+
+    function setStatus(text) {
+      const status = $("#status");
+      if (status) status.textContent = text;
+      else {
+        const p = document.createElement("p");
+        p.id = "status";
+        p.textContent = text;
+        $("#results").prepend(p);
+      }
+    }
+    function clearStatus() { const s = $("#status"); if (s) s.remove(); }
+    function clearResults() { $("#results").innerHTML = ""; }
+    function copyToClipboard(text, btn) {
+      navigator.clipboard?.writeText(text).then(() => {
+        if (btn) {
+          const old = btn.textContent;
+          btn.textContent = "Copied";
+          btn.classList.add("btn--success");
+          setTimeout(() => {
+            btn.textContent = old;
+            btn.classList.remove("btn--success");
+          }, 900);
+        }
+      });
+    }
+
+    function makeBtn({ as = "a", label, href, title, variant = "primary", onClick }) {
+      let el;
+      if (as === "a") {
+        el = document.createElement("a");
+        el.href = href || "#";
+        el.target = "_blank";
+        el.rel = "noopener";
+        el.role = "button";
+      } else {
+        el = document.createElement("button");
+        el.type = "button";
+        if (onClick) el.addEventListener("click", onClick);
+      }
+      el.className = "btn btn--" + variant;
+      el.textContent = label;
+      if (title) el.title = title;
+      return el;
+    }
+    function chip(text, onClick) {
+      const c = document.createElement("button");
+      c.type = "button";
+      c.className = "chip";
+      c.textContent = text;
+      if (onClick) c.addEventListener("click", onClick);
+      return c;
+    }
+
+    function buildJobCard(job) {
+      const article = document.createElement("article");
+      article.className = "job-item";
+      article.dataset.jobId = job.job_id || "";
+
+      const left = document.createElement("div");
+      left.className = "job-left";
+      if (job.employer_logo) {
+        const img = document.createElement("img");
+        img.className = "logo";
+        img.src = job.employer_logo;
+        img.alt = (job.employer_name || "Company") + " logo";
+        left.appendChild(img);
+      }
+
+      const right = document.createElement("div");
+      right.className = "job-right";
+
+      const h3 = document.createElement("h3");
+      h3.textContent = job.job_title || "Untitled role";
+      const emp = document.createElement("p");
+      emp.className = "employer";
+      emp.textContent = job.employer_name || "";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const city = job.job_city || "";
+      const state = job.job_state || "";
+      const loc = city && state ? city + ", " + state : city || state;
+      if (loc)
+        meta.appendChild(chip(loc, () => window.open("https://www.google.com/maps/search/" + encodeURIComponent(loc), "_blank", "noopener")));
+      if (job.job_employment_type) meta.appendChild(chip(job.job_employment_type));
+      if (job.job_is_remote) meta.appendChild(chip("Remote"));
+      if (job.job_posted_at_datetime_utc) {
+        try { meta.appendChild(chip("Posted " + new Date(job.job_posted_at_datetime_utc).toLocaleDateString())); } catch {}
+      }
+
+      if (job.job_description) {
+        const d = document.createElement("p");
+        d.className = "desc";
+        d.textContent = job.job_description.slice(0, 180).trimEnd() + "...";
+        right.appendChild(d);
+      }
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      if (job.job_apply_link)
+        actions.appendChild(makeBtn({ as: "a", href: job.job_apply_link, label: "Apply", title: "Open application link", variant: "primary" }));
+      if (job.job_google_link)
+        actions.appendChild(makeBtn({ as: "a", href: job.job_google_link, label: "Listing", title: "Open job listing", variant: "accent" }));
+      if (loc) {
+        const mapsHref = "https://www.google.com/maps/search/" + encodeURIComponent(loc + " " + (job.employer_name || ""));
+        actions.appendChild(makeBtn({ as: "a", href: mapsHref, label: "Map", title: "Open location in Maps", variant: "neutral" }));
+      }
+      actions.appendChild(
+        makeBtn({
+          as: "button",
+          label: "Copy",
+          title: "Copy title, company, and location",
+          variant: "outline",
+          onClick: (e) => {
+            const line = [job.job_title || "", job.employer_name || "", loc || ""].filter(Boolean).join(" — ");
+            copyToClipboard(line, e.currentTarget);
+          },
+        }),
+      );
+      const jid = job.job_id || "";
+      const saved = jid && isSaved(jid);
+      const saveBtn = makeBtn({
+        as: "button",
+        label: saved ? "Saved" : "Save",
+        title: saved ? "Job saved" : "Save job",
+        variant: saved ? "success" : "warning",
+        onClick: () => {
+          if (!jid) return;
+          if (isSaved(jid)) {
+            removeSaved(jid);
+            saveBtn.textContent = "Save";
+            saveBtn.className = "btn btn--warning";
+          } else {
+            saveJob(job);
+            saveBtn.textContent = "Saved";
+            saveBtn.className = "btn btn--success";
+          }
+        },
+      });
+      actions.appendChild(saveBtn);
+
+      right.prepend(meta);
+      right.prepend(emp);
+      right.prepend(h3);
+
+      const stack = document.createElement("div");
+      stack.className = "right-stack";
+      stack.appendChild(right);
+      stack.appendChild(actions);
+
+      article.appendChild(left);
+      article.appendChild(stack);
+      return article;
+    }
+
+    async function searchJobs(e) {
+      if (e) e.preventDefault();
+
+      const keyword = ($("#keyword").value || "").trim();
+      const location = ($("#location").value || "").trim();
+      const remote = $("#remote").checked;
+      const jobType = $("#jobType").value;
+      const postedAt = $("#postedAt").value;
+      const seniority = ($("#seniority").value || "").trim();
+      const company = ($("#company").value || "").trim();
+      const jobtitle = ($("#jobtitle").value || "").trim();
+
+      if (!keyword || !location) {
+        setStatus("Please enter both a keyword and a location.");
+        return;
+      }
+
+      clearResults();
+      setStatus("Loading...");
+
+      const url = new URL(API_ENDPOINT);
+      url.searchParams.set("query", keyword + " in " + location);
+      url.searchParams.set("page", "1");
+      url.searchParams.set("num_pages", "1");
+      url.searchParams.set("country", "US");
+      if (remote) url.searchParams.set("remote_jobs_only", "true");
+      if (jobType) url.searchParams.set("employment_types", jobType);
+      if (postedAt) url.searchParams.set("date_posted", postedMap[postedAt] || "");
+      if (seniority) url.searchParams.set("job_requirements", seniority);
+      if (company) url.searchParams.set("company_name", company);
+      if (jobtitle) url.searchParams.set("job_title", jobtitle);
+
+      try {
+        const resp = await fetch(url.toString(), {
+          method: "GET",
+          headers: { "X-RapidAPI-Key": RAPID_KEY, "X-RapidAPI-Host": "jsearch.p.rapidapi.com" },
+        });
+        if (!resp.ok) {
+          const t = await resp.text().catch(() => "");
+          console.error("API error", resp.status, t);
+          setStatus("Error fetching jobs (status " + resp.status + "). See console.");
+          return;
+        }
+        const data = await resp.json();
+        if (!data || !Array.isArray(data.data) || data.data.length === 0) {
+          setStatus("No jobs found. Try adjusting your filters.");
+          return;
+        }
+
+        clearResults();
+        clearStatus();
+        const box = $("#results");
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < data.data.length; i++) frag.appendChild(buildJobCard(data.data[i]));
+        box.appendChild(frag);
+      } catch (err) {
+        console.error("Network/CORS error", err);
+        setStatus("Error fetching jobs (network or CORS). See console.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const useLoc = $("#use-location");
+      if (useLoc) useLoc.addEventListener("click", detectLocation);
+      const form = $("#search-form");
+      if (form) form.addEventListener("submit", searchJobs);
+    });
+  </script>
+
+  <style is:global>
+    .tool-card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 1.5rem;
+    }
+    .subtitle { color: #bbb; margin: 0.25rem 0 1rem; }
+
+    .featured-bar { overflow: hidden; }
+    .featured-header { display:flex; align-items:center; gap:12px; justify-content:space-between; margin-bottom:10px; }
+    .featured-header h3 { margin:0; }
+    .featured-note { margin:0; color:#9aa3b2; font-size:.9rem; flex:1; }
+    .featured-note .muted { color:#7f8a99; font-weight:600; }
+
+    .featured-empty { display:flex; align-items:center; gap:12px; justify-content:space-between; flex-wrap:wrap; }
+    .dev-hint { margin-top:8px; color:#9aa3b2; font-size:.85rem; }
+
+    .paid-section .paid-header { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .paid-header h3 { margin:0; }
+    .paid-note { margin:0; color:#9aa3b2; font-size:.9rem; }
+
+    .featured-scroll { display:flex; gap:14px; overflow-x:auto; padding-bottom:6px; scroll-snap-type:x mandatory; }
+    .featured-scroll::-webkit-scrollbar { height:8px; }
+    .featured-scroll::-webkit-scrollbar-thumb { background:#2a2a2a; border-radius:8px; }
+
+    .paid-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px; }
+
+    .paid-card {
+      display:flex; flex-direction:column; gap:6px; min-width:260px;
+      text-decoration:none; color:#eaeaea; background:#171717;
+      border:1px solid #2a2a2a; border-radius:12px; padding:14px;
+      transition:border-color .12s ease, transform .12s ease;
+      position:relative;
+    }
+    .paid-card:hover { border-color:#4aa3ff; transform: translateY(-1px); }
+
+    .paid-card.featured { background: linear-gradient(180deg, #1b1b1b, #252015); border: 1px solid #FFC10766; box-shadow: 0 0 0 2px #FFC10722 inset; }
+    .paid-card .badge { position:absolute; top:10px; right:10px; background:linear-gradient(90deg,#FFD54F,#FFB300); color:#111; border-radius:999px; padding:2px 10px; font-weight:800; font-size:.72rem; letter-spacing:.3px; }
+    .paid-card .title { font-weight:800; font-size:1.02rem; }
+    .paid-card .company { opacity:.95; }
+    .paid-card .meta { opacity:.85; font-size:.9rem; }
+    .paid-card .comp { font-weight:700; }
+    .paid-card .tags { opacity:.8; font-size:.85rem; }
+    .paid-card .lifespan { opacity:.75; font-size:.82rem; }
+
+    .pill-row { display:flex; gap:8px; margin-bottom:4px; }
+    .pill { border:1px solid #444; background:#151515; color:#eaeaea; border-radius:999px; padding:3px 8px; font-size:.75rem; font-weight:700; letter-spacing:.2px; }
+    .pill.pin { border-color:#6aa84f; color:#c9f7c4; }
+    .pill.hi { border-color:#4aa3ff; color:#cfe7ff; }
+    .highlight { box-shadow: 0 0 0 2px #4aa3ff33 inset, 0 0 12px #4aa3ff22; }
+
+    .search-form { display:grid; gap:14px; }
+    .search-form input, .search-form select { background:#111; border:1px solid #444; padding:10px; border-radius:8px; color:#fff; }
+    .search-form label { display:flex; flex-direction:column; color:#ccc; font-size:.9rem; gap:6px; }
+    .search-form .inline { flex-direction:row; align-items:center; gap:10px; }
+    .search-form button { padding:10px 14px; background:#0077ff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+
+    .location-row { display:flex; gap:10px; flex-wrap:wrap; }
+    .location-row input { flex:1; min-width:220px; }
+
+    .results { margin-top:1rem; }
+    #status { color:#cfcfcf; margin:0; }
+
+    .job-item { display:grid; grid-template-columns:72px 1fr; gap:14px; padding:18px 0; border-bottom:1px solid #2a2a2a; }
+    .job-item:last-child { border-bottom:none; }
+
+    .job-left .logo { width:56px; height:56px; object-fit:contain; border-radius:8px; background:#111; border:1px solid #2b2b2b; padding:6px; }
+
+    .job-right h3 { margin:0 0 4px; font-size:1.08rem; }
+    .employer { color:#ddd; margin:0 0 6px; }
+
+    .meta { display:flex; flex-wrap:wrap; gap:8px; color:#aaa; margin:0 0 10px; }
+    .chip { border:1px solid #333; border-radius:999px; padding:4px 10px; font-size:.8rem; background:#151515; color:#cfcfcf; cursor:pointer; }
+    .chip:hover { background:#181818; }
+
+    .desc { color:#cfcfcf; margin:0 0 12px; line-height:1.45; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+
+    .btn { display:inline-block; text-align:center; border-radius:10px; padding:10px 14px; line-height:1; font-weight:700; letter-spacing:.2px; text-decoration:none; border:1px solid transparent; cursor:pointer; user-select:none; transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s; outline:none; }
+    .btn:focus-visible { box-shadow:0 0 0 3px rgba(45,109,255,.35); }
+    .btn:hover { transform: translateY(-1px); }
+    .btn--primary { background:#2d6dff; color:#fff; border-color:#2d6dff; }
+    .btn--primary:hover { background:#2a61e3; }
+    .btn--accent { background:#2d6dff; color:#fff; border-color:#2d6dff; }
+    .btn--accent:hover { background:#2a61e3; }
+    .btn--neutral { background:#2b2b2b; color:#eaeaea; border-color:#3a3a3a; }
+    .btn--neutral:hover { background:#323232; }
+    .btn--outline { background:transparent; color:#ddd; border-color:#555; }
+    .btn--outline:hover { background:#222; }
+    .btn--success { background:#10a37f; color:#fff; border-color:#10a37f; }
+    .btn--warning { background:#e6a700; color:#151515; border-color:#e6a700; }
+  </style>
+</PageLayout>

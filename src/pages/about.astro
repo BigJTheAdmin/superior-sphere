@@ -1,36 +1,330 @@
 ---
 import PageLayout from "@/layouts/Base.astro";
-
-const meta = {
-	description: "I'm a starter theme for Astro.build",
-	title: "About",
-};
 ---
 
-<PageLayout meta={meta}>
-	<h1 class="title mb-6">About</h1>
-	<div class="prose prose-sm prose-cactus max-w-none">
-		<p>
-			Hi, I’m a starter Astro. I’m particularly great for getting you started with your own blogging
-			website.
-		</p>
-		<p>Here are my some of my awesome built in features:</p>
-		<ul class="list-inside list-disc" role="list">
-			<li>I'm ultra fast as I'm a static site</li>
-			<li>I'm fully responsive</li>
-			<li>I come with a light and dark mode</li>
-			<li>I'm easy to customise and add additional content</li>
-			<li>I have Tailwind CSS styling</li>
-			<li>Shiki code syntax highlighting</li>
-			<li>Satori for auto generating OG images for blog posts</li>
-		</ul>
-		<p>
-			Clone or fork my <a
-				class="cactus-link inline-block"
-				href="https://github.com/chrismwilliams/astro-cactus"
-				rel="noreferrer"
-				target="_blank">repo</a
-			> if you like me!
-		</p>
-	</div>
+<PageLayout meta={{ title: "About" }}>
+  <section class="about-wrapper">
+    <!-- Hero -->
+    <header class="hero">
+      <h1>About</h1>
+      <p class="kicker">Ping. Trace. Fix. Repeat.</p>
+    </header>
+
+    <!-- Main content card -->
+    <article class="about-card">
+      <div class="about-grid">
+        <div class="about-copy">
+          <p class="lede">
+            <strong>I’m just a guy.</strong><br />
+            A guy like you.<br />
+            <strong>“The IT Guy.”</strong>
+          </p>
+
+          <p class="para">
+            The one who gets the <em>“Are you busy?”</em> ping right before lunch.
+            Who knows the entire company by first and last name, requires caffeine to make it through the day, and has 9,000 hours of PTO.
+            A guy who secretly loathes vacations because <em>“something will happen...”</em>
+          </p>
+
+          <p class="para">
+            I’m that guy. The one who speaks fluent Cisco IOS, can read pcaps like a bedtime story,
+            and plays utility MVP for the department.
+          </p>
+
+          <blockquote class="pull">
+            <span class="mark">This site was built for you.</span>
+            <br />The fixers. The pingers. The tracers. The repeaters.
+          </blockquote>
+
+          <p class="para">
+            <strong>Take a break.</strong><br />
+            Run a test. Build a config. Play a game. You’re in good company.
+          </p>
+
+          <div class="cta-row">
+            <a class="btn primary" href="/services">Professional Services</a>
+            <a class="btn" href="/career">Career Building Tools</a>
+          </div>
+
+          <div class="signature">
+            — J The Admin
+          </div>
+        </div>
+
+        <figure class="about-figure">
+          <img
+            src="/about.png"
+            alt="The IT Guy"
+            loading="lazy"
+            width="600"
+            height="00"
+          />
+          <figcaption>Building for the people who keep the lights green.</figcaption>
+        </figure>
+      </div>
+
+      <hr class="divider" />
+
+      <section class="meta">
+        <ul class="badges">
+          <li><span class="chip">NetOps</span></li>
+          <li><span class="chip">Automation</span></li>
+          <li><span class="chip">Troubleshooting</span></li>
+          <li><span class="chip">Career Boosters</span></li>
+        </ul>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-num">3</div>
+            <div class="stat-label">Toolkit Tiers</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">24/7</div>
+            <div class="stat-label">Always-On Tools</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">∞</div>
+            <div class="stat-label">Packets Traced</div>
+          </div>
+        </div>
+      </section>
+    </article>
+  </section>
+
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card: #1b1b1b;
+      --card-border: #2a2a2a;
+      --muted: #9aa0a6;
+      --text: #e8eaed;
+      --accent: #22d3ee; /* cyan vibe */
+      --accent-2: #7c3aed; /* purple vibe */
+      --chip: #242424;
+      --chip-border: #333;
+      --shadow: 0 6px 24px rgba(0,0,0,.35);
+      --radius-lg: 14px;
+      --radius-sm: 8px;
+    }
+
+    .about-wrapper {
+      display: block;
+      padding: 32px 1rem 60px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+      letter-spacing: 0.2px;
+    }
+
+    .kicker {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+    }
+
+    .about-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 2vw, 26px);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .9fr;
+      gap: clamp(18px, 3vw, 36px);
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+      .about-figure {
+        order: -1;
+        margin-bottom: 6px;
+      }
+    }
+
+    .about-copy {
+      font-size: 1.06rem;
+      line-height: 1.75;
+      color: var(--text);
+    }
+
+    .lede {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      margin: 0 0 8px;
+    }
+
+    .para {
+      margin: 14px 0;
+      color: var(--text);
+    }
+
+    .pull {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      background: linear-gradient(90deg, rgba(34,211,238,0.10), rgba(124,58,237,0.10));
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+    .pull .mark {
+      font-weight: 700;
+      color: #e6fdff;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: #212121;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform .15s ease, background .15s ease, border .15s ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      background: #262626;
+      border-color: #3a3a3a;
+    }
+    .btn.primary {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border: none;
+      color: #051316;
+    }
+    .btn.primary:hover {
+      filter: brightness(1.05);
+    }
+
+    .signature {
+      margin-top: 14px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .about-figure {
+      position: relative;
+      background: #121212;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .about-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+
+    .about-figure figcaption {
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      border-top: 1px solid var(--card-border);
+      background: #161616;
+    }
+
+    .divider {
+      margin: 22px 0 10px;
+      border: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #2f2f2f, transparent);
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    @media (max-width: 700px) {
+      .meta {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .badges {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 7px 10px;
+      background: var(--chip);
+      border: 1px solid var(--chip-border);
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .stats {
+      display: grid;
+      grid-auto-flow: column;
+      gap: 18px;
+    }
+    @media (max-width: 700px) {
+      .stats {
+        grid-auto-flow: row;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+    }
+
+    .stat {
+      text-align: center;
+      min-width: 120px;
+      background: #151515;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .stat-num {
+      font-size: 1.2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+  </style>
 </PageLayout>
