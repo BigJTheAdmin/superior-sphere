@@ -1,79 +1,119 @@
 ---
-import { render } from "astro:content";
-import Pagination from "@/components/Paginator.astro";
-import PostPreview from "@/components/blog/PostPreview.astro";
-import { getAllPosts, getTagMeta, getUniqueTags } from "@/data/post";
+// File: src/pages/tags/[tag]/[...page].astro
 import PageLayout from "@/layouts/Base.astro";
-import { collectionDateSort } from "@/utils/date";
-import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
-import { Icon } from "astro-icon/components";
+import { getCollection, type CollectionEntry } from "astro:content";
+import type { GetStaticPaths, Page } from "astro";
+
+type Post = CollectionEntry<"post">; // change if your collection id differs (e.g. "blog")
+
+function norm(v: unknown): string {
+  return String(v == null ? "" : v).trim();
+}
+
+function hasTag(entry: Post, tag: string): boolean {
+  const fm: any = entry.data;
+  if (!Array.isArray(fm?.tags)) return false;
+  return fm.tags.map(norm).includes(tag);
+}
+
+function sortByDate(a: Post, b: Post): number {
+  const ad: any = (a.data as any)?.date ?? 0;
+  const bd: any = (b.data as any)?.date ?? 0;
+  return new Date(bd).getTime() - new Date(ad).getTime();
+}
 
 export const getStaticPaths = (async ({ paginate }) => {
-	const allPosts = await getAllPosts();
-	const sortedPosts = allPosts.sort(collectionDateSort);
-	const uniqueTags = getUniqueTags(sortedPosts);
+  const PER_PAGE = 10;
 
-	return uniqueTags.flatMap((tag) => {
-		const postsWithTag = sortedPosts.filter((post) => post.data.tags.includes(tag));
-		return paginate(postsWithTag, {
-			pageSize: 10,
-			params: { tag },
-		});
-	});
+  // Load and prep all posts
+  const posts = await getCollection("post"); // <-- change if your collection id differs
+  const allTags = new Set<string>();
+
+  for (const p of posts) {
+    const fm: any = p.data;
+    if (Array.isArray(fm?.tags)) {
+      for (const t of fm.tags) {
+        const tt = norm(t);
+        if (tt) allTags.add(tt);
+      }
+    }
+  }
+
+  // Build paginated pages for each tag
+  const paths = [];
+  for (const tag of Array.from(allTags)) {
+    const filtered = posts.filter((p) => hasTag(p, tag)).sort(sortByDate);
+    const items = paginate(filtered, {
+      pageSize: PER_PAGE,
+      params: { tag, page: [] }, // static-safe catch-all
+    });
+    paths.push(...items);
+  }
+
+  return paths;
 }) satisfies GetStaticPaths;
 
-type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+interface Props {
+  params: { tag: string };
+  page: Page<Post>;
+}
 
-const { page } = Astro.props as Props;
-const { tag } = Astro.params;
-const tagMeta = await getTagMeta(tag);
+const { params, page } = Astro.props;
+const tag = params.tag;
 
-const TagContent = tagMeta ? (await render(tagMeta)).Content : null;
+function hrefFor(entry: Post): string {
+  const fm: any = entry.data;
+  if (fm?.permalink) return fm.permalink;
+  // Avoid template literals to prevent accidental regex parsing
+  return "/posts/" + entry.slug + "/";
+}
 
-const meta = {
-	description: tagMeta?.data.description ?? `View all posts with the tag - ${tag}`,
-	title: tagMeta?.data.title ?? `Posts about ${tag}`,
-};
-
-const paginationProps = {
-	...(page.url.prev && {
-		prevUrl: {
-			text: "← Previous Tags",
-			url: page.url.prev,
-		},
-	}),
-	...(page.url.next && {
-		nextUrl: {
-			text: "Next Tags →",
-			url: page.url.next,
-		},
-	}),
-};
+const prevHref: string | null = page.url.prev ?? null;
+const nextHref: string | null = page.url.next ?? null;
 ---
 
-<PageLayout meta={meta}>
-	<nav class="mb-8" aria-label="Breadcrumbs">
-		<ul class="flex items-center">
-			<li class="flex items-center">
-				<a class="text-accent" href={link("tags/">Tags</a>
-				<Icon aria-hidden="true" name="mdi:chevron-right" class="mx-1.5" />
-			</li>
-			<li aria-current="page" class=""><span aria-hidden="true">#</span>{tag}</li>
-		</ul>
-	</nav>
-	<h1 class="title capitalize">{tagMeta?.data.title ?? `Posts about ${tag}`}</h1>
-	<div class="prose prose-sm prose-cactus mb-16 max-w-none">
-		{tagMeta?.data.description && <p>{tagMeta.data.description}</p>}
-		{TagContent && <TagContent />}
-	</div>
-	<ul class="space-y-6">
-		{
-			page.data.map((p) => (
-				<li class="grid gap-2 sm:grid-cols-[auto_1fr]">
-					<PostPreview as="h2" post={p} />
-				</li>
-			))
-		}
-	</ul>
-	<Pagination {...paginationProps} />
+<PageLayout meta={{ title: "#" + tag, description: "Posts tagged " + tag }}>
+  <section class="container mx-auto px-6 py-10">
+    <header class="mb-8">
+      <h1 class="text-3xl font-semibold tracking-tight">#{tag}</h1>
+      <p class="text-neutral-400 mt-1">Posts tagged with “{tag}”.</p>
+    </header>
+
+    <ul class="grid gap-6">
+      {page.data.map((entry) => {
+        const fm: any = entry.data;
+        const title: string = fm?.title ?? entry.slug;
+        const summary: string = fm?.description ?? fm?.excerpt ?? "";
+        const dateStr: string = fm?.date ? new Date(fm.date).toLocaleDateString() : "";
+
+        return (
+          <li class="rounded-xl border border-neutral-800/80 bg-neutral-900/40 p-5 hover:border-neutral-700 transition-colors">
+            <a href={hrefFor(entry)} class="block focus:outline-none focus:ring-2 focus:ring-green-500 rounded-lg">
+              <h2 class="text-xl font-medium">{title}</h2>
+              {dateStr && <p class="text-xs text-neutral-400 mt-1">{dateStr}</p>}
+              {summary && <p class="text-neutral-300 mt-2">{summary}</p>}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+
+    <nav class="mt-10 flex items-center justify-between">
+      {prevHref ? (
+        <a class="rounded-md border border-neutral-700 px-4 py-2 text-sm hover:bg-neutral-800" href={prevHref}>← Newer</a>
+      ) : (
+        <span class="rounded-md border border-neutral-900 px-4 py-2 text-sm text-neutral-600">← Newer</span>
+      )}
+
+      <p class="text-neutral-500 text-sm">
+        Page {page.currentPage} of {page.lastPage}
+      </p>
+
+      {nextHref ? (
+        <a class="rounded-md border border-neutral-700 px-4 py-2 text-sm hover:bg-neutral-800" href={nextHref}>Older →</a>
+      ) : (
+        <span class="rounded-md border border-neutral-900 px-4 py-2 text-sm text-neutral-600">Older →</span>
+      )}
+    </nav>
+  </section>
 </PageLayout>
