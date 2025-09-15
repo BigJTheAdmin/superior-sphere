@@ -4,11 +4,11 @@ import PageLayout from "@/layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import type { GetStaticPaths, Page } from "astro";
 
-type Post = CollectionEntry<"post">; // change "post" if your collection id differs
+type Post = CollectionEntry<"post">; // change to your collection id if different
 
 export const getStaticPaths = (async ({ paginate }) => {
   const PER_PAGE = 10;
-  const posts = await getCollection("post"); // change if needed
+  const posts = await getCollection("post");
 
   // Collect unique, trimmed tags
   const tagSet = new Set<string>();
@@ -25,6 +25,7 @@ export const getStaticPaths = (async ({ paginate }) => {
   // Build paginated paths per tag
   const paths: any[] = [];
   for (const tag of Array.from(tagSet)) {
+    // Filter by tag
     const filtered = posts.filter((p) => {
       const fm: any = p.data;
       if (!Array.isArray(fm?.tags)) return false;
@@ -34,30 +35,35 @@ export const getStaticPaths = (async ({ paginate }) => {
       return false;
     });
 
-    // Sort newest → oldest inline (no external helpers)
+    // Sort newest → oldest
     const sorted = filtered.slice().sort((a, b) => {
       const ad: any = (a.data as any)?.date ?? 0;
       const bd: any = (b.data as any)?.date ?? 0;
       return new Date(bd).getTime() - new Date(ad).getTime();
     });
 
-    const pagesForTag = paginate(sorted, {
-      pageSize: PER_PAGE,
-      params: { tag, page: [] }, // static-safe catch-all
-    });
-    paths.push(...pagesForTag);
+    // Only create pages if there are posts for this tag
+    if (sorted.length > 0) {
+      const pagesForTag = paginate(sorted, {
+        pageSize: PER_PAGE,
+        params: { tag, page: [] }, // static-safe catch-all
+      });
+      paths.push(...pagesForTag);
+    }
   }
 
   return paths;
 }) satisfies GetStaticPaths;
 
 interface Props {
-  params: { tag: string };
+  params?: { tag?: string };
   page: Page<Post>;
 }
 
-const { params, page } = Astro.props;
-const tag = params.tag;
+const { page } = Astro.props;
+
+// SAFELY read the `tag` param (guards against undefined during CI render)
+const safeTag = String((Astro.params?.tag ?? "").toString() || (Astro.props.params?.tag ?? "")).trim();
 
 function hrefFor(entry: Post): string {
   const fm: any = entry.data;
@@ -69,11 +75,15 @@ const prevHref: string | null = page.url.prev ?? null;
 const nextHref: string | null = page.url.next ?? null;
 ---
 
-<PageLayout meta={{ title: "#" + tag, description: "Posts tagged " + tag }}>
+<PageLayout meta={{ title: safeTag ? ("#" + safeTag) : "Tags", description: safeTag ? ("Posts tagged " + safeTag) : "Tagged posts" }}>
   <section class="container mx-auto px-6 py-10">
     <header class="mb-8">
-      <h1 class="text-3xl font-semibold tracking-tight">#{tag}</h1>
-      <p class="text-neutral-400 mt-1">Posts tagged with “{tag}”.</p>
+      <h1 class="text-3xl font-semibold tracking-tight">
+        {safeTag ? <>#{safeTag}</> : <>Tags</>}
+      </h1>
+      <p class="text-neutral-400 mt-1">
+        {safeTag ? <>Posts tagged with “{safeTag}”.</> : <>Tagged posts.</>}
+      </p>
     </header>
 
     <ul class="grid gap-6">
