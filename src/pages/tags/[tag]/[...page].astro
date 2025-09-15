@@ -4,19 +4,13 @@ import PageLayout from "@/layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import type { GetStaticPaths, Page } from "astro";
 
-type Post = CollectionEntry<"post">; // <-- change "post" if your collection id differs
-
-function sortByDate(a: Post, b: Post): number {
-  const ad: any = (a.data as any)?.date ?? 0;
-  const bd: any = (b.data as any)?.date ?? 0;
-  return new Date(bd).getTime() - new Date(ad).getTime();
-}
+type Post = CollectionEntry<"post">; // change "post" if your collection id differs
 
 export const getStaticPaths = (async ({ paginate }) => {
   const PER_PAGE = 10;
-  const posts = await getCollection("post"); // <-- change if needed
+  const posts = await getCollection("post"); // change if needed
 
-  // Collect all unique tags (trimmed)
+  // Collect unique, trimmed tags
   const tagSet = new Set<string>();
   for (const p of posts) {
     const fm: any = p.data;
@@ -28,21 +22,26 @@ export const getStaticPaths = (async ({ paginate }) => {
     }
   }
 
-  // Create paginated pages per tag
-  const paths = [];
+  // Build paginated paths per tag
+  const paths: any[] = [];
   for (const tag of Array.from(tagSet)) {
-    const filtered = posts
-      .filter((p) => {
-        const fm: any = p.data;
-        if (!Array.isArray(fm?.tags)) return false;
-        for (const t of fm.tags) {
-          if (String(t ?? "").trim() === tag) return true;
-        }
-        return false;
-      })
-      .sort(sortByDate);
+    const filtered = posts.filter((p) => {
+      const fm: any = p.data;
+      if (!Array.isArray(fm?.tags)) return false;
+      for (const t of fm.tags) {
+        if (String(t ?? "").trim() === tag) return true;
+      }
+      return false;
+    });
 
-    const pagesForTag = paginate(filtered, {
+    // Sort newest → oldest inline (no external helpers)
+    const sorted = filtered.slice().sort((a, b) => {
+      const ad: any = (a.data as any)?.date ?? 0;
+      const bd: any = (b.data as any)?.date ?? 0;
+      return new Date(bd).getTime() - new Date(ad).getTime();
+    });
+
+    const pagesForTag = paginate(sorted, {
       pageSize: PER_PAGE,
       params: { tag, page: [] }, // static-safe catch-all
     });
