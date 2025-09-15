@@ -4,17 +4,18 @@ import PageLayout from "@/layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import type { GetStaticPaths, Page } from "astro";
 
-// Optional: if you have a sorter util, you can import it and use it instead.
-const sortByDate = (a: CollectionEntry<"post">, b: CollectionEntry<"post">) => {
-  const ad = (a.data as any)?.date ?? 0;
-  const bd = (b.data as any)?.date ?? 0;
-  return new Date(bd).getTime() - new Date(ad).getTime();
-};
+type Post = CollectionEntry<"post">; // change "post" if your collection id differs
 
 export const getStaticPaths = (async ({ paginate }) => {
   const PER_PAGE = 10;
-  const posts = await getCollection("post"); // change "post" if your collection id differs
-  const sorted = posts.sort(sortByDate);
+
+  // Load and sort newest → oldest (inline sort, no helpers)
+  const posts = await getCollection("post");
+  const sorted = posts.slice().sort((a, b) => {
+    const ad: any = (a.data as any)?.date ?? 0;
+    const bd: any = (b.data as any)?.date ?? 0;
+    return new Date(bd).getTime() - new Date(ad).getTime();
+  });
 
   return paginate(sorted, {
     pageSize: PER_PAGE,
@@ -22,42 +23,29 @@ export const getStaticPaths = (async ({ paginate }) => {
   });
 }) satisfies GetStaticPaths;
 
-interface Props {
-  page: Page<CollectionEntry<"post">>;
-}
-
+interface Props { page: Page<Post>; }
 const { page } = Astro.props;
 
-function hrefFor(entry: CollectionEntry<"post">) {
-  const fm = entry.data as any;
+function hrefFor(entry: Post): string {
+  const fm: any = entry.data;
   if (fm?.permalink) return fm.permalink;
-  return `/posts/${entry.slug}/`; // adjust to match your slug route
+  return "/posts/" + entry.slug + "/"; // adjust if your route differs
 }
 
-const prevHref = page.url.prev ?? null;
-const nextHref = page.url.next ?? null;
+const prevHref: string | null = page.url.prev ?? null;
+const nextHref: string | null = page.url.next ?? null;
 ---
 
 <PageLayout meta={{ title: "Posts", description: "Articles & updates." }}>
   <section class="container mx-auto px-6 py-10">
-    <header class="mb-8 flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-semibold tracking-tight">Posts</h1>
-        <p class="text-neutral-400 mt-1">Browse the latest from PingTraceSSH.</p>
-      </div>
-      <a class="text-accent underline underline-offset-4"
-         href={"/rss.xml"} target="_blank" rel="noopener">
-        RSS
-      </a>
-    </header>
+    <h1 class="text-3xl font-semibold tracking-tight mb-6">Posts</h1>
 
     <ul class="grid gap-6">
       {page.data.map((entry) => {
-        const fm = entry.data as any;
-        const title = fm?.title ?? entry.slug;
-        const summary = fm?.description ?? fm?.excerpt ?? "";
-        const dateStr = fm?.date ? new Date(fm.date).toLocaleDateString() : "";
-        const tags = Array.isArray(fm?.tags) ? fm.tags : [];
+        const fm: any = entry.data;
+        const title: string = fm?.title ?? entry.slug;
+        const summary: string = fm?.description ?? fm?.excerpt ?? "";
+        const dateStr: string = fm?.date ? new Date(fm.date).toLocaleDateString() : "";
 
         return (
           <li class="rounded-xl border border-neutral-800/80 bg-neutral-900/40 p-5 hover:border-neutral-700 transition-colors">
@@ -65,13 +53,6 @@ const nextHref = page.url.next ?? null;
               <h2 class="text-xl font-medium">{title}</h2>
               {dateStr && <p class="text-xs text-neutral-400 mt-1">{dateStr}</p>}
               {summary && <p class="text-neutral-300 mt-2">{summary}</p>}
-              {tags.length > 0 && (
-                <div class="mt-3 flex flex-wrap gap-2">
-                  {tags.map((t: string) => (
-                    <span class="rounded-md bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300">#{t}</span>
-                  ))}
-                </div>
-              )}
             </a>
           </li>
         );
@@ -85,9 +66,7 @@ const nextHref = page.url.next ?? null;
         <span class="rounded-md border border-neutral-900 px-4 py-2 text-sm text-neutral-600">← Newer</span>
       )}
 
-      <p class="text-neutral-500 text-sm">
-        Page {page.currentPage} of {page.lastPage}
-      </p>
+      <p class="text-neutral-500 text-sm">Page {page.currentPage} of {page.lastPage}</p>
 
       {nextHref ? (
         <a class="rounded-md border border-neutral-700 px-4 py-2 text-sm hover:bg-neutral-800" href={nextHref}>Older →</a>
