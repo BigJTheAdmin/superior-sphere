@@ -1,4 +1,3 @@
-# .github/workflows/pages.yml
 name: Build Astro and publish to gh-pages
 
 on:
@@ -13,9 +12,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -26,12 +27,17 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Make sure the built branch has .nojekyll and CNAME so Jekyll never runs
+      - name: Add CNAME and .nojekyll to build
+        run: |
+          echo "pingtracessh.com" > dist/CNAME
+          touch dist/.nojekyll
+
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
-          cname: pingtracessh.com
           force_orphan: true
 
