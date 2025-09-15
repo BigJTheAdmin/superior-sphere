@@ -1,12 +1,12 @@
 ---
-// File: src/pages/posts/[...page].astro
+// File: src/pages/notes/[...page].astro
 import PageLayout from "@/layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import type { GetStaticPaths, Page } from "astro";
-import { collectionDateSort } from "@/utils/date"; // keep if you have it
 
-// Fallback sort if your util is missing
-const sortByDate = (a: CollectionEntry<"post">, b: CollectionEntry<"post">) => {
+type Note = CollectionEntry<"note">;
+
+const sortByDate = (a: Note, b: Note) => {
   const ad = (a.data as any)?.date ?? 0;
   const bd = (b.data as any)?.date ?? 0;
   return new Date(bd).getTime() - new Date(ad).getTime();
@@ -14,59 +14,34 @@ const sortByDate = (a: CollectionEntry<"post">, b: CollectionEntry<"post">) => {
 
 export const getStaticPaths = (async ({ paginate }) => {
   const PER_PAGE = 10;
-  const all = await getCollection("post"); // change to your collection id if needed
-
-  const sorted = typeof collectionDateSort === "function"
-    ? all.sort(collectionDateSort)
-    : all.sort(sortByDate);
+  const notes = await getCollection("note"); // change if your collection id differs
+  const sorted = notes.sort(sortByDate);
 
   return paginate(sorted, {
     pageSize: PER_PAGE,
-    params: { page: [] }, // required for catch-all static routes
+    params: { page: [] }, // static-safe catch-all
   });
 }) satisfies GetStaticPaths;
 
 interface Props {
-  page: Page<CollectionEntry<"post">>;
+  page: Page<Note>;
 }
 
 const { page } = Astro.props;
 
-const uniqueTags = Array.from(
-  new Set(
-    page.data
-      .flatMap((p) => (Array.isArray(p.data.tags) ? p.data.tags : []))
-      .map((t) => String(t).trim())
-      .filter(Boolean)
-  )
-).sort((a, b) => a.localeCompare(b));
-
-const prevHref = page.url.prev ?? undefined;
-const nextHref = page.url.next ?? undefined;
-
-function postHref(entry: CollectionEntry<"post">) {
+function hrefFor(entry: Note) {
   const fm = entry.data as any;
   if (fm?.permalink) return fm.permalink;
-  return `/posts/${entry.slug}/`; // adjust to your slug route
+  return `/notes/${entry.slug}/`; // adjust to match your [slug] route
 }
+
+const prevHref = page.url.prev ?? null;
+const nextHref = page.url.next ?? null;
 ---
 
-<PageLayout meta={{ title: "Posts", description: "Articles & updates." }}>
+<PageLayout meta={{ title: "Notes", description: "Short notes & snippets." }}>
   <section class="container mx-auto px-6 py-10">
-    <header class="mb-8">
-      <h1 class="text-3xl font-semibold tracking-tight">Posts</h1>
-      <p class="text-neutral-400 mt-1">Browse the latest from PingTraceSSH.</p>
-
-      {uniqueTags.length > 0 && (
-        <div class="mt-4 flex flex-wrap gap-2">
-          {uniqueTags.map((tag) => (
-            <span class="rounded-full border border-neutral-700 px-3 py-1 text-sm text-neutral-300">
-              #{tag}
-            </span>
-          ))}
-        </div>
-      )}
-    </header>
+    <h1 class="text-3xl font-semibold tracking-tight mb-6">Notes</h1>
 
     <ul class="grid gap-6">
       {page.data.map((entry) => {
@@ -74,21 +49,13 @@ function postHref(entry: CollectionEntry<"post">) {
         const title = fm?.title ?? entry.slug;
         const summary = fm?.description ?? fm?.excerpt ?? "";
         const dateStr = fm?.date ? new Date(fm.date).toLocaleDateString() : "";
-        const tags = Array.isArray(fm?.tags) ? fm.tags : [];
 
         return (
           <li class="rounded-xl border border-neutral-800/80 bg-neutral-900/40 p-5 hover:border-neutral-700 transition-colors">
-            <a href={postHref(entry)} class="block focus:outline-none focus:ring-2 focus:ring-green-500 rounded-lg">
+            <a href={hrefFor(entry)} class="block focus:outline-none focus:ring-2 focus:ring-green-500 rounded-lg">
               <h2 class="text-xl font-medium">{title}</h2>
               {dateStr && <p class="text-xs text-neutral-400 mt-1">{dateStr}</p>}
               {summary && <p class="text-neutral-300 mt-2">{summary}</p>}
-              {tags.length > 0 && (
-                <div class="mt-3 flex flex-wrap gap-2">
-                  {tags.map((t: string) => (
-                    <span class="rounded-md bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300">#{t}</span>
-                  ))}
-                </div>
-              )}
             </a>
           </li>
         );
@@ -96,27 +63,19 @@ function postHref(entry: CollectionEntry<"post">) {
     </ul>
 
     <nav class="mt-10 flex items-center justify-between">
-      <a
-        class={`rounded-md border px-4 py-2 text-sm transition-colors ${
-          prevHref ? "border-neutral-700 text-neutral-200 hover:bg-neutral-800" : "pointer-events-none border-neutral-900 text-neutral-600"
-        }`}
-        href={prevHref ?? "#"}
-        aria-disabled={!prevHref}
-      >
-        ← Newer
-      </a>
+      {prevHref ? (
+        <a class="rounded-md border border-neutral-700 px-4 py-2 text-sm hover:bg-neutral-800" href={prevHref}>← Newer</a>
+      ) : (
+        <span class="rounded-md border border-neutral-900 px-4 py-2 text-sm text-neutral-600">← Newer</span>
+      )}
 
       <p class="text-neutral-500 text-sm">Page {page.currentPage} of {page.lastPage}</p>
 
-      <a
-        class={`rounded-md border px-4 py-2 text-sm transition-colors ${
-          nextHref ? "border-neutral-700 text-neutral-200 hover:bg-neutral-800" : "pointer-events-none border-neutral-900 text-neutral-600"
-        }`}
-        href={nextHref ?? "#"}
-        aria-disabled={!nextHref}
-      >
-        Older →
-      </a>
+      {nextHref ? (
+        <a class="rounded-md border border-neutral-700 px-4 py-2 text-sm hover:bg-neutral-800" href={nextHref}>Older →</a>
+      ) : (
+        <span class="rounded-md border border-neutral-900 px-4 py-2 text-sm text-neutral-600">Older →</span>
+      )}
     </nav>
   </section>
 </PageLayout>
