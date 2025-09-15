@@ -1,63 +1,144 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
-import Pagination from "@/components/Paginator.astro";
-import Note from "@/components/note/Note.astro";
+// File: src/pages/posts/[...page].astro
 import PageLayout from "@/layouts/Base.astro";
-import { collectionDateSort } from "@/utils/date";
+import { getCollection, type CollectionEntry } from "astro:content";
 import type { GetStaticPaths, Page } from "astro";
-import { Icon } from "astro-icon/components";
+
+// If you have a util to sort by date, import it; otherwise use a local fallback.
+import { collectionDateSort } from "@/utils/date"; // keep if you have it
+
+// Fallback sort if you don't have collectionDateSort
+const sortByDate = (a: CollectionEntry<"post">, b: CollectionEntry<"post">) => {
+  const ad = (a.data as any)?.date ?? 0;
+  const bd = (b.data as any)?.date ?? 0;
+  return new Date(bd).getTime() - new Date(ad).getTime();
+};
 
 export const getStaticPaths = (async ({ paginate }) => {
-	const MAX_NOTES_PER_PAGE = 10;
-	const allNotes = await getCollection("note");
-	return paginate(allNotes.sort(collectionDateSort), { pageSize: MAX_NOTES_PER_PAGE });
+  const PER_PAGE = 10;
+
+  // Update "post" to your actual collection name if different.
+  const all = await getCollection("post");
+
+  // Use your util if present, else fallback
+  const sorted = typeof collectionDateSort === "function"
+    ? all.sort(collectionDateSort)
+    : all.sort(sortByDate);
+
+  // Generate /posts, /posts/2, etc.
+  return paginate(sorted, {
+    pageSize: PER_PAGE,
+    params: { page: [] }, // required for catch-all to be static-safe
+    // base: "/posts", // only needed if this file lives elsewhere
+  });
 }) satisfies GetStaticPaths;
 
 interface Props {
-	page: Page<CollectionEntry<"note">>;
-	uniqueTags: string[];
+  page: Page<CollectionEntry<"post">>;
 }
 
 const { page } = Astro.props;
 
-const meta = {
-	description: "Read my collection of notes",
-	title: "Notes",
-};
+// Build unique tag list (optional UI below)
+const uniqueTags = Array.from(
+  new Set(
+    page.data
+      .flatMap((p) => (Array.isArray(p.data.tags) ? p.data.tags : []))
+      .map((t) => String(t).trim())
+      .filter(Boolean),
+  ),
+).sort((a, b) => a.localeCompare(b));
 
-const paginationProps = {
-	...(page.url.prev && {
-		prevUrl: {
-			text: "← Previous Page",
-			url: page.url.prev,
-		},
-	}),
-	...(page.url.next && {
-		nextUrl: {
-			text: "Next Page →",
-			url: page.url.next,
-		},
-	}),
-};
+// Pager hrefs are provided by paginate() and are already static-safe paths.
+const prevHref = page.url.prev ?? undefined;
+const nextHref = page.url.next ?? undefined;
+
+// Small helper to resolve a link to the individual post
+function postHref(entry: CollectionEntry<"post">) {
+  // If you store a canonical/permalink in frontmatter, prefer it:
+  const fm = entry.data as any;
+  if (fm?.permalink) return fm.permalink;
+  // Default to /posts/[slug]/ (adjust to match your [slug].astro route)
+  return `/posts/${entry.slug}/`;
+}
 ---
 
-<PageLayout meta={meta}>
-	<section>
-		<h1 class="title mb-6 flex items-center gap-3">
-			Notes <a class="text-accent" href="/notes/rss.xml" target="_blank">
-				<span class="sr-only">RSS feed</span>
-				<Icon aria-hidden="true" class="h-6 w-6" focusable="false" name="mdi:rss" />
-			</a>
-		</h1>
-		<ul class="mt-6 space-y-8 text-start">
-			{
-				page.data.map((note) => (
-					<li class="">
-						<Note note={note} as="h2" isPreview />
-					</li>
-				))
-			}
-		</ul>
-		<Pagination {...paginationProps} />
-	</section>
+<PageLayout meta={{ title: "Posts", description: "Articles & updates." }}>
+  <section class="container mx-auto px-6 py-10">
+    <header class="mb-8">
+      <h1 class="text-3xl font-semibold tracking-tight">Posts</h1>
+      <p class="text-neutral-400 mt-1">
+        Browse the latest articles and updates from PingTraceSSH.
+      </p>
+
+      {uniqueTags.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          {uniqueTags.map((tag) => (
+            <span class="rounded-full border border-neutral-700 px-3 py-1 text-sm text-neutral-300">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    {/* List */}
+    <ul class="grid gap-6">
+      {page.data.map((entry) => {
+        const fm = entry.data as any;
+        const title = fm?.title ?? entry.slug;
+        const summary = fm?.description ?? fm?.excerpt ?? "";
+        const dateStr = fm?.date ? new Date(fm.date).toLocaleDateString() : "";
+        const tags = Array.isArray(fm?.tags) ? fm.tags : [];
+
+        return (
+          <li class="rounded-xl border border-neutral-800/80 bg-neutral-900/40 p-5 hover:border-neutral-700 transition-colors">
+            <a href={postHref(entry)} class="block focus:outline-none focus:ring-2 focus:ring-green-500 rounded-lg">
+              <h2 class="text-xl font-medium">{title}</h2>
+              {dateStr && <p class="text-xs text-neutral-400 mt-1">{dateStr}</p>}
+              {summary && <p class="text-neutral-300 mt-2">{summary}</p>}
+              {tags.length > 0 && (
+                <div class="mt-3 flex flex-wrap gap-2">
+                  {tags.map((t: string) => (
+                    <span class="rounded-md bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300">#{t}</span>
+                  ))}
+                </div>
+              )}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+
+    {/* Pager */}
+    <nav class="mt-10 flex items-center justify-between">
+      <a
+        class={`rounded-md border px-4 py-2 text-sm transition-colors ${
+          prevHref
+            ? "border-neutral-700 text-neutral-200 hover:bg-neutral-800"
+            : "pointer-events-none border-neutral-900 text-neutral-600"
+        }`}
+        href={prevHref ?? "#"}
+        aria-disabled={!prevHref}
+      >
+        ← Newer
+      </a>
+
+      <p class="text-neutral-500 text-sm">
+        Page {page.currentPage} of {page.lastPage}
+      </p>
+
+      <a
+        class={`rounded-md border px-4 py-2 text-sm transition-colors ${
+          nextHref
+            ? "border-neutral-700 text-neutral-200 hover:bg-neutral-800"
+            : "pointer-events-none border-neutral-900 text-neutral-600"
+        }`}
+        href={nextHref ?? "#"}
+        aria-disabled={!nextHref}
+      >
+        Older →
+      </a>
+    </nav>
+  </section>
 </PageLayout>
