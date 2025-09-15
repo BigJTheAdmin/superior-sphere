@@ -1,84 +1,50 @@
 ---
-import "@/styles/global.css";
-import BaseHead from "@/components/BaseHead.astro";
-import SkipLink from "@/components/SkipLink.astro";
-import ThemeProvider from "@/components/ThemeProvider.astro";
-import Footer from "@/components/layout/Footer.astro";
-import Header from "@/components/layout/Header.astro";
-import StatusTicker from "@/components/StatusTicker.astro";
-import { siteConfig } from "@/site.config";
-import type { SiteMeta } from "@/types";
-
+/**
+ * Base.astro — mobile @ 75% scale by default
+ * - Viewport initial-scale=0.75 (phones render smaller without pinch-zoom)
+ * - CSS fallback: root font-size ~12px on small screens
+ * - Safe container and dark theme
+ */
 interface Props {
-  meta: SiteMeta;
+  meta?: { title?: string; description?: string };
 }
-
-const {
-  meta: {
-    articleDate = "",
-    description = siteConfig.description,
-    ogImage = "",
-    title = "",
-  } = {},
-} = Astro.props;
+const { meta = {} } = Astro.props;
+const TITLE = meta.title ?? "PingTraceSSH";
+const DESC = meta.description ?? "Ping • Trace • Fix • Repeat.";
 ---
 
 <!doctype html>
-<html class="scroll-smooth" lang={siteConfig.lang}>
+<html lang="en" class="dark">
   <head>
-    <!-- Keep charset FIRST to prevent mojibake like â€™ -->
     <meta charset="utf-8" />
-
-    <!-- Critical for proper mobile rendering -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-
-    <!-- Helpful mobile/browser theming -->
-    <meta name="theme-color" content="#0b0f14" />
-    <meta name="color-scheme" content="dark light" />
-    <meta name="format-detection" content="telephone=no" />
-
-    <!-- Your existing head (title, SEO, OG tags, etc.) -->
-    <BaseHead
-      articleDate={articleDate}
-      description={description}
-      ogImage={ogImage}
-      title={title}
+    <!-- Make mobile render at ~75% by default -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=0.75, viewport-fit=cover"
     />
+    <meta name="theme-color" content="#0b0f14" />
 
-    <!-- Mobile-safe baseline that won’t fight Tailwind -->
+    <title>{TITLE}</title>
+    <meta name="description" content={DESC} />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Global, mobile-friendly defaults -->
     <style>
+      /* Fallback so rem-based UIs also feel ~75% on small screens */
+      @media (max-width: 640px) {
+        html { font-size: 12px; } /* 12px ≈ 75% of the typical 16px root */
+      }
+
       :root { --container-max: 1200px; }
       .container { max-width: var(--container-max); margin-inline: auto; padding-inline: 1rem; }
       @media (min-width: 640px) { .container { padding-inline: 1.5rem; } }
+
       img, video, canvas, svg { max-width: 100%; height: auto; }
-      /* Prevent iOS from blowing up text sizes */
-      body { -webkit-text-size-adjust: 100%; }
+      body { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
     </style>
   </head>
 
-  <body class="bg-global-bg text-global-text flex min-h-screen flex-col px-4 pt-6 font-mono text-sm font-normal antialiased sm:px-8">
-    <ThemeProvider />
-    <SkipLink />
-    <Header />
-
-    <!-- Live status bar -->
-    <StatusTicker />
-
-    <!-- Main site content -->
-    <main id="main" class="flex-1">
-      <slot />
-    </main>
-
-    <Footer />
-
-    <!-- Hide footer navigation links on mobile only -->
-    <style>
-      @media (max-width: 768px) {
-        footer nav,
-        footer .footer-links {
-          display: none !important;
-        }
-      }
-    </style>
+  <body class="min-h-screen bg-black text-neutral-200 antialiased">
+    <slot />
   </body>
 </html>
