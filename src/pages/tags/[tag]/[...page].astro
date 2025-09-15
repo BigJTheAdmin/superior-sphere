@@ -4,17 +4,7 @@ import PageLayout from "@/layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import type { GetStaticPaths, Page } from "astro";
 
-type Post = CollectionEntry<"post">; // change if your collection id differs (e.g. "blog")
-
-function norm(v: unknown): string {
-  return String(v == null ? "" : v).trim();
-}
-
-function hasTag(entry: Post, tag: string): boolean {
-  const fm: any = entry.data;
-  if (!Array.isArray(fm?.tags)) return false;
-  return fm.tags.map(norm).includes(tag);
-}
+type Post = CollectionEntry<"post">; // <-- change "post" if your collection id differs
 
 function sortByDate(a: Post, b: Post): number {
   const ad: any = (a.data as any)?.date ?? 0;
@@ -24,30 +14,39 @@ function sortByDate(a: Post, b: Post): number {
 
 export const getStaticPaths = (async ({ paginate }) => {
   const PER_PAGE = 10;
+  const posts = await getCollection("post"); // <-- change if needed
 
-  // Load and prep all posts
-  const posts = await getCollection("post"); // <-- change if your collection id differs
-  const allTags = new Set<string>();
-
+  // Collect all unique tags (trimmed)
+  const tagSet = new Set<string>();
   for (const p of posts) {
     const fm: any = p.data;
     if (Array.isArray(fm?.tags)) {
       for (const t of fm.tags) {
-        const tt = norm(t);
-        if (tt) allTags.add(tt);
+        const s = String(t ?? "").trim();
+        if (s) tagSet.add(s);
       }
     }
   }
 
-  // Build paginated pages for each tag
+  // Create paginated pages per tag
   const paths = [];
-  for (const tag of Array.from(allTags)) {
-    const filtered = posts.filter((p) => hasTag(p, tag)).sort(sortByDate);
-    const items = paginate(filtered, {
+  for (const tag of Array.from(tagSet)) {
+    const filtered = posts
+      .filter((p) => {
+        const fm: any = p.data;
+        if (!Array.isArray(fm?.tags)) return false;
+        for (const t of fm.tags) {
+          if (String(t ?? "").trim() === tag) return true;
+        }
+        return false;
+      })
+      .sort(sortByDate);
+
+    const pagesForTag = paginate(filtered, {
       pageSize: PER_PAGE,
       params: { tag, page: [] }, // static-safe catch-all
     });
-    paths.push(...items);
+    paths.push(...pagesForTag);
   }
 
   return paths;
@@ -64,8 +63,7 @@ const tag = params.tag;
 function hrefFor(entry: Post): string {
   const fm: any = entry.data;
   if (fm?.permalink) return fm.permalink;
-  // Avoid template literals to prevent accidental regex parsing
-  return "/posts/" + entry.slug + "/";
+  return "/posts/" + entry.slug + "/"; // adjust if your route differs
 }
 
 const prevHref: string | null = page.url.prev ?? null;
