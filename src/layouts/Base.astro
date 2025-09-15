@@ -14,7 +14,12 @@ interface Props {
 }
 
 const {
-  meta: { articleDate = "", description = siteConfig.description, ogImage = "", title = "" } = {},
+  meta: {
+    articleDate = "",
+    description = siteConfig.description,
+    ogImage = "",
+    title = "",
+  } = {},
 } = Astro.props;
 ---
 
@@ -23,8 +28,34 @@ const {
   <head>
     <!-- Keep charset FIRST to prevent mojibake like â€™ -->
     <meta charset="utf-8" />
-    <BaseHead articleDate={articleDate} description={description} ogImage={ogImage} title={title} />
+
+    <!-- Critical for proper mobile rendering -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <!-- Helpful mobile/browser theming -->
+    <meta name="theme-color" content="#0b0f14" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Your existing head (title, SEO, OG tags, etc.) -->
+    <BaseHead
+      articleDate={articleDate}
+      description={description}
+      ogImage={ogImage}
+      title={title}
+    />
+
+    <!-- Mobile-safe baseline that won’t fight Tailwind -->
+    <style>
+      :root { --container-max: 1200px; }
+      .container { max-width: var(--container-max); margin-inline: auto; padding-inline: 1rem; }
+      @media (min-width: 640px) { .container { padding-inline: 1.5rem; } }
+      img, video, canvas, svg { max-width: 100%; height: auto; }
+      /* Prevent iOS from blowing up text sizes */
+      body { -webkit-text-size-adjust: 100%; }
+    </style>
   </head>
+
   <body class="bg-global-bg text-global-text flex min-h-screen flex-col px-4 pt-6 font-mono text-sm font-normal antialiased sm:px-8">
     <ThemeProvider />
     <SkipLink />
@@ -33,15 +64,15 @@ const {
     <!-- Live status bar -->
     <StatusTicker />
 
-    <!-- Main site header -->
-    <main id="main">
+    <!-- Main site content -->
+    <main id="main" class="flex-1">
       <slot />
     </main>
 
     <Footer />
 
+    <!-- Hide footer navigation links on mobile only -->
     <style>
-      /* Hide footer navigation links on mobile only */
       @media (max-width: 768px) {
         footer nav,
         footer .footer-links {
