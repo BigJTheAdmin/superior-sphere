@@ -3,11 +3,9 @@
 import PageLayout from "@/layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import type { GetStaticPaths, Page } from "astro";
-
-// If you have a util to sort by date, import it; otherwise use a local fallback.
 import { collectionDateSort } from "@/utils/date"; // keep if you have it
 
-// Fallback sort if you don't have collectionDateSort
+// Fallback sort if your util is missing
 const sortByDate = (a: CollectionEntry<"post">, b: CollectionEntry<"post">) => {
   const ad = (a.data as any)?.date ?? 0;
   const bd = (b.data as any)?.date ?? 0;
@@ -16,20 +14,15 @@ const sortByDate = (a: CollectionEntry<"post">, b: CollectionEntry<"post">) => {
 
 export const getStaticPaths = (async ({ paginate }) => {
   const PER_PAGE = 10;
+  const all = await getCollection("post"); // change to your collection id if needed
 
-  // Update "post" to your actual collection name if different.
-  const all = await getCollection("post");
-
-  // Use your util if present, else fallback
   const sorted = typeof collectionDateSort === "function"
     ? all.sort(collectionDateSort)
     : all.sort(sortByDate);
 
-  // Generate /posts, /posts/2, etc.
   return paginate(sorted, {
     pageSize: PER_PAGE,
-    params: { page: [] }, // required for catch-all to be static-safe
-    // base: "/posts", // only needed if this file lives elsewhere
+    params: { page: [] }, // required for catch-all static routes
   });
 }) satisfies GetStaticPaths;
 
@@ -39,27 +32,22 @@ interface Props {
 
 const { page } = Astro.props;
 
-// Build unique tag list (optional UI below)
 const uniqueTags = Array.from(
   new Set(
     page.data
       .flatMap((p) => (Array.isArray(p.data.tags) ? p.data.tags : []))
       .map((t) => String(t).trim())
-      .filter(Boolean),
-  ),
+      .filter(Boolean)
+  )
 ).sort((a, b) => a.localeCompare(b));
 
-// Pager hrefs are provided by paginate() and are already static-safe paths.
 const prevHref = page.url.prev ?? undefined;
 const nextHref = page.url.next ?? undefined;
 
-// Small helper to resolve a link to the individual post
 function postHref(entry: CollectionEntry<"post">) {
-  // If you store a canonical/permalink in frontmatter, prefer it:
   const fm = entry.data as any;
   if (fm?.permalink) return fm.permalink;
-  // Default to /posts/[slug]/ (adjust to match your [slug].astro route)
-  return `/posts/${entry.slug}/`;
+  return `/posts/${entry.slug}/`; // adjust to your slug route
 }
 ---
 
@@ -67,9 +55,7 @@ function postHref(entry: CollectionEntry<"post">) {
   <section class="container mx-auto px-6 py-10">
     <header class="mb-8">
       <h1 class="text-3xl font-semibold tracking-tight">Posts</h1>
-      <p class="text-neutral-400 mt-1">
-        Browse the latest articles and updates from PingTraceSSH.
-      </p>
+      <p class="text-neutral-400 mt-1">Browse the latest from PingTraceSSH.</p>
 
       {uniqueTags.length > 0 && (
         <div class="mt-4 flex flex-wrap gap-2">
@@ -82,7 +68,6 @@ function postHref(entry: CollectionEntry<"post">) {
       )}
     </header>
 
-    {/* List */}
     <ul class="grid gap-6">
       {page.data.map((entry) => {
         const fm = entry.data as any;
@@ -110,13 +95,10 @@ function postHref(entry: CollectionEntry<"post">) {
       })}
     </ul>
 
-    {/* Pager */}
     <nav class="mt-10 flex items-center justify-between">
       <a
         class={`rounded-md border px-4 py-2 text-sm transition-colors ${
-          prevHref
-            ? "border-neutral-700 text-neutral-200 hover:bg-neutral-800"
-            : "pointer-events-none border-neutral-900 text-neutral-600"
+          prevHref ? "border-neutral-700 text-neutral-200 hover:bg-neutral-800" : "pointer-events-none border-neutral-900 text-neutral-600"
         }`}
         href={prevHref ?? "#"}
         aria-disabled={!prevHref}
@@ -124,15 +106,11 @@ function postHref(entry: CollectionEntry<"post">) {
         ← Newer
       </a>
 
-      <p class="text-neutral-500 text-sm">
-        Page {page.currentPage} of {page.lastPage}
-      </p>
+      <p class="text-neutral-500 text-sm">Page {page.currentPage} of {page.lastPage}</p>
 
       <a
         class={`rounded-md border px-4 py-2 text-sm transition-colors ${
-          nextHref
-            ? "border-neutral-700 text-neutral-200 hover:bg-neutral-800"
-            : "pointer-events-none border-neutral-900 text-neutral-600"
+          nextHref ? "border-neutral-700 text-neutral-200 hover:bg-neutral-800" : "pointer-events-none border-neutral-900 text-neutral-600"
         }`}
         href={nextHref ?? "#"}
         aria-disabled={!nextHref}
