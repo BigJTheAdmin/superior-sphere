@@ -1,87 +1,117 @@
 ---
 import PageLayout from "@/layouts/Base.astro";
-
-const titleMap = {
-  "firewall-audit": "Thanks — Firewall Audit",
-  "incident-retainer": "Thanks — Incident Retainer",
-  "design-review": "Thanks — Design Review",
-};
-
-const pkg = Astro.url.searchParams.get("pkg") || "";
-const hours = Astro.url.searchParams.get("hours");
-const human = titleMap[pkg] || "Thanks — We’ve got your request";
-const calendly = "https://calendly.com/javonpri/30min";
 ---
 
-<PageLayout meta={{ title: human }}>
-  <section class="wrap">
+<PageLayout meta={{ title: "Thank You — PingTraceSSH" }}>
+  <section class="tool-wrapper thanks-page">
     <header class="hero">
-      <h1>{human}</h1>
-      <p class="kicker">You’re all set. Let’s book your time.</p>
+      <div class="icon-wrap" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" opacity=".15"></circle>
+          <path d="M7 12l3 3 7-7" />
+        </svg>
+      </div>
+      <h1>Thanks — We Got It!</h1>
+      <p class="tagline">
+        Your intake was received. You’ll get an email shortly with confirmation, next steps, and a secure upload link for your résumé.
+      </p>
     </header>
 
-    <article class="card">
-      {pkg === "firewall-audit" && (
-        <>
-          <p>We’ll complete your firewall review within <strong>48 hours</strong>.</p>
-          <ul>
-            <li>Have a <em>sanitized config export</em> or screenshots ready.</li>
-            <li>We’ll deliver findings + remediation plan and do a 30-min readout.</li>
-          </ul>
-        </>
-      )}
+    <div class="tool-card">
+      <h2>What happens next?</h2>
+      <ol class="steps">
+        <li><strong>Check your inbox</strong> (and spam folder) for our confirmation.</li>
+        <li><strong>Upload your résumé</strong> using the secure link we send.</li>
+        <li><strong>We review & reply</strong> with a timeline and any clarifying questions.</li>
+      </ol>
 
-      {pkg === "incident-retainer" && (
-        <>
-          <p>We’ve reserved your incident block{hours ? ` (${hours} hours)` : ""}.</p>
-          <ul>
-            <li>We’ll spin up a war-room channel and begin triage immediately.</li>
-            <li>Please have a change window and PoC available.</li>
-          </ul>
-        </>
-      )}
-
-      {pkg === "design-review" && (
-        <>
-          <p>We’ll deliver your design review in <strong>5–7 days</strong>.</p>
-          <ul>
-            <li>We’ll confirm goals/constraints and request a current diagram if available.</li>
-          </ul>
-        </>
-      )}
-
-      {!pkg && (
-        <p>We’ve received your submission. Pick a time below so we can get started.</p>
-      )}
+      <div class="info-grid">
+        <div class="info">
+          <h3>Need to add context?</h3>
+          <p>Reply to the confirmation email with job links, target roles, or any special requests.</p>
+        </div>
+        <div class="info">
+          <h3>Turnaround</h3>
+          <p>Most orders begin same‑day and follow the timeline for your selected package.</p>
+        </div>
+      </div>
 
       <div class="cta-row">
-        <a class="btn primary" href={calendly}>Book Time Now</a>
-        <a class="btn" href={link("">Back to Home</a>
+        <a class="btn" href="/career">Explore Career Tools</a>
+        <a class="btn primary" href="/services/">Back to Services</a>
       </div>
-    </article>
+    </div>
 
-    <section class="faq">
-      <details>
-        <summary>Didn’t get an email?</summary>
-        <p>Check spam and add our address to your safe senders. If it’s missing, book a slot and we’ll confirm live.</p>
-      </details>
-      <details>
-        <summary>Need to share files securely?</summary>
-        <p>We’ll provide a private upload link during our call or via an encrypted request.</p>
-      </details>
-    </section>
+    <p class="fineprint">
+      Didn’t get an email after a few minutes? <a href="mailto:hello@pingtracessh.com">Contact us</a> and include the name you used on the form.
+    </p>
   </section>
-
-  <style>
-    .wrap{padding:32px 1rem 60px}
-    .hero{text-align:center;margin-bottom:12px}
-    .kicker{color:#9aa0a6}
-    .card{max-width:900px;margin:0 auto;background:#1b1b1b;border:1px solid #2a2a2a;border-radius:14px;padding:18px}
-    .cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:1px solid #2a2a2a;background:#212121;color:#e8eaed;text-decoration:none;font-weight:700}
-    .btn.primary{background:linear-gradient(90deg,#22d3ee,#7c3aed);border:none;color:#051316}
-    .faq{max-width:900px;margin:14px auto 0;display:grid;gap:8px}
-    details{background:#151515;border:1px solid #2a2a2a;border-radius:10px;padding:10px 12px}
-    summary{cursor:pointer;font-weight:700}
-  </style>
 </PageLayout>
+
+<style>
+  .thanks-page {
+    --bg-light: #ffffff;
+    --text-light: #0f172a;
+    --muted-light: #475569;
+    --border-light: #e5e7eb;
+
+    --bg-dark: #0b1220;
+    --text-dark: #f8fafc;
+    --muted-dark: #cbd5e1;
+    --border-dark: #334155;
+
+    --accent: #0ea5e9;
+    --accent-dark: #0284c7;
+  }
+
+  .hero { text-align: center; margin-bottom: 1.25rem; }
+  .icon-wrap {
+    display:inline-flex; align-items:center; justify-content:center;
+    width: 84px; height: 84px; border-radius: 999px;
+    margin: 0 auto .5rem; color: var(--accent);
+    border: 2px solid var(--border-light);
+    background: #f0f9ff;
+  }
+  .hero h1 { margin: .2rem 0 .25rem; }
+  .tagline { color: var(--muted-light); margin: 0 auto 1rem; max-width: 52rem; }
+
+  .tool-card {
+    background: var(--bg-light); color: var(--text-light);
+    border: 1px solid var(--border-light);
+    border-radius: 14px; padding: 1.25rem;
+  }
+
+  .steps { margin: .5rem 0 1rem; padding-left: 1.25rem; }
+  .steps li { margin: .35rem 0; }
+
+  .info-grid {
+    display: grid; gap: .75rem 1rem; margin: 1rem 0 1.25rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .info { border:1px solid var(--border-light); border-radius: 12px; padding: .9rem; }
+  .info h3 { margin: 0 0 .25rem; font-size: 1rem; }
+
+  .cta-row { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin-top: .25rem; }
+  .btn {
+    display:inline-block; padding:.7rem 1.1rem; border-radius:10px; text-decoration:none;
+    background:#e5e7eb; color:#111827; border:1px solid var(--border-light); font-weight:600;
+  }
+  .btn.primary { background: var(--accent); color:#fff; border-color: transparent; }
+  .btn.primary:hover { background: var(--accent-dark); }
+  .btn:hover { filter: brightness(0.98); }
+
+  .fineprint { margin-top: .75rem; color: var(--muted-light); text-align: center; }
+
+  @media (max-width: 760px) {
+    .info-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    .icon-wrap { background:#071726; border-color: var(--border-dark); }
+    .tool-card { background: var(--bg-dark); color: var(--text-dark); border-color: var(--border-dark); }
+    .tagline, .fineprint { color: var(--muted-dark); }
+    .btn { background:#1f2937; color:#f8fafc; border-color: var(--border-dark); }
+    .btn:hover { filter: brightness(1.1); }
+  }
+</style>
