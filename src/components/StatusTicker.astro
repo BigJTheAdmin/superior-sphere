@@ -41,19 +41,20 @@
   const a11y  = $("#a11y");
 
   /** CONFIG **/
-  const FETCH_URL = "/api/ping-services.json";
+  // 👉 use a static file in /public; works on GitHub Pages (no server needed)
+  const FETCH_URL = "/ping-services.json";
   const BASE_POLL_MS = 30_000;
   const POLL_JITTER_MS = 5_000;
-  const FETCH_TIMEOUT_MS = 12_000;           // backend sometimes slow
+  const FETCH_TIMEOUT_MS = 12_000;
   const PX_PER_SEC = 90;
-  const DATA_STALE_MS = 3 * 60_000;          // too old to trust
-  const DATA_FRESH_MS = 75_000;              // fresh enough to infer UP if no fails
-  const REQUIRE_CONSEC_FAILS = 2;            // confirm DOWN
+  const DATA_STALE_MS = 3 * 60_000;
+  const DATA_FRESH_MS = 75_000;
+  const REQUIRE_CONSEC_FAILS = 2;
   const LOCAL_CACHE_KEY = "pts_status_ticker_cache_v4";
   const STATE_CACHE_KEY = "pts_status_ticker_state_v4";
 
   const renderCache = loadJson(LOCAL_CACHE_KEY) || { items: [], ts: 0 };
-  const stateCache  = loadJson(STATE_CACHE_KEY)  || {}; // { [name]: {state,lastTs} }
+  const stateCache  = loadJson(STATE_CACHE_KEY)  || {};
 
   // Instant paint from cache
   if (renderCache.items?.length) {
@@ -88,20 +89,31 @@
       } finally { clearTimeout(timer); }
     };
     try { return await once(); }
-    catch(e){ console.warn("[StatusTicker] fetch failed:", e?.message||e); return await once(); }
+    catch(e){
+      console.warn("[StatusTicker] fetch failed:", e?.message||e);
+      try { return await once(); } catch { return null; }
+    }
   }
 
   async function update(){
-    let data;
-    try { data = await fetchJson(); }
-    catch { return; } // keep last good
+    let data = await fetchJson();
+
+    // If still no data: hide wrapper (don’t spam console) unless we have cache
+    if (!data) {
+      if (!renderCache.items?.length) root.host.style.display = "none";
+      return;
+    }
 
     const arr = Array.isArray(data) ? data : (data?.results ?? []);
-    if (!Array.isArray(arr) || !arr.length) return;
+    if (!Array.isArray(arr) || !arr.length) {
+      if (!renderCache.items?.length) root.host.style.display = "none";
+      return;
+    }
 
     const cooked = postProcess(arr);
     if (!cooked.length) return;
 
+    root.host.style.display = ""; // ensure visible if it was hidden
     render(cooked); autosizeScroller();
     saveJson(LOCAL_CACHE_KEY, { items: cooked, ts: Date.now() });
 
@@ -114,11 +126,9 @@
     const now=Date.now();
     const list = raw.map(r=>normalizeOne(r,now)).filter(Boolean).filter(i=>!i.isStale).map(applyOptimistic);
 
-    // persist last known
     for(const i of list){ stateCache[i.name]={state:i.state,lastTs:i.lastTs}; }
     saveJson(STATE_CACHE_KEY,stateCache);
 
-    // down -> up -> checking
     const order={down:0,up:1,checking:2};
     list.sort((a,b)=> order[a.state]-order[b.state] || a.name.localeCompare(b.name));
     return list;
@@ -147,13 +157,6 @@
     };
   }
 
-  // **Key inference**
-  // - Explicit UP => UP
-  // - Explicit DOWN (fresh) => DOWN if fails >= threshold (or counter missing)
-  // - Otherwise:
-  //     if sample is FRESH and fails==0 => infer UP (prevents “stuck CHECKING”)
-  //     else keep last known UP if not stale
-  //     else CHECKING
   function applyOptimistic(i){
     const cached = stateCache[i.name];
 

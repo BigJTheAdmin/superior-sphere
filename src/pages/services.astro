@@ -2,6 +2,10 @@
 import PageLayout from "@/layouts/Base.astro";
 const UPDATED = "September 9, 2025";
 
+/** Dev-aware base helper (not strictly needed on this page, but useful if you add internal links) */
+const BASE = import.meta.env.DEV ? "/" : import.meta.env.BASE_URL;
+const link = (p: string = "") => `${BASE}${p.replace(/^\/+/, "")}`;
+
 /**
  * HOW TO GO LIVE WITH STRIPE (when ready)
  * - Replace each LINKS.stripe.* value with your real Stripe Payment Link.
@@ -278,15 +282,14 @@ const LINKS = {
 </PageLayout>
 
 <style>
-/* (unchanged styles – keeping your About-page look) */
   :root {
     --bg: #0f0f0f;
     --card: #1b1b1b;
     --card-border: #2a2a2a;
     --muted: #9aa0a6;
     --text: #e8eaed;
-    --accent: #22d3ee; /* cyan vibe, matches About page */
-    --accent-2: #7c3aed; /* purple vibe */
+    --accent: #22d3ee;
+    --accent-2: #7c3aed;
     --chip: #242424;
     --chip-border: #333;
     --shadow: 0 6px 24px rgba(0,0,0,.35);
@@ -299,7 +302,6 @@ const LINKS = {
 
   .services-wrapper { display:block; padding:32px 1rem 70px; }
 
-  /* Hero */
   .hero { text-align:center; max-width: 1000px; margin: 0 auto 18px; }
   .hero h1 { margin:0; font-size: clamp(1.8rem, 2.5vw, 2.4rem); letter-spacing:.2px; }
   .kicker { margin-top:8px; color:var(--muted); font-size:.98rem; text-transform:uppercase; letter-spacing:.8px; }
@@ -312,7 +314,6 @@ const LINKS = {
   }
   .updated { margin-top:10px; color:var(--muted); font-size:.85rem; }
 
-  /* Buttons */
   .btn {
     display:inline-flex; align-items:center; justify-content:center; gap:8px;
     padding:10px 14px; border-radius:10px; border:1px solid var(--card-border);
@@ -326,12 +327,10 @@ const LINKS = {
   .btn.buy:hover { filter:brightness(1.07); }
   .btn.ghost { background:#151515; border:1px solid var(--card-border); color:var(--text); }
 
-  /* Trust strip */
   .trust { max-width:1100px; margin: 14px auto 18px; }
   .badges { list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
   .chip { display:inline-block; padding:7px 10px; background:var(--chip); border:1px solid var(--chip-border); border-radius:999px; font-size:.9rem; color:var(--muted); }
 
-  /* Pricing grid */
   .pricing-grid {
     max-width:1100px; margin: 16px auto 22px;
     display:grid; gap: clamp(14px, 2vw, 18px);
@@ -356,12 +355,10 @@ const LINKS = {
     border-radius:999px; padding:4px 8px; border:1px solid rgba(16,185,129,.35);
   }
 
-  /* Section divider */
   .divider { margin: 26px auto; border: 0; height: 1px; max-width: 1100px;
     background: linear-gradient(to right, transparent, #2f2f2f, transparent);
   }
 
-  /* Service cards (detailed) */
   .service-card {
     background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg);
     padding: clamp(16px, 2vw, 24px); max-width: 1100px; margin: 0 auto 12px; box-shadow: var(--shadow);
@@ -370,7 +367,6 @@ const LINKS = {
   .service-card ul { margin: 6px 0 8px; padding-left: 1.1rem; }
   .service-card .note { color: var(--muted); margin: 2px 0 0; }
 
-  /* Social proof */
   .proof { max-width: 1100px; margin: 12px auto 6px; display:grid; gap:12px; }
   .pull {
     padding: 14px 16px; border-left: 4px solid var(--accent);
@@ -383,7 +379,6 @@ const LINKS = {
   .mini-stats .num { font-weight: 900; font-size: 1.2rem; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .mini-stats .lbl { display:block; margin-top:4px; font-size:.82rem; color:var(--muted); }
 
-  /* CTA strip */
   .cta-strip {
     margin: 16px auto 22px; max-width: 1100px;
     background: #151515; border: 1px solid var(--card-border); border-radius: var(--radius-lg);
@@ -394,7 +389,6 @@ const LINKS = {
   .cta-left p { margin:2px 0 0; color: var(--muted); }
   .cta-actions { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
 
-  /* Contact */
   .contact-card {
     background: linear-gradient(180deg, rgba(245,158,11,.08), rgba(245,158,11,.02));
     border: 1px solid #6b4b16; border-left: 4px solid #f59e0b;
@@ -412,7 +406,6 @@ const LINKS = {
   .status { min-height: 1.25rem; margin-top: .5rem; font-size: .95rem; opacity: .9; }
   .hidden { display:none!important; }
 
-  /* FAQ */
   .faq { max-width:1100px; margin: 16px auto 0; }
   .faq h2 { margin: 0 0 8px; }
   .faq-list { display:grid; gap:8px; }
@@ -436,7 +429,6 @@ const LINKS = {
         const pkg = btn.getAttribute("data-pkg") || "";
         if (!STRIPE_HOST.test(href)) {
           e.preventDefault();
-          // fallback to Calendly with a hint of what they clicked
           const url = new URL(CAL_URL);
           url.searchParams.set("utm_source", "site");
           url.searchParams.set("utm_medium", "button");

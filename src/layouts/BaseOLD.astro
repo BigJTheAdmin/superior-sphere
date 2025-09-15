@@ -1,0 +1,49 @@
+---
+import BaseHead from "@/components/BaseHead.astro";
+import SkipLink from "@/components/SkipLink.astro";
+import ThemeProvider from "@/components/ThemeProvider.astro";
+import Footer from "@/components/layout/Footer.astro";
+import Header from "@/components/layout/Header.astro";
+import StatusTicker from "@/components/StatusTicker.astro";
+import { siteConfig } from "@/site.config";
+import type { SiteMeta } from "@/types";
+
+interface Props {
+	meta: SiteMeta;
+}
+
+const {
+	meta: { articleDate = "", description = siteConfig.description, ogImage = "", title = "" } = {},
+} = Astro.props;
+---
+
+<html class="scroll-smooth" lang={siteConfig.lang}>
+	<head>
+		<BaseHead articleDate={articleDate} description={description} ogImage={ogImage} title={title} />
+	</head>
+	<body
+		class="bg-global-bg text-global-text flex min-h-screen flex-col px-4 pt-6 font-mono text-sm font-normal antialiased sm:px-8"
+	>
+		<ThemeProvider />
+		<SkipLink />
+		<Header />
+		<!-- Live status bar -->
+		<StatusTicker />
+
+		<!-- Main site header -->
+		<main id="main">
+			<slot />
+		</main>
+		<Footer />
+
+		<style>
+			/* Hide footer navigation links on mobile only */
+			@media (max-width: 768px) {
+				footer nav,
+				footer .footer-links {
+					display: none !important;
+				}
+			}
+		</style>
+	</body>
+</html>

@@ -21,18 +21,18 @@ import PageLayout from "@/layouts/Base.astro";
       </p>
 
       <div class="hero-cta">
-        <a class="btn btn-primary" href="/download?plan=free">Start Free</a>
-        <a class="btn btn-ghost" href="/download?plan=pro">Go Pro</a>
-        <a class="btn btn-ghost" href="/download?plan=ultimate">Go Ultimate</a>
+        <a class="btn btn-primary" href={link("download?plan=free">Start Free</a>
+        <a class="btn btn-ghost" href={link("download?plan=pro">Go Pro</a>
+        <a class="btn btn-ghost" href={link("download?plan=ultimate">Go Ultimate</a>
       </div>
 
       <!-- Platform micro-deeplinks -->
       <nav class="platforms" aria-label="platform links">
-        <a href="/download?plan=free&platform=windows" class="chip">Windows</a>
-        <a href="/download?plan=free&platform=macos" class="chip">macOS</a>
-        <a href="/download?plan=free&platform=linux" class="chip">Linux</a>
-        <a href="/download?plan=free&platform=android" class="chip">Android</a>
-        <a href="/download?plan=free&platform=ios" class="chip">iOS</a>
+        <a href={link("download?plan=free&platform=windows" class="chip">Windows</a>
+        <a href={link("download?plan=free&platform=macos" class="chip">macOS</a>
+        <a href={link("download?plan=free&platform=linux" class="chip">Linux</a>
+        <a href={link("download?plan=free&platform=android" class="chip">Android</a>
+        <a href={link("download?plan=free&platform=ios" class="chip">iOS</a>
       </nav>
     </header>
 
@@ -101,7 +101,7 @@ import PageLayout from "@/layouts/Base.astro";
         </ul>
         <div class="card-cta">
           <div class="price">$0</div>
-          <a class="btn btn-primary" href="/download?plan=free">Download Free</a>
+          <a class="btn btn-primary" href={link("download?plan=free">Download Free</a>
         </div>
       </article>
 
@@ -159,7 +159,7 @@ import PageLayout from "@/layouts/Base.astro";
         </ul>
         <div class="card-cta">
           <div class="price">$99/yr <span class="muted">or</span> $10/mo</div>
-          <a class="btn btn-ghost strong" href="/download?plan=pro">Download Pro</a>
+          <a class="btn btn-ghost strong" href={link("download?plan=pro">Download Pro</a>
         </div>
       </article>
 
@@ -217,7 +217,7 @@ import PageLayout from "@/layouts/Base.astro";
         </ul>
         <div class="card-cta">
           <div class="price">$249/yr <span class="muted">or</span> $25/mo</div>
-          <a class="btn btn-ghost strong" href="/download?plan=ultimate">Download Ultimate</a>
+          <a class="btn btn-ghost strong" href={link("download?plan=ultimate">Download Ultimate</a>
         </div>
       </article>
     </section>
@@ -243,9 +243,9 @@ import PageLayout from "@/layouts/Base.astro";
         <h4>Ship with confidence</h4>
         <p>Make fast changes with rollback safety, observability, and compliance that scale with you.</p>
         <div class="closer-cta">
-          <a class="btn btn-primary" href="/download?plan=free">Start Free</a>
-          <a class="btn btn-ghost" href="/download?plan=pro">Upgrade to Pro</a>
-          <a class="btn btn-ghost" href="/download?plan=ultimate">Go Ultimate</a>
+          <a class="btn btn-primary" href={link("download?plan=free">Start Free</a>
+          <a class="btn btn-ghost" href={link("download?plan=pro">Upgrade to Pro</a>
+          <a class="btn btn-ghost" href={link("download?plan=ultimate">Go Ultimate</a>
         </div>
       </div>
     </section>

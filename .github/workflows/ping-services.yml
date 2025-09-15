@@ -1,0 +1,39 @@
+name: Update ping-services.json
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 minutes (tune as you like)
+  push:
+    paths:
+      - tools/ping-services.mjs
+      - .github/workflows/ping-services.yml
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write    # allow pushing the updated JSON
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate ping-services.json
+        run: node tools/ping-services.mjs
+
+      - name: Commit changes
+        run: |
+          if [ -n "$(git status --porcelain public/ping-services.json)" ]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add public/ping-services.json
+            git commit -m "chore: refresh ping-services.json"
+            git push
+          else
+            echo "No changes."
+          fi

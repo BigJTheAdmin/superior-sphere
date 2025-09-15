@@ -1,102 +1,105 @@
 ---
 import PageLayout from "@/layouts/Base.astro";
 import NetworkDiagnostics from "../components/NetworkDiagnostics.astro";
+
+/** Dev-aware base helper:
+ *  - "/" in dev (localhost)
+ *  - "/superior-sphere/" in production (GitHub Project Pages)
+ */
+const BASE = import.meta.env.DEV ? "/" : import.meta.env.BASE_URL;
+const link = (p: string = "") => `${BASE}${p.replace(/^\/+/, "")}`;
 ---
 
 <PageLayout meta={{ title: "Home" }}>
-	<!-- Network Diagnostics -->
-	<section class="bg-green-600 py-1">
-		<div class="container mx-auto px-8 sm:px-8">
-			<NetworkDiagnostics />
-		</div>
-	</section>
+  <!-- Network Diagnostics -->
+  <section class="bg-green-600 py-1">
+    <div class="container mx-auto px-8 sm:px-8">
+      <NetworkDiagnostics />
+    </div>
+  </section>
 
-	<!-- Terminal-Style Hero -->
-	<section class="relative bg-black font-mono text-green-400">
-		<div class="container mx-auto px-4 py-16 sm:px-8">
-			<h1 class="text-5xl leading-tight md:text-6xl">$ ping &lt;network&gt;</h1>
-			<h1 class="mt-2 text-5xl leading-tight md:text-6xl">$ trace &lt;path&gt;</h1>
-			<h1 class="mt-2 text-5xl leading-tight md:text-6xl">$ fix &lt;errors&gt;</h1>
-			<h1 class="mt-2 text-5xl leading-tight md:text-6xl">$ repeat</h1>
+  <!-- Terminal-Style Hero -->
+  <section class="relative bg-black font-mono text-green-400">
+    <div class="container mx-auto px-4 py-16 sm:px-8">
+      <h1 class="text-5xl leading-tight md:text-6xl">$ ping &lt;network&gt;</h1>
+      <h1 class="mt-2 text-5xl leading-tight md:text-6xl">$ trace &lt;path&gt;</h1>
+      <h1 class="mt-2 text-5xl leading-tight md:text-6xl">$ fix &lt;errors&gt;</h1>
+      <h1 class="mt-2 text-5xl leading-tight md:text-6xl">$ repeat</h1>
 
-			<!-- Rotating Stats -->
-			<section class="stats-carousel mx-auto mt-6 max-w-3xl text-lg text-green-300">
-				<div class="stat-item active">
-					Troubleshooting time can be cut by up to 80% — Network monitoring and automation tools
-					reduce mean time to resolution (MTTR) by as much as four‑fifths, freeing engineers to
-					focus on higher‑value work. <em>(AIMultiple, 2025)</em>
-				</div>
-				<div class="stat-item">
-					83% of IT professionals lack full WAN visibility — Most network teams operate with blind
-					spots that delay root‑cause analysis—your toolkits help close that gap. <em
-						>(AIMultiple, 2025)</em
-					>
-				</div>
-				<div class="stat-item">
-					Only 18% of automation projects reach full success — The rest fail or underdeliver, often
-					due to poor tool integration—your pre‑packaged, ready‑to‑use toolkit eliminates that
-					barrier. <em>(NetworkWorld / EMA, 2024)</em>
-				</div>
-				<div class="stat-item">
-					60% of teams with advanced monitoring see faster incident resolution — Teams investing in
-					smarter observability report significantly quicker troubleshooting and better uptime. <em
-						>(APM Digest, 2024)</em
-					>
-				</div>
-			</section>
+      <!-- Rotating Stats -->
+      <section class="stats-carousel mx-auto mt-6 max-w-3xl text-lg text-green-300">
+        <div class="stat-item active">
+          Troubleshooting time can be cut by up to 80% — Network monitoring and automation tools
+          reduce mean time to resolution (MTTR) by as much as four-fifths, freeing engineers to
+          focus on higher-value work. <em>(AIMultiple, 2025)</em>
+        </div>
+        <div class="stat-item">
+          83% of IT professionals lack full WAN visibility — Most network teams operate with blind
+          spots that delay root-cause analysis—your toolkits help close that gap.
+          <em>(AIMultiple, 2025)</em>
+        </div>
+        <div class="stat-item">
+          Only 18% of automation projects reach full success — The rest fail or underdeliver, often
+          due to poor tool integration—your pre-packaged, ready-to-use toolkit eliminates that
+          barrier. <em>(NetworkWorld / EMA, 2024)</em>
+        </div>
+        <div class="stat-item">
+          60% of teams with advanced monitoring see faster incident resolution — Teams investing in
+          smarter observability report significantly quicker troubleshooting and better uptime.
+          <em>(APM Digest, 2024)</em>
+        </div>
+      </section>
 
-			<div class="mt-16 flex flex-wrap gap-4">
-				<a
-					href="/career"
-					class="rounded border border-green-400 px-6 py-2 text-green-400 transition hover:bg-green-500 hover:text-black"
-				>
-					[ career tools ]
-				</a>
-				<a
-					href="/services"
-					class="rounded border border-green-400 px-6 py-2 text-green-400 transition hover:bg-green-500 hover:text-black"
-				>
-					[ view services ]
-				</a>
-			</div>
-		</div>
-	</section>
+      <div class="mt-16 flex flex-wrap gap-4">
+        <a
+          href={link("career")}
+          class="rounded border border-green-400 px-6 py-2 text-green-400 transition hover:bg-green-500 hover:text-black"
+        >
+          [ career tools ]
+        </a>
+        <a
+          href={link("services")}
+          class="rounded border border-green-400 px-6 py-2 text-green-400 transition hover:bg-green-500 hover:text-black"
+        >
+          [ view services ]
+        </a>
+      </div>
+    </div>
+  </section>
 
+  <style>
+    .stats-carousel {
+      text-align: center;
+      position: relative;
+      padding-bottom: 110px;
+      height: 5.5em; /* keeps height stable while rotating */
+    }
+    .stat-item {
+      opacity: 0;
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+    .stat-item.active {
+      opacity: 1;
+      position: relative;
+    }
+  </style>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const stats = document.querySelectorAll(".stat-item");
+      let current = 0;
 
-	<style>
-		.stats-carousel {
-			text-align: center;
-			position: relative;
-			padding-bottom: 110px;
-			height: 5.5em; /* keeps height stable while rotating */
-		}
-		.stat-item {
-			opacity: 0;
-			position: absolute;
-			width: 100%;
-			left: 0;
-			top: 0;
-			transition: opacity 0.8s ease-in-out;
-		}
-		.stat-item.active {
-			opacity: 1;
-			position: relative;
-		}
-	</style>
+      function showNextStat() {
+        stats[current].classList.remove("active");
+        current = (current + 1) % stats.length;
+        stats[current].classList.add("active");
+      }
 
-	<script>
-		document.addEventListener("DOMContentLoaded", () => {
-			const stats = document.querySelectorAll(".stat-item");
-			let current = 0;
-
-			function showNextStat() {
-				stats[current].classList.remove("active");
-				current = (current + 1) % stats.length;
-				stats[current].classList.add("active");
-			}
-
-			setInterval(showNextStat, 8000); // rotate every 8 seconds
-		});
-	</script>
+      setInterval(showNextStat, 8000); // rotate every 8 seconds
+    });
+  </script>
 </PageLayout>

@@ -2,6 +2,7 @@
 	"name": "ping-trace-ssh",
 	"version": "6.7.0",
 	"scripts": {
+		"services": "node tools/ping-services.mjs",
 		"dev": "astro dev",
 		"start": "astro dev",
 		"build": "astro build",

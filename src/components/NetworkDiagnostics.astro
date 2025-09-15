@@ -1,5 +1,5 @@
 ---
-import { onMount } from "solid-js";
+/* no Solid imports needed */
 ---
 <style>
 	.network-info {
@@ -100,9 +100,15 @@ import { onMount } from "solid-js";
 </div>
 
 <script>
-	/* ======= CONFIG ======= */
-	const REFRESH_MS = 5000;     // update every 5s
-	const PING_URL   = "/api/ping"; // same-origin 204 endpoint you added
+	/* ======= CONFIG (static-host safe) ======= */
+	const REFRESH_MS = 5000; // update every 5s
+	// Two CORS-friendly tiny endpoints to "ping"
+	const PING_URLS = [
+		"https://www.cloudflare.com/cdn-cgi/trace",
+		"https://cdn.jsdelivr.net/gh/necolas/normalize.css@8.0.1/normalize.css",
+	];
+	const bust = (u) => { const url = new URL(u); url.searchParams.set("_", Date.now()+Math.random()); return url.toString(); };
+	const okStatus = (s) => s >= 200 && s < 400;
 
 	/* ===== Utilities ===== */
 	function updateGauge(id, value, max) {
@@ -117,29 +123,46 @@ import { onMount } from "solid-js";
 		const el = document.getElementById(id);
 		if (el) el.textContent = txt;
 	}
-	const okStatus = (s) => s >= 200 && s < 400;
+
+	async function firstWorkingPing(signal) {
+		for (const u of PING_URLS) {
+			try {
+				const r = await fetch(bust(u), { mode: "cors", cache: "no-store", signal });
+				if (okStatus(r.status)) return u;
+			} catch {}
+		}
+		// fallback to the last anyway
+		return PING_URLS[PING_URLS.length - 1];
+	}
 
 	/* ===== Banner info (one-time) ===== */
-	fetch("https://ipapi.co/json/").then(r=>r.json()).then(d=>{
-		setText("public-ip", d.ip ?? "unknown");
-		setText("isp", d.org ?? d.asn ?? "unknown");
-		setText("asn", d.asn ?? "unknown");
-		setText("location", [d.city, d.region, d.country_name].filter(Boolean).join(", "));
-	}).catch(()=>{});
+	fetch("https://ipapi.co/json/")
+		.then(r => r.json())
+		.then(d => {
+			setText("public-ip", d.ip ?? "unknown");
+			setText("isp", d.org ?? d.asn ?? "unknown");
+			setText("asn", d.asn ?? "unknown");
+			setText("location", [d.city, d.region, d.country_name].filter(Boolean).join(", "));
+		})
+		.catch(() => {});
 	setText("local-ip", "Unavailable in browser");
 	setText("conn-type", (navigator.connection && navigator.connection.effectiveType) ? navigator.connection.effectiveType : "Unknown (Browser Limit)");
 	setText("nat", "Likely Symmetric/Restricted (Estimation)");
 
 	/* ===== Tests ===== */
+	let ACTIVE_PING = null;
+
 	async function testLatency(signal) {
+		if (!ACTIVE_PING) ACTIVE_PING = await firstWorkingPing(signal);
+
 		const trials = 5;
 		const samples = [];
 		for (let i = 0; i < trials; i++) {
 			const start = performance.now();
 			try {
-				const r = await fetch(`${PING_URL}?t=${performance.now()}`, { cache: "no-store", signal });
+				const r = await fetch(bust(ACTIVE_PING), { mode: "cors", cache: "no-store", signal });
 				if (okStatus(r.status)) samples.push(performance.now() - start);
-			} catch { /* ignore */ }
+			} catch {/* ignore */}
 		}
 		if (samples.length) {
 			samples.sort((a,b)=>a-b);
@@ -151,11 +174,13 @@ import { onMount } from "solid-js";
 	}
 
 	async function testPacketLoss(signal) {
+		if (!ACTIVE_PING) ACTIVE_PING = await firstWorkingPing(signal);
+
 		const trials = 20;
 		let success = 0;
 		for (let i = 0; i < trials; i++) {
 			try {
-				const r = await fetch(`${PING_URL}?t=${Math.random()}`, { cache: "no-store", signal });
+				const r = await fetch(bust(ACTIVE_PING), { mode: "cors", cache: "no-store", signal });
 				if (okStatus(r.status)) success++;
 			} catch { /* network error => counts as loss */ }
 		}
@@ -167,18 +192,16 @@ import { onMount } from "solid-js";
 
 	async function testDownload(signal) {
 		try {
-			// Small sample so 5s cadence doesn't hog bandwidth.
+			// small sample so 5s cadence doesn't hog bandwidth
 			const sizeMB = 1;
 			const start = performance.now();
-			await fetch(`https://speed.cloudflare.com/__down?bytes=${sizeMB*1024*1024}&nocache=${Date.now()}`, { cache: "no-store", signal });
+			await fetch(`https://speed.cloudflare.com/__down?bytes=${sizeMB*1024*1024}&nocache=${Date.now()}`, { cache: "no-store", mode: "cors", signal });
 			const secs = (performance.now() - start) / 1000;
 			const mbps = sizeMB / secs;
 			const val = mbps.toFixed(2);
 			setText("download", val);
 			updateGauge("download", Number(val), 100);
-		} catch {
-			// Keep last known value if it fails; optional: set "--"
-		}
+		} catch {}
 	}
 
 	async function testUpload(signal) {
@@ -186,15 +209,13 @@ import { onMount } from "solid-js";
 			const sizeMB = 0.5; // lighter upload for frequent runs
 			const data = new Uint8Array(sizeMB * 1024 * 1024);
 			const start = performance.now();
-			await fetch("https://httpbin.org/post", { method: "POST", body: data, signal });
+			await fetch("https://httpbin.org/post", { method: "POST", body: data, mode: "cors", signal });
 			const secs = (performance.now() - start) / 1000;
 			const mbps = sizeMB / secs;
 			const val = mbps.toFixed(2);
 			setText("upload", val);
 			updateGauge("upload", Number(val), 50);
-		} catch {
-			// Keep last known value if it fails; optional: set "--"
-		}
+		} catch {}
 	}
 
 	/* ===== Scheduler (every 5s, no overlaps, pause when hidden) ===== */
@@ -202,12 +223,10 @@ import { onMount } from "solid-js";
 	let inFlight = null; // AbortController for the current cycle
 
 	async function runCycle() {
-		// Cancel any previous cycle still running
 		if (inFlight) inFlight.abort();
 		inFlight = new AbortController();
 		const { signal } = inFlight;
 
-		// Run in parallel to finish quicker, but protect with AbortController
 		await Promise.allSettled([
 			testLatency(signal),
 			testPacketLoss(signal),
@@ -220,7 +239,7 @@ import { onMount } from "solid-js";
 		if (timer) return;
 		runCycle(); // kick once immediately
 		timer = setInterval(() => {
-			if (document.hidden) return; // soft pause when tab not visible
+			if (document.hidden) return;
 			runCycle();
 		}, REFRESH_MS);
 	}
@@ -235,6 +254,5 @@ import { onMount } from "solid-js";
 		else startLoop();
 	});
 
-	// Start
 	startLoop();
 </script>
