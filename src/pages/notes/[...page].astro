@@ -6,37 +6,35 @@ import type { GetStaticPaths, Page } from "astro";
 
 type Note = CollectionEntry<"note">;
 
-const sortByDate = (a: Note, b: Note) => {
-  const ad = (a.data as any)?.date ?? 0;
-  const bd = (b.data as any)?.date ?? 0;
-  return new Date(bd).getTime() - new Date(ad).getTime();
-};
-
 export const getStaticPaths = (async ({ paginate }) => {
   const PER_PAGE = 10;
-  const notes = await getCollection("note"); // change if your collection id differs
-  const sorted = notes.sort(sortByDate);
 
+  // Load and sort notes newest → oldest (inline sorter to avoid missing refs)
+  const notes = await getCollection("note");
+  const sorted = notes.slice().sort((a, b) => {
+    const ad = (a.data as any)?.date ?? 0;
+    const bd = (b.data as any)?.date ?? 0;
+    return new Date(bd).getTime() - new Date(ad).getTime();
+  });
+
+  // Static-safe catch-all via params: { page: [] }
   return paginate(sorted, {
     pageSize: PER_PAGE,
-    params: { page: [] }, // static-safe catch-all
+    params: { page: [] },
   });
 }) satisfies GetStaticPaths;
 
-interface Props {
-  page: Page<Note>;
-}
-
+interface Props { page: Page<Note>; }
 const { page } = Astro.props;
 
 function hrefFor(entry: Note) {
   const fm = entry.data as any;
   if (fm?.permalink) return fm.permalink;
-  return `/notes/${entry.slug}/`; // adjust to match your [slug] route
+  return `/notes/${entry.slug}/`; // adjust if your route differs
 }
 
-const prevHref = page.url.prev ?? null;
-const nextHref = page.url.next ?? null;
+const prevHref: string | null = page.url.prev ?? null;
+const nextHref: string | null = page.url.next ?? null;
 ---
 
 <PageLayout meta={{ title: "Notes", description: "Short notes & snippets." }}>
@@ -45,10 +43,10 @@ const nextHref = page.url.next ?? null;
 
     <ul class="grid gap-6">
       {page.data.map((entry) => {
-        const fm = entry.data as any;
-        const title = fm?.title ?? entry.slug;
-        const summary = fm?.description ?? fm?.excerpt ?? "";
-        const dateStr = fm?.date ? new Date(fm.date).toLocaleDateString() : "";
+        const fm: any = entry.data;
+        const title: string = fm?.title ?? entry.slug;
+        const summary: string = fm?.description ?? fm?.excerpt ?? "";
+        const dateStr: string = fm?.date ? new Date(fm.date).toLocaleDateString() : "";
 
         return (
           <li class="rounded-xl border border-neutral-800/80 bg-neutral-900/40 p-5 hover:border-neutral-700 transition-colors">
