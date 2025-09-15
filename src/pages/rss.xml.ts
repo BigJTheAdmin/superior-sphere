@@ -1,3 +1,4 @@
+export const prerender = true;
 import { getAllPosts } from "@/data/post";
 import { siteConfig } from "@/site.config";
 import rss from "@astrojs/rss";

@@ -3,7 +3,7 @@ import PageLayout from "@/layouts/Base.astro";
 import { verifyPostToken } from "@/lib/auth";
 import { publishDraft, getDraftById } from "@/lib/jobsStore";
 
-export const prerender = false;
+export const prerender = true;
 
 /* ─── Server-side: URL + token ─────────────────────────────────────────── */
 const url = new URL(Astro.request.url);
