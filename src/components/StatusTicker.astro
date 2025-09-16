@@ -41,7 +41,17 @@
   const a11y  = $("#a11y");
 
   /** CONFIG **/
-  const FETCH_URL = "/api/ping-services.json";
+  // IMPORTANT: On GitHub Pages, files in /public build to the site root.
+  // We compute the correct absolute URL whether you're on a custom domain
+  // or a subpath (e.g., https://username.github.io/repo/).
+  const JSON_FILENAME = "ping-services.json";
+  let FETCH_URL = "/ping-services.json";
+  try {
+    const baseHref = document.querySelector('base')?.getAttribute('href') || "/";
+    // new URL(relative, base) handles both "/" and "/repo/" styles
+    FETCH_URL = new URL(JSON_FILENAME, new URL(baseHref, location.origin)).toString();
+  } catch { /* noop; fallback stays "/ping-services.json" */ }
+
   const BASE_POLL_MS = 30_000;
   const POLL_JITTER_MS = 5_000;
   const FETCH_TIMEOUT_MS = 12_000;           // backend sometimes slow
@@ -55,7 +65,7 @@
   const renderCache = loadJson(LOCAL_CACHE_KEY) || { items: [], ts: 0 };
   const stateCache  = loadJson(STATE_CACHE_KEY)  || {}; // { [name]: {state,lastTs} }
 
-  // Instant paint from cache
+  // Instant paint from cache (prevents empty bar on first load)
   if (renderCache.items?.length) {
     render(renderCache.items); autosizeScroller();
   }
@@ -83,12 +93,21 @@
       const timer = setTimeout(()=>controller.abort(), FETCH_TIMEOUT_MS);
       try {
         const res = await fetch(FETCH_URL, { cache: "no-store", signal: controller.signal });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status} at ${FETCH_URL}`);
         return await res.json();
       } finally { clearTimeout(timer); }
     };
     try { return await once(); }
-    catch(e){ console.warn("[StatusTicker] fetch failed:", e?.message||e); return await once(); }
+    catch(e){
+      console.warn("[StatusTicker] fetch failed, retrying:", e?.message||e);
+      try { return await once(); }
+      catch(e2){
+        console.warn("[StatusTicker] second fetch failed, using cache:", e2?.message||e2);
+        // fall back to last known good data if we have it
+        if (renderCache.items?.length) return renderCache.items;
+        throw e2;
+      }
+    }
   }
 
   async function update(){
@@ -96,7 +115,7 @@
     try { data = await fetchJson(); }
     catch { return; } // keep last good
 
-    const arr = Array.isArray(data) ? data : (data?.results ?? []);
+    const arr = Array.isArray(data) ? data : (data?.results ?? data ?? []);
     if (!Array.isArray(arr) || !arr.length) return;
 
     const cooked = postProcess(arr);
