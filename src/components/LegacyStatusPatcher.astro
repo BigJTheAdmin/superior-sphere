@@ -1,0 +1,46 @@
+---
+/**
+ * LegacyStatusPatcher.astro
+ * Blocks legacy endpoints that cause prod CORS/JSON errors and returns harmless JSON.
+ * Adds a console beacon so you can verify it’s live.
+ */
+---
+<script is:inline>
+(() => {
+  console.log("%cPTS Legacy Patcher active","color:#fbbf24;font-weight:bold");
+  const bad = [/^https?:\/\/ipapi\.co/i, /^https?:\/\/ipinfo\.io/i, /^data:text\/plain/i];
+
+  const _fetch = window.fetch;
+  window.fetch = function(input, init) {
+    try {
+      const url = typeof input === 'string' ? input : input?.url || '';
+      if (bad.some(rx => rx.test(url))) {
+        console.warn('[PTS] Blocked legacy fetch:', url);
+        return Promise.resolve(new Response('{"blocked":true}', { status: 418, headers: { 'content-type':'application/json' } }));
+      }
+    } catch {}
+    return _fetch.apply(this, arguments);
+  };
+
+  const _open = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method, url) {
+    if (typeof url === 'string' && bad.some(rx => rx.test(url))) {
+      console.warn('[PTS] Blocked legacy XHR:', url);
+      this.__pts_blocked = true;
+      return _open.call(this, method, 'about:blank');
+    }
+    return _open.apply(this, arguments);
+  };
+  const _send = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.send = function() {
+    if (this.__pts_blocked) {
+      try {
+        this.readyState = 4; this.status = 418; this.responseText = '{"blocked":true}';
+        this.onreadystatechange && this.onreadystatechange(); this.onload && this.onload();
+      } catch {}
+      return;
+    }
+    return _send.apply(this, arguments);
+  };
+})();
+</script>

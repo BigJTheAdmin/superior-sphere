@@ -1,213 +1,144 @@
 ---
 // src/components/StatusTicker.astro
+// v5 — Fixed top bar. GitHub Pages friendly.
+// - Public IP via WebRTC/STUN (no CORS/HTTP needed)
+// - NAT estimation via ICE candidates
+// - Optional ISP/ASN/Location via ipwho.is (quiet timeouts)
+// - Adds console beacon so you can verify prod is using THIS file.
 ---
-<div id="status-ticker-host"></div>
 
-<script type="module">
-  const host = document.getElementById("status-ticker-host");
-  const root = host.attachShadow({ mode: "open" });
+<style>
+  :root { --pts-bar-h: 0px; }
+  #pts-status-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 9999;
+    background: #059669; /* emerald-600 */
+    border-bottom: 1px solid rgba(0,0,0,.25);
+  }
+  body { padding-top: var(--pts-bar-h, 0px); }
+  .container { max-width: 1200px; margin-inline: auto; padding-inline: 1rem; }
+  @media (min-width: 640px) { .container { padding-inline: 1.5rem; } }
+  .pts-status {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    font-size: 12px; line-height: 1.25rem; color: #d1fae5; white-space: pre-wrap; padding: 8px 0;
+  }
+  .status-label { color: #a7f3d0; }
+  .status-warn  { color: #fde68a; }
+  .status-err   { color: #fecaca; }
+  .dim { opacity: .85; }
+</style>
 
-  root.innerHTML = `
-    <style>
-      .ticker-wrapper{overflow:hidden;background:#111;border-bottom:2px solid #333}
-      .ticker{display:inline-flex;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:.85rem;padding:.5rem 1rem;gap:3rem;font-weight:700;will-change:transform}
-      .lane{display:inline-flex;white-space:nowrap;gap:2rem}
-      .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.15rem .5rem;border-radius:9999px;border:1px solid #333;background:#0b0b0b}
-      .dot{width:8px;height:8px;border-radius:9999px;box-shadow:0 0 8px currentColor}
-      .up{color:#14f195!important}
-      .down{color:#ff3b3b!important}
-      .checking{color:#ffb020!important}
-      .track{position:relative;width:100%;overflow:hidden}
-      .rail{display:inline-flex;white-space:nowrap;gap:3rem;animation:scroll linear infinite}
-      @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-      .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;white-space:nowrap}
-    </style>
-
-    <div class="ticker-wrapper" aria-live="polite" aria-atomic="false">
-      <div class="track">
-        <div id="rail" class="rail">
-          <div id="laneA" class="ticker lane">Loading…</div>
-          <div id="laneB" class="ticker lane">Loading…</div>
-        </div>
-      </div>
-      <span id="a11y" class="sr-only"></span>
+<div id="pts-status-bar" role="status" aria-live="polite" data-version="v5">
+  <div class="container">
+    <div id="pts-status" class="pts-status">
+      <span class="status-label">Local IP:</span> Unavailable in browser
+      <br /><span class="status-label">Public IP:</span> Detecting...
+      <br /><span class="status-label">ISP:</span> Detecting...
+      <br /><span class="status-label">ASN:</span> Detecting...
+      <br /><span class="status-label">Location:</span> Detecting...
+      <br /><span class="status-label">NAT Type:</span> Estimating...
+      <br /><span class="status-label">Connection Type:</span> Unknown (Browser Limit)
     </div>
-  `;
+  </div>
+</div>
 
-  const $ = (s)=>root.querySelector(s);
-  const laneA = $("#laneA");
-  const laneB = $("#laneB");
-  const rail  = $("#rail");
-  const a11y  = $("#a11y");
+<script is:inline>
+(() => {
+  console.log("%cPTS StatusTicker v5 loaded","color:#34d399;font-weight:bold");
+  const bar = document.getElementById('pts-status-bar');
+  const el  = document.getElementById('pts-status');
+  if (!bar || !el) return;
 
-  /** CONFIG **/
-  // 👉 use a static file in /public; works on GitHub Pages (no server needed)
-  const FETCH_URL = "/ping-services.json";
-  const BASE_POLL_MS = 30_000;
-  const POLL_JITTER_MS = 5_000;
-  const FETCH_TIMEOUT_MS = 12_000;
-  const PX_PER_SEC = 90;
-  const DATA_STALE_MS = 3 * 60_000;
-  const DATA_FRESH_MS = 75_000;
-  const REQUIRE_CONSEC_FAILS = 2;
-  const LOCAL_CACHE_KEY = "pts_status_ticker_cache_v4";
-  const STATE_CACHE_KEY = "pts_status_ticker_state_v4";
+  const pad = () => document.documentElement.style.setProperty('--pts-bar-h', bar.getBoundingClientRect().height + 'px');
+  pad(); addEventListener('load', pad); addEventListener('resize', () => { clearTimeout(window.__pts_pad); window.__pts_pad = setTimeout(pad, 100); });
 
-  const renderCache = loadJson(LOCAL_CACHE_KEY) || { items: [], ts: 0 };
-  const stateCache  = loadJson(STATE_CACHE_KEY)  || {};
+  // If something removes the bar, put it back.
+  new MutationObserver(() => {
+    if (!document.getElementById('pts-status-bar')) { document.body.prepend(bar); pad(); }
+  }).observe(document.body, { childList: true });
 
-  // Instant paint from cache
-  if (renderCache.items?.length) {
-    render(renderCache.items); autosizeScroller();
-  }
+  const S = { ip:'Detecting...', isp:'Detecting...', asn:'Detecting...', loc:'Detecting...', nat:'Estimating...', conn:'Unknown (Browser Limit)' };
+  const render = () => {
+    el.innerHTML =
+`<span class="status-label">Local IP:</span> Unavailable in browser
+<br /><span class="status-label">Public IP:</span> ${S.ip}
+<br /><span class="status-label">ISP:</span> ${S.isp}
+<br /><span class="status-label">ASN:</span> ${S.asn}
+<br /><span class="status-label">Location:</span> ${S.loc}
+<br /><span class="status-label">NAT Type:</span> ${S.nat}
+<br /><span class="status-label">Connection Type:</span> ${S.conn}`;
+  };
+  render();
 
-  // Poll with jitter
-  let pollTimer=null;
-  const tick = async()=>{ await update(); scheduleNext(); };
-  scheduleNext(true);
-  function scheduleNext(immediate=false){
-    if(pollTimer) clearTimeout(pollTimer);
-    if(immediate) return void tick();
-    const j=(Math.random()*2-1)*POLL_JITTER_MS;
-    pollTimer=setTimeout(tick, BASE_POLL_MS+j);
-  }
+  const withTimeout = (p, ms, tag) => Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error(tag+' timed out')), ms))]);
+  const fetchJSON = async (url, tag) => {
+    const res = await withTimeout(fetch(url, { cache: 'no-store' }), 8000, tag);
+    if (!res.ok) throw new Error(`${tag} HTTP ${res.status}`);
+    const ct = (res.headers.get('content-type') || '').toLowerCase();
+    if (!ct.includes('application/json')) {
+      const t = await res.text(); try { return JSON.parse(t); } catch { throw new Error(`${tag}: Non-JSON`); }
+    }
+    return res.json();
+  };
 
-  document.addEventListener("visibilitychange", ()=> {
-    rail.style.animationPlayState = document.hidden ? "paused" : "running";
-  });
-  new ResizeObserver(()=>autosizeScroller()).observe(rail);
+  const detectConn = () => {
+    try {
+      const n = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (n && (n.type || n.effectiveType || n.downlink)) {
+        const bits = []; if (n.type) bits.push(n.type); if (n.effectiveType) bits.push(n.effectiveType); if (n.downlink) bits.push(`${n.downlink}Mbps`);
+        S.conn = bits.join(' / ');
+      }
+    } catch {}
+    render();
+  };
 
-  /** fetch with timeout + one retry */
-  async function fetchJson() {
-    const once = async () => {
-      const controller = new AbortController();
-      const timer = setTimeout(()=>controller.abort(), FETCH_TIMEOUT_MS);
+  const stunPublicIp = async () => {
+    if (!('RTCPeerConnection' in window)) return { ip: null, srflx: false, relay: false };
+    const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+    pc.createDataChannel('d');
+    let pubIp = null, srflx = false, relay = false;
+    pc.onicecandidate = (e) => {
+      const cand = e.candidate && e.candidate.candidate; if (!cand) return;
+      if (cand.includes(' typ srflx ')) srflx = true;
+      if (cand.includes(' typ relay ')) relay = true;
+      const parts = cand.split(' ');
+      const maybeIp = parts.find(p => /^[0-9a-f:.]+$/i.test(p) && p.includes('.'));
+      if (maybeIp && !pubIp) pubIp = maybeIp;
+    };
+    const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
+    await new Promise(r => setTimeout(r, 2500)); pc.close();
+    return { ip: pubIp, srflx, relay };
+  };
+
+  (async () => {
+    detectConn();
+
+    try {
+      const { ip, srflx, relay } = await stunPublicIp();
+      S.nat = relay ? 'Symmetric/Restricted (relay observed)' : srflx ? 'Likely NAT (srflx observed)' : 'Open/Unknown (no srflx/relay)';
+      S.ip = ip || '<span class="status-warn dim">Unavailable</span>'; render();
+    } catch {
+      S.nat = 'Unknown'; S.ip = '<span class="status-err">Unavailable</span>'; render();
+    }
+
+    const plainIp = (typeof S.ip === 'string' && !S.ip.includes('<')) ? S.ip : null;
+    if (plainIp) {
       try {
-        const res = await fetch(FETCH_URL, { cache: "no-store", signal: controller.signal });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
-      } finally { clearTimeout(timer); }
-    };
-    try { return await once(); }
-    catch(e){
-      console.warn("[StatusTicker] fetch failed:", e?.message||e);
-      try { return await once(); } catch { return null; }
+        const who = await fetchJSON(`https://ipwho.is/${encodeURIComponent(plainIp)}`, 'ipwho.is');
+        S.isp = who?.connection?.isp || who?.isp || 'Unknown';
+        const asn = who?.connection?.asn || who?.asn || '';
+        S.asn = asn ? `AS${asn}` : 'Unknown';
+        const city = who?.city || '', region = who?.region || who?.region_name || '', country = who?.country || who?.country_code || '';
+        S.loc = [city, region, country].filter(Boolean).join(', ') || (who?.continent || 'Unknown');
+      } catch {
+        S.isp = '<span class="status-warn dim">Unavailable</span>';
+        S.asn = '<span class="status-warn dim">Unavailable</span>';
+        S.loc = '<span class="status-warn dim">Unavailable</span>';
+      }
+      render();
+    } else {
+      S.isp = S.asn = S.loc = '<span class="status-warn dim">Unavailable</span>'; render();
     }
-  }
-
-  async function update(){
-    let data = await fetchJson();
-
-    // If still no data: hide wrapper (don’t spam console) unless we have cache
-    if (!data) {
-      if (!renderCache.items?.length) root.host.style.display = "none";
-      return;
-    }
-
-    const arr = Array.isArray(data) ? data : (data?.results ?? []);
-    if (!Array.isArray(arr) || !arr.length) {
-      if (!renderCache.items?.length) root.host.style.display = "none";
-      return;
-    }
-
-    const cooked = postProcess(arr);
-    if (!cooked.length) return;
-
-    root.host.style.display = ""; // ensure visible if it was hidden
-    render(cooked); autosizeScroller();
-    saveJson(LOCAL_CACHE_KEY, { items: cooked, ts: Date.now() });
-
-    const downs=cooked.filter(i=>i.state==="down");
-    a11y.textContent = downs.length ? `${downs.length} services down: ${downs.map(d=>d.name).join(", ")}`
-                                    : `All services up (${cooked.length})`;
-  }
-
-  function postProcess(raw){
-    const now=Date.now();
-    const list = raw.map(r=>normalizeOne(r,now)).filter(Boolean).filter(i=>!i.isStale).map(applyOptimistic);
-
-    for(const i of list){ stateCache[i.name]={state:i.state,lastTs:i.lastTs}; }
-    saveJson(STATE_CACHE_KEY,stateCache);
-
-    const order={down:0,up:1,checking:2};
-    list.sort((a,b)=> order[a.state]-order[b.state] || a.name.localeCompare(b.name));
-    return list;
-  }
-
-  function normalizeOne(r, now){
-    const name=String(r.name ?? r.service ?? r.id ?? "").trim();
-    if(!name) return null;
-
-    const lastTs = toMs(r.lastSeen) ?? toMs(r.lastUpdate) ?? toMs(r.checkedAt) ?? toMs(r.timestamp) ?? now;
-    const age = now - lastTs;
-    const isStale = age > DATA_STALE_MS;
-    const isFresh = age <= DATA_FRESH_MS;
-
-    const explicitUp   = asBool(r.up) || asBool(r.ok) || r.status===200 || String(r.status||"").startsWith("2");
-    const explicitDown = asBool(r.down) || String(r.state||"").toLowerCase()==="down" ||
-                         String(r.health||"").toLowerCase()==="unhealthy" || String(r.status||"").startsWith("5");
-
-    const fails = Number(r.consecutiveFails ?? r.failures ?? r.consecutive_failures ?? 0) || 0;
-
-    return {
-      name, lastTs, isStale, isFresh, explicitUp, explicitDown, fails,
-      latencyMs: numOrNull(r.latencyMs ?? r.rtt ?? r.latency),
-      region: r.region ?? r.pop ?? null,
-      state: explicitUp ? "up" : (explicitDown ? "down" : "checking"),
-    };
-  }
-
-  function applyOptimistic(i){
-    const cached = stateCache[i.name];
-
-    if(i.explicitUp){ i.state="up"; return i; }
-    if(i.explicitDown && !i.isStale){
-      if(i.fails>=REQUIRE_CONSEC_FAILS || i.fails===0){ i.state="down"; return i; }
-      i.state="checking"; return i;
-    }
-    if(i.isFresh && i.fails===0){ i.state="up"; return i; }
-
-    if(cached){
-      const recent = (Date.now()-(cached.lastTs||0)) <= DATA_STALE_MS;
-      if(recent && cached.state==="up"){ i.state="up"; return i; }
-      if(recent && cached.state==="down"){ i.state="down"; return i; }
-    }
-    i.state="checking"; return i;
-  }
-
-  function render(items){
-    const row = items.map(chip).join("");
-    laneA.innerHTML=row; laneB.innerHTML=row;
-  }
-
-  function chip(i){
-    const cls=i.state;
-    const label= i.state==="up"?"UP":(i.state==="down"?"DOWN":"CHECKING");
-    const title=[`${i.name} — ${label}`,
-      i.latencyMs!=null?`Latency: ${Math.round(i.latencyMs)} ms`:null,
-      i.region?`Region: ${i.region}`:null,
-      i.lastTs?`Updated: ${new Date(i.lastTs).toLocaleString()}`:null
-    ].filter(Boolean).join(" • ");
-    return `<span class="chip ${cls}" title="${escapeHtml(title)}"><span class="dot ${cls}" aria-hidden="true"></span><span class="label">${escapeHtml(i.name)}: ${label}</span></span>`;
-  }
-
-  function autosizeScroller(){
-    const wrapW = root.host.getBoundingClientRect().width || 1;
-    ensureWidth(laneA,wrapW); ensureWidth(laneB,wrapW);
-    const laneW = laneA.scrollWidth || 600;
-    const dur = Math.max(8, Math.round(laneW / PX_PER_SEC));
-    rail.style.animationDuration = `${dur}s`;
-  }
-  function ensureWidth(lane,wrapW){
-    const minW=Math.max(wrapW,600); let guard=0;
-    while(lane.scrollWidth<minW && guard<8){ lane.innerHTML += lane.innerHTML; guard++; }
-  }
-
-  // utils
-  function asBool(v){ if(typeof v==="boolean")return v; if(typeof v==="number")return v>0; if(typeof v==="string")return ["ok","up","true","healthy","success"].includes(v.toLowerCase()); return false; }
-  function toMs(v){ if(v==null) return null; if(typeof v==="number") return v>1e12?v:v*1000; const d=new Date(v); return isNaN(d)?null:d.getTime(); }
-  function numOrNull(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
-  function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
-  function loadJson(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch{ return null; } }
-  function saveJson(k,o){ try{ localStorage.setItem(k, JSON.stringify(o)); }catch{} }
+  })();
+})();
 </script>
