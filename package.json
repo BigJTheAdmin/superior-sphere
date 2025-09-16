@@ -27,7 +27,7 @@
 		"astro-webmanifest": "^1.0.0",
 		"cssnano": "^7.0.7",
 		"hastscript": "^9.0.0",
-		"lucide-react": "^0.525.0",
+		"lucide-react": "^0.544.0",
 		"maxmind": "^5.0.0",
 		"mdast-util-directive": "^3.0.0",
 		"mdast-util-to-markdown": "^2.1.2",
