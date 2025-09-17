@@ -1,22 +1,23 @@
-// src/content/config.ts
 import { defineCollection, z } from "astro:content";
 
 /**
- * Stripped-down collections.
- * - Blog removed.
- * - Keep room for any lightweight data collections you actually use.
+ * Collection id MUST be "post" because your routes use getCollection("post").
+ * Support BOTH `date` and `pubDate` so old/new posts work.
  */
-
-export const collections = {
-  // Example: keep a tiny "notes" or "tools" collection if you still need frontmatter-driven content.
-  // Remove if unused.
-  tools: defineCollection({
-    schema: z.object({
-      title: z.string(),
-      description: z.string().optional(),
-      updated: z.date().optional(),
-      tags: z.array(z.string()).optional(),
-      draft: z.boolean().optional().default(false),
-    }),
+const post = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    description: z.string().max(200).optional(),
+    // Accept either `date` or `pubDate`
+    date: z.coerce.date().optional(),
+    pubDate: z.coerce.date().optional(),
+    updatedDate: z.coerce.date().optional(),
+    author: z.string().default("PingTraceSSH"),
+    tags: z.array(z.string()).default([]),
+    heroImage: z.string().optional(),
+    draft: z.boolean().default(false),
   }),
-};
+});
+
+export const collections = { post };

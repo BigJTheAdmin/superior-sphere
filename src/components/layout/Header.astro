@@ -1,6 +1,6 @@
 ---
 import Search from "@/components/Search.astro";
-import ThemeToggle from "@/components/ThemeToggle.astro";
+// ThemeToggle removed
 import { menuLinks } from "@/site.config";
 
 /** Dev-aware base + helper */
@@ -54,7 +54,7 @@ const current = Astro.url.pathname.replace(/\/+$/, "") || "/";
   </div>
 
   <Search />
-  <ThemeToggle />
+  <!-- ThemeToggle removed -->
 
   <mobile-button>
     <button
