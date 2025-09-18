@@ -11,7 +11,8 @@ const link = (p: string = "") => `${BASE}${p.replace(/^\/+/, "")}`;
 const current = Astro.url.pathname.replace(/\/+$/, "") || "/";
 ---
 
-<header class="group relative mb-8 flex items-center sm:ps-18" id="main-header">
+<header class="group relative mb-8 flex w-full items-center sm:ps-18" id="main-header">
+  <!-- Left: Logo + Nav -->
   <div class="sm:flex-column flex flex-col items-center sm:items-center">
     <a
       aria-current={current === "/" ? "page" : false}
@@ -34,7 +35,6 @@ const current = Astro.url.pathname.replace(/\/+$/, "") || "/";
     >
       {
         menuLinks.map((item) => {
-          // allow menu paths with or without leading slash
           const path = (item.path || "").replace(/^\/+/, "");
           const href = link(path);
           const isActive = current === `/${path.replace(/\/+$/, "")}`;
@@ -53,9 +53,22 @@ const current = Astro.url.pathname.replace(/\/+$/, "") || "/";
     </nav>
   </div>
 
-  <Search />
-  <!-- ThemeToggle removed -->
+  <!-- Right: Search + Donate (pushed fully right) -->
+  <div class="ms-auto flex items-center gap-4 shrink-0">
 
+    <a href="https://buy.stripe.com/fZu8wQ3MMaeH60O5R79k40f" class="inline-flex items-center" aria-label="Donate">
+      <img
+        src={link("donate2.png")}
+        alt="Donate"
+        class="h-50 w-auto cursor-pointer transition-transform hover:scale-125"
+        loading="lazy"
+        decoding="async"
+      />
+    </a>
+        <Search />
+  </div>
+
+  <!-- Mobile hamburger -->
   <mobile-button>
     <button
       aria-expanded="false"

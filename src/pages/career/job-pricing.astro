@@ -8,10 +8,10 @@
 import PageLayout from "@/layouts/Base.astro";
 
 const LINKS = {
-  single:  "https://buy.stripe.com/YOUR_SINGLE_POST_LINK",     // or "/checkout?plan=single"
-  starter: "https://buy.stripe.com/YOUR_STARTER_MONTHLY_LINK", // or "/checkout?plan=starter"
-  pro:     "https://buy.stripe.com/YOUR_PRO_MONTHLY_LINK",     // or "/checkout?plan=pro"
-  ent:     "https://buy.stripe.com/YOUR_ENTERPRISE_MONTHLY_LINK"     // or "/checkout?plan=enterprise"
+  single:  "https://buy.stripe.com/3cI14oaba5YrfBoa7n9k404",     // or "/checkout?plan=single"
+  starter: "https://buy.stripe.com/eVq4gA4QQcmPdtg0wN9k402", // or "/checkout?plan=starter"
+  pro:     "https://buy.stripe.com/00w3cwgzy0E7ah43IZ9k401",     // or "/checkout?plan=pro"
+  ent:     "https://buy.stripe.com/fZu00kfvufz1ah47Zf9k400"     // or "/checkout?plan=enterprise"
 };
 ---
 
@@ -102,7 +102,7 @@ const LINKS = {
         <header>
           <h3>Enterprise</h3>
           <p class="price">
-            <span class="amount">$799</span> <span class="term">/ month</span>
+            <span class="amount">$999</span> <span class="term">/ month</span>
           </p>
         </header>
         <ul class="features">
@@ -112,7 +112,7 @@ const LINKS = {
           <li>Custom sourcing campaigns</li>
           <li>Newsletter banner placement</li>
         </ul>
-        <a class="btn primary" href={LINKS.pro} data-plan="pro">Get Enterprise</a>
+        <a class="btn primary" href={LINKS.ent} data-plan="ent">Get Enterprise</a>
         <p class="fineprint">We’ll build your hiring pipeline together.</p>
       </article>
     </div>
