@@ -33,6 +33,7 @@ Astro Cactus is a simple opinionated starter built with [Astro](https://astro.bu
 - Responsive & SEO-friendly
 - Dark & Light mode
 - MD & [MDX](https://docs.astro.build/en/guides/markdown-content/#mdx-only-features) posts & notes
+- [Satori](https://github.com/vercel/satori) for creating open graph png images
 - [Automatic RSS feeds](https://docs.astro.build/en/guides/rss)
 - [Webmentions](https://webmention.io/)
 - Auto-generated:
@@ -88,6 +89,7 @@ Replace pnpm with your choice of npm / yarn
 - Create/edit posts & notes for your blog within `src/content/post/` & `src/content/note/` with .md/mdx file(s). See [below](#adding-posts-notes-and-tags) for more details.
   - Add any custom Tag pages for related blog posts in `/src/content/tag/`, ensuring that the file name is the same as the tag.
 - OG Image:
+  - If you would like to change the style of the generated image the Satori library creates, open up `src/pages/og-image/[slug].png.ts` to the markup function where you can edit the html/tailwind-classes as necessary. You can use this [playground](https://og-playground.vercel.app/) to aid your design.
   - You can also create your own og images and skip satori generating it for you by adding an ogImage property in the frontmatter with a link to the asset, an example can be found in `src/content/post/social-image.md`. More info on frontmatter can be found [below](#post-frontmatter)
 - Optional:
   - Fonts: This theme sets the body element to the font family `font-mono`, in `src/layouts/Base.astro` on the `<body>`. You can change fonts by removing the variant `font-mono`, after which TailwindCSS will default to the `font-sans` [font family stack](https://tailwindcss.com/docs/font-family).
@@ -156,6 +158,7 @@ If you would rather not include this integration, simply remove the component `s
 
 ## Analytics
 
+You may want to track the number of visitors you receive to your blog/website in order to understand trends and popular posts/pages you've created. There are a number of providers out there one could use, including web hosts such as [vercel](https://vercel.com/analytics), [netlify](https://www.netlify.com/products/analytics/), and [cloudflare](https://www.cloudflare.com/web-analytics/).
 
 This theme/template doesn't include a specific solution due to there being a number of use cases and/or options which some people may or may not use.
 
