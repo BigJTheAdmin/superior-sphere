@@ -1,0 +1,275 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en-US" data-astro-cid-5hce7sga> <head><!-- Keep charset FIRST to prevent mojibake like â€™ --><meta charset="utf-8"><!-- Mobile default at ~75% scale (no pinch-zoom needed) --><meta name="viewport" content="width=device-width, initial-scale=0.75, viewport-fit=cover"><!-- Helpful mobile/browser theming --><meta name="theme-color" content="#0b0f14"><meta name="color-scheme" content="dark light"><meta name="format-detection" content="telephone=no"><!-- Your existing head (title, SEO, OG tags, etc.) --><!-- BaseHead --><title>Breakroom Game 1</title><meta name="description" content="Networking tools, automation, and troubleshooting for IT professionals."><link rel="canonical" href="https://pingtracessh.com/breakroom/game1/"><!-- Favicons (match files in /public) --><link rel="icon" href="/icon.png?v=2" sizes="any"><link rel="icon" href="/PTSicon.png?v=2" type="image/png"><link rel="apple-touch-icon" href="/icon.png?v=2"><meta name="theme-color" content="#0f0f0f"><!-- Open Graph --><meta property="og:type" content="website"><meta property="og:title" content="Breakroom Game 1"><meta property="og:description" content="Networking tools, automation, and troubleshooting for IT professionals."><meta property="og:url" content="https://pingtracessh.com/breakroom/game1/"><meta property="og:site_name" content="Ping.Trace.SSH"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pingtracessh.com/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Breakroom Game 1"><meta name="twitter:description" content="Networking tools, automation, and troubleshooting for IT professionals."><meta name="twitter:image" content="https://pingtracessh.com/"><!-- Optional: sitemap/rss if you actually generate them --><link rel="sitemap" type="application/xml" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Blog" href="/rss.xml"><!-- Mobile-safe baseline that won’t fight Tailwind --><link rel="stylesheet" href="/_astro/_slug_.BJY2hdSo.css">
+<style>.coming-soon[data-astro-cid-duentuwc]{text-align:center;margin-top:3rem;padding:2rem;border-radius:12px;background:#1a1a1a;border:1px solid #444}.coming-soon[data-astro-cid-duentuwc] h2[data-astro-cid-duentuwc]{font-size:2rem;color:#f0f}.coming-soon[data-astro-cid-duentuwc] p[data-astro-cid-duentuwc]{margin-top:.75rem;color:#bbb}
+</style><script type="module" src="/_astro/page.V2R8AmkL.js"></script></head> <body class="bg-global-bg text-global-text flex min-h-screen flex-col px-4 pt-6 font-mono text-sm font-normal antialiased sm:px-8" data-astro-cid-5hce7sga> <script>
+	const lightModePref = window.matchMedia("(prefers-color-scheme: light)");
+
+	function getUserPref() {
+		const storedTheme = typeof localStorage !== "undefined" && localStorage.getItem("theme");
+		return storedTheme || (lightModePref.matches ? "light" : "dark");
+	}
+
+	function setTheme(newTheme) {
+		if (newTheme !== "light" && newTheme !== "dark") {
+			return console.warn(
+				`Invalid theme value '${newTheme}' received. Expected 'light' or 'dark'.`,
+			);
+		}
+
+		const root = document.documentElement;
+
+		// root already set to newTheme, exit early
+		if (newTheme === root.getAttribute("data-theme")) {
+			return;
+		}
+
+		root.setAttribute("data-theme", newTheme);
+
+		if (typeof localStorage !== "undefined") {
+			localStorage.setItem("theme", newTheme);
+		}
+	}
+
+	// initial setup
+	setTheme(getUserPref());
+
+	// View Transitions hook to restore theme
+	document.addEventListener("astro:after-swap", () => setTheme(getUserPref()));
+
+	// listen for theme-change custom event, fired in src/components/ThemeToggle.astro
+	document.addEventListener("theme-change", (e) => {
+		setTheme(e.detail.theme);
+	});
+
+	// listen for prefers-color-scheme change.
+	lightModePref.addEventListener("change", (e) => setTheme(e.matches ? "light" : "dark"));
+</script> <a class="sr-only focus:not-sr-only focus:fixed focus:start-1 focus:top-1.5" href="#main">skip to content
+</a> <header class="group relative mb-8 flex w-full items-center sm:ps-18" id="main-header"> <!-- Left: Logo + Nav --> <div class="sm:flex-column flex flex-col items-center sm:items-center"> <a aria-current="false" class="inline-flex items-center sm:relative sm:inline-block" href="/"> <img src="/PTSwTerminalHORIZONTAL.png" alt="PingTraceSSH Logo" class="me-3 h-24 w-auto sm:h-45" loading="eager" decoding="async"> </a> <nav aria-label="Main menu" class="bg-global-bg/85 text-accent absolute -inset-x-4 top-14 hidden flex-col items-end gap-y-4 rounded-md py-4 shadow backdrop-blur-sm group-[.menu-open]:z-50 group-[.menu-open]:flex sm:static sm:z-auto sm:-ms-4 sm:mt-1 sm:flex sm:flex-row sm:items-center sm:divide-x sm:rounded-none sm:bg-transparent sm:py-0 sm:shadow-none sm:backdrop-blur-none" id="navigation-menu"> <a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/"> Home </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/services/"> Services </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/career/"> Career Tools </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/free-tools/"> Networking Tools </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/breakroom/"> Breakroom </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/about/"> About </a> </nav> </div> <!-- Right: Search + Donate (pushed fully right) --> <div class="ms-auto flex items-center gap-4 shrink-0"> <a href="https://buy.stripe.com/fZu8wQ3MMaeH60O5R79k40f" class="inline-flex items-center" aria-label="Donate"> <img src="/donate2.png" alt="Donate" class="h-50 w-auto cursor-pointer transition-transform hover:scale-125" loading="lazy" decoding="async"> </a> <site-search class="ms-auto" id="search"> <button class="hover:text-accent flex h-9 w-9 cursor-pointer items-center justify-center rounded-md" aria-keyshortcuts="Control+K Meta+K" data-open-modal disabled> <!-- Magnifying glass --> <svg aria-hidden="true" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"> <path d="M0 0h24v24H0z" stroke="none"></path> <circle cx="11" cy="11" r="7"></circle> <path d="M21 21l-6-6"></path> </svg> <span class="sr-only">Open Search</span> </button> <dialog aria-label="search" class="bg-global-bg h-full max-h-full w-full max-w-full border border-zinc-400 shadow-sm backdrop:backdrop-blur-sm open:flex sm:mx-auto sm:mt-16 sm:mb-auto sm:h-max sm:max-h-[calc(100%-8rem)] sm:min-h-[15rem] sm:w-5/6 sm:max-w-[48rem] sm:rounded-md"> <div class="dialog-frame flex grow flex-col gap-4 p-6 pt-12 sm:pt-6"> <button class="ms-auto cursor-pointer rounded-md bg-zinc-200 p-2 font-semibold dark:bg-zinc-700" data-close-modal>Close</button> <!-- SEARCH INPUT + RESULTS (replaces pagefind UI) --> <div class="flex flex-col gap-3"> <div class="relative"> <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-70"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"> <circle cx="11" cy="11" r="7"></circle> <line x1="21" y1="21" x2="16.65" y2="16.65"></line> </svg> </span> <input id="pts-search-input" type="search" placeholder="Search pages…" class="w-full rounded-md border border-zinc-400 bg-transparent py-2 pl-9 pr-9 outline-none focus:border-accent" autocomplete="off" aria-controls="pts-search-results"> <button id="pts-search-clear" class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 opacity-70 hover:opacity-100" title="Clear" aria-label="Clear" hidden> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <div id="pts-search-results" role="listbox" class="max-h-[50vh] overflow-auto rounded-md border border-zinc-400"> <!-- results render here --> </div> </div> </div> </dialog> </site-search> <script type="module">class p extends HTMLElement{#n;#e;#r;#o;#t;#s=[];#l=!1;constructor(){super(),this.#o=this.querySelector("button[data-open-modal]"),this.#n=this.querySelector("button[data-close-modal]"),this.#e=this.querySelector("dialog"),this.#r=this.querySelector(".dialog-frame"),this.#t=new AbortController,this.#o?(this.#o.addEventListener("click",this.openModal),this.#o.disabled=!1):console.warn("Search button not found"),this.#n?this.#n.addEventListener("click",this.closeModal):console.warn("Close button not found"),this.#e?this.#e.addEventListener("close",()=>{window.removeEventListener("click",this.onWindowClick)}):console.warn("Dialog not found")}connectedCallback(){window.addEventListener("keydown",this.onWindowKeydown,{signal:this.#t.signal}),(window.requestIdleCallback||(t=>setTimeout(t,1)))(()=>this.#a())}disconnectedCallback(){this.#t.abort()}openModal=e=>{if(!this.#e)return;this.#e.showModal(),this.querySelector("#pts-search-input")?.focus(),e?.stopPropagation(),window.addEventListener("click",this.onWindowClick,{signal:this.#t.signal}),this.#i(this.#s.slice(0,10))};closeModal=()=>this.#e?.close();onWindowClick=e=>{("href"in(e.target||{})||document.body.contains(e.target)&&!this.#r?.contains(e.target))&&this.closeModal()};onWindowKeydown=e=>{this.#e&&(e.metaKey===!0||e.ctrlKey===!0)&&e.key==="k"&&(this.#e.open?this.closeModal():this.openModal(),e.preventDefault())};async#a(){if(!this.#l)try{const e=await fetch("/api/pages-search.json",{cache:"force-cache"});if(!e.ok)throw new Error("Failed to fetch page index");this.#s=await e.json()}catch(e){console.error(e),this.#s=[]}finally{this.#l=!0,this.#c()}}#c(){const e=this.querySelector("#pts-search-input"),t=this.querySelector("#pts-search-clear");if(!e)return;const i=()=>{const r=e.value.trim().toLowerCase();if(!r){this.#i(this.#s.slice(0,10)),t&&(t.hidden=!0);return}t&&(t.hidden=!1);const l=r.split(/\s+/).filter(Boolean),a=s=>{let o=0;const d=(s.title||"").toLowerCase(),h=(s.description||"").toLowerCase(),u=(s.keywords||[]).map(n=>(n||"").toLowerCase());for(const n of l)d.includes(n)&&(o+=3),u.some(f=>f.includes(n))&&(o+=2),h.includes(n)&&(o+=1);return o},c=this.#s.map(s=>({doc:s,s:a(s)})).filter(s=>s.s>0).sort((s,o)=>o.s-s.s).slice(0,50).map(s=>s.doc);this.#i(c)};e.addEventListener("input",i,{signal:this.#t.signal}),e.addEventListener("keydown",r=>{r.key==="Escape"&&(e.value="",t&&(t.hidden=!0),this.#i(this.#s.slice(0,10)))},{signal:this.#t.signal}),t?.addEventListener("click",()=>{e.value="",t.hidden=!0,this.#i(this.#s.slice(0,10)),e.focus()},{signal:this.#t.signal})}#i(e){const t=this.querySelector("#pts-search-results");if(t){if(!e.length){t.innerHTML='<div class="p-3 text-sm opacity-70">No matches. Try different keywords.</div>';return}t.innerHTML=e.map(i=>`
+        <a href="${i.url}" role="option" class="block border-b border-zinc-700/40 p-3 hover:bg-accent/10 focus:bg-accent/10 focus:outline-none">
+          <div class="font-semibold">${i.title}</div>
+          ${i.description?`<div class="mt-0.5 text-sm opacity-80">${i.description}</div>`:""}
+        </a>
+      `).join("")}}}customElements.define("site-search",p);</script> </div> <!-- Mobile hamburger --> <mobile-button> <button aria-expanded="false" aria-haspopup="menu" class="group relative ms-4 h-7 w-7 sm:invisible sm:hidden" id="toggle-navigation-menu" type="button"> <span class="sr-only">Open main menu</span> <svg aria-hidden="true" class="absolute start-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 transition-all group-aria-expanded:scale-0 group-aria-expanded:opacity-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"> <path d="M3.75 9h16.5m-16.5 6.75h16.5" stroke-linecap="round" stroke-linejoin="round"></path> </svg> <svg aria-hidden="true" class="text-accent absolute start-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-0 opacity-0 transition-all group-aria-expanded:scale-100 group-aria-expanded:opacity-100" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"> <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path> </svg> </button> </mobile-button> </header> <script type="module">function s(t,e){t.classList.toggle(e)}class l extends HTMLElement{#e=!1;connectedCallback(){const e=document.getElementById("main-header"),n=this.querySelector("button");n?.addEventListener("click",()=>{e&&s(e,"menu-open"),this.#e=!this.#e,n.setAttribute("aria-expanded",this.#e.toString())})}}customElements.define("mobile-button",l);</script> <!-- Live status bar --> <div id="status-ticker-host"></div> <script type="module">
+  const host = document.getElementById("status-ticker-host");
+  const root = host.attachShadow({ mode: "open" });
+
+  root.innerHTML = `
+    <style>
+      .ticker-wrapper{overflow:hidden;background:#111;border-bottom:2px solid #333}
+      .ticker{display:inline-flex;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:.85rem;padding:.5rem 1rem;gap:3rem;font-weight:700;will-change:transform}
+      .lane{display:inline-flex;white-space:nowrap;gap:2rem}
+      .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.15rem .5rem;border-radius:9999px;border:1px solid #333;background:#0b0b0b}
+      .dot{width:8px;height:8px;border-radius:9999px;box-shadow:0 0 8px currentColor}
+      .up{color:#14f195!important}
+      .down{color:#ff3b3b!important}
+      .checking{color:#ffb020!important}
+      .track{position:relative;width:100%;overflow:hidden}
+      .rail{display:inline-flex;white-space:nowrap;gap:3rem;animation:scroll linear infinite}
+      @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+      .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;white-space:nowrap}
+    </style>
+
+    <div class="ticker-wrapper" aria-live="polite" aria-atomic="false">
+      <div class="track">
+        <div id="rail" class="rail">
+          <div id="laneA" class="ticker lane">Loading…</div>
+          <div id="laneB" class="ticker lane">Loading…</div>
+        </div>
+      </div>
+      <span id="a11y" class="sr-only"></span>
+    </div>
+  `;
+
+  const $ = (s)=>root.querySelector(s);
+  const laneA = $("#laneA");
+  const laneB = $("#laneB");
+  const rail  = $("#rail");
+  const a11y  = $("#a11y");
+
+  /** CONFIG **/
+  // IMPORTANT: On GitHub Pages, files in /public build to the site root.
+  // We compute the correct absolute URL whether you're on a custom domain
+  // or a subpath (e.g., https://username.github.io/repo/).
+  const JSON_FILENAME = "ping-services.json";
+  let FETCH_URL = "/ping-services.json";
+  try {
+    const baseHref = document.querySelector('base')?.getAttribute('href') || "/";
+    // new URL(relative, base) handles both "/" and "/repo/" styles
+    FETCH_URL = new URL(JSON_FILENAME, new URL(baseHref, location.origin)).toString();
+  } catch { /* noop; fallback stays "/ping-services.json" */ }
+
+  const BASE_POLL_MS = 30_000;
+  const POLL_JITTER_MS = 5_000;
+  const FETCH_TIMEOUT_MS = 12_000;           // backend sometimes slow
+  const PX_PER_SEC = 90;
+  const DATA_STALE_MS = 3 * 60_000;          // too old to trust
+  const DATA_FRESH_MS = 75_000;              // fresh enough to infer UP if no fails
+  const REQUIRE_CONSEC_FAILS = 2;            // confirm DOWN
+  const LOCAL_CACHE_KEY = "pts_status_ticker_cache_v4";
+  const STATE_CACHE_KEY = "pts_status_ticker_state_v4";
+
+  const renderCache = loadJson(LOCAL_CACHE_KEY) || { items: [], ts: 0 };
+  const stateCache  = loadJson(STATE_CACHE_KEY)  || {}; // { [name]: {state,lastTs} }
+
+  // Instant paint from cache (prevents empty bar on first load)
+  if (renderCache.items?.length) {
+    render(renderCache.items); autosizeScroller();
+  }
+
+  // Poll with jitter
+  let pollTimer=null;
+  const tick = async()=>{ await update(); scheduleNext(); };
+  scheduleNext(true);
+  function scheduleNext(immediate=false){
+    if(pollTimer) clearTimeout(pollTimer);
+    if(immediate) return void tick();
+    const j=(Math.random()*2-1)*POLL_JITTER_MS;
+    pollTimer=setTimeout(tick, BASE_POLL_MS+j);
+  }
+
+  document.addEventListener("visibilitychange", ()=> {
+    rail.style.animationPlayState = document.hidden ? "paused" : "running";
+  });
+  new ResizeObserver(()=>autosizeScroller()).observe(rail);
+
+  /** fetch with timeout + one retry */
+  async function fetchJson() {
+    const once = async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(()=>controller.abort(), FETCH_TIMEOUT_MS);
+      try {
+        const res = await fetch(FETCH_URL, { cache: "no-store", signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status} at ${FETCH_URL}`);
+        return await res.json();
+      } finally { clearTimeout(timer); }
+    };
+    try { return await once(); }
+    catch(e){
+      console.warn("[StatusTicker] fetch failed, retrying:", e?.message||e);
+      try { return await once(); }
+      catch(e2){
+        console.warn("[StatusTicker] second fetch failed, using cache:", e2?.message||e2);
+        // fall back to last known good data if we have it
+        if (renderCache.items?.length) return renderCache.items;
+        throw e2;
+      }
+    }
+  }
+
+  async function update(){
+    let data;
+    try { data = await fetchJson(); }
+    catch { return; } // keep last good
+
+    const arr = Array.isArray(data) ? data : (data?.results ?? data ?? []);
+    if (!Array.isArray(arr) || !arr.length) return;
+
+    const cooked = postProcess(arr);
+    if (!cooked.length) return;
+
+    render(cooked); autosizeScroller();
+    saveJson(LOCAL_CACHE_KEY, { items: cooked, ts: Date.now() });
+
+    const downs=cooked.filter(i=>i.state==="down");
+    a11y.textContent = downs.length ? `${downs.length} services down: ${downs.map(d=>d.name).join(", ")}`
+                                    : `All services up (${cooked.length})`;
+  }
+
+  function postProcess(raw){
+    const now=Date.now();
+    const list = raw.map(r=>normalizeOne(r,now)).filter(Boolean).filter(i=>!i.isStale).map(applyOptimistic);
+
+    // persist last known
+    for(const i of list){ stateCache[i.name]={state:i.state,lastTs:i.lastTs}; }
+    saveJson(STATE_CACHE_KEY,stateCache);
+
+    // down -> up -> checking
+    const order={down:0,up:1,checking:2};
+    list.sort((a,b)=> order[a.state]-order[b.state] || a.name.localeCompare(b.name));
+    return list;
+  }
+
+  function normalizeOne(r, now){
+    const name=String(r.name ?? r.service ?? r.id ?? "").trim();
+    if(!name) return null;
+
+    const lastTs = toMs(r.lastSeen) ?? toMs(r.lastUpdate) ?? toMs(r.checkedAt) ?? toMs(r.timestamp) ?? now;
+    const age = now - lastTs;
+    const isStale = age > DATA_STALE_MS;
+    const isFresh = age <= DATA_FRESH_MS;
+
+    const explicitUp   = asBool(r.up) || asBool(r.ok) || r.status===200 || String(r.status||"").startsWith("2");
+    const explicitDown = asBool(r.down) || String(r.state||"").toLowerCase()==="down" ||
+                         String(r.health||"").toLowerCase()==="unhealthy" || String(r.status||"").startsWith("5");
+
+    const fails = Number(r.consecutiveFails ?? r.failures ?? r.consecutive_failures ?? 0) || 0;
+
+    return {
+      name, lastTs, isStale, isFresh, explicitUp, explicitDown, fails,
+      latencyMs: numOrNull(r.latencyMs ?? r.rtt ?? r.latency),
+      region: r.region ?? r.pop ?? null,
+      state: explicitUp ? "up" : (explicitDown ? "down" : "checking"),
+    };
+  }
+
+  // **Key inference**
+  // - Explicit UP => UP
+  // - Explicit DOWN (fresh) => DOWN if fails >= threshold (or counter missing)
+  // - Otherwise:
+  //     if sample is FRESH and fails==0 => infer UP (prevents “stuck CHECKING”)
+  //     else keep last known UP if not stale
+  //     else CHECKING
+  function applyOptimistic(i){
+    const cached = stateCache[i.name];
+
+    if(i.explicitUp){ i.state="up"; return i; }
+    if(i.explicitDown && !i.isStale){
+      if(i.fails>=REQUIRE_CONSEC_FAILS || i.fails===0){ i.state="down"; return i; }
+      i.state="checking"; return i;
+    }
+    if(i.isFresh && i.fails===0){ i.state="up"; return i; }
+
+    if(cached){
+      const recent = (Date.now()-(cached.lastTs||0)) <= DATA_STALE_MS;
+      if(recent && cached.state==="up"){ i.state="up"; return i; }
+      if(recent && cached.state==="down"){ i.state="down"; return i; }
+    }
+    i.state="checking"; return i;
+  }
+
+  function render(items){
+    const row = items.map(chip).join("");
+    laneA.innerHTML=row; laneB.innerHTML=row;
+  }
+
+  function chip(i){
+    const cls=i.state;
+    const label= i.state==="up"?"UP":(i.state==="down"?"DOWN":"CHECKING");
+    const title=[`${i.name} — ${label}`,
+      i.latencyMs!=null?`Latency: ${Math.round(i.latencyMs)} ms`:null,
+      i.region?`Region: ${i.region}`:null,
+      i.lastTs?`Updated: ${new Date(i.lastTs).toLocaleString()}`:null
+    ].filter(Boolean).join(" • ");
+    return `<span class="chip ${cls}" title="${escapeHtml(title)}"><span class="dot ${cls}" aria-hidden="true"></span><span class="label">${escapeHtml(i.name)}: ${label}</span></span>`;
+  }
+
+  function autosizeScroller(){
+    const wrapW = root.host.getBoundingClientRect().width || 1;
+    ensureWidth(laneA,wrapW); ensureWidth(laneB,wrapW);
+    const laneW = laneA.scrollWidth || 600;
+    const dur = Math.max(8, Math.round(laneW / PX_PER_SEC));
+    rail.style.animationDuration = `${dur}s`;
+  }
+  function ensureWidth(lane,wrapW){
+    const minW=Math.max(wrapW,600); let guard=0;
+    while(lane.scrollWidth<minW && guard<8){ lane.innerHTML += lane.innerHTML; guard++; }
+  }
+
+  // utils
+  function asBool(v){ if(typeof v==="boolean")return v; if(typeof v==="number")return v>0; if(typeof v==="string")return ["ok","up","true","healthy","success"].includes(v.toLowerCase()); return false; }
+  function toMs(v){ if(v==null) return null; if(typeof v==="number") return v>1e12?v:v*1000; const d=new Date(v); return isNaN(d)?null:d.getTime(); }
+  function numOrNull(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
+  function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+  function loadJson(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch{ return null; } }
+  function saveJson(k,o){ try{ localStorage.setItem(k, JSON.stringify(o)); }catch{} }
+</script> <!-- Main site content --> <main id="main" class="flex-1" data-astro-cid-5hce7sga>  <section class="tool-wrapper" data-astro-cid-duentuwc> <h1 data-astro-cid-duentuwc>Game 1</h1> <p data-astro-cid-duentuwc>Unplug, reload... and play.</p> <div class="coming-soon" data-astro-cid-duentuwc> <h2 data-astro-cid-duentuwc>Coming Soon</h2> <p data-astro-cid-duentuwc>A terminal-themed arcade experience built for IT warriors.</p> </div> </section>   </main> <footer class="mt-auto flex w-full flex-col items-center justify-center gap-y-2 pt-10 pb-4 text-center align-top font-semibold text-gray-600 sm:flex-row sm:justify-between sm:text-xs dark:text-gray-400"> <div class="me-0 sm:me-4">
+&copy; J The Admin 2025.<span class="inline-block">&nbsp;🚀&nbsp;Ping.Trace.SSH</span> </div> <!-- Hidden on mobile, shown from md and up --> <nav aria-labelledby="footer_links" class="hidden md:flex gap-x-2 md:gap-x-0 md:divide-x md:divide-gray-500"> <p id="footer_links" class="sr-only">More on this site</p> <a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/"> Home </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/services/"> Services </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/career/"> Career Tools </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/free-tools/"> Networking Tools </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/breakroom/"> Breakroom </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/about/"> About </a> </nav> </footer> <!-- Hide footer navigation links on mobile only -->  </body> </html>

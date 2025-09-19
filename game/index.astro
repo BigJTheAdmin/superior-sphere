@@ -1,0 +1,71 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+---
+
+<PageLayout meta={{ title: "Games Hub" }}>
+  <section class="tool-wrapper">
+    <h1>PingTraceSSH — Games Hub</h1>
+    <p class="sub">Breakroom fun for IT folks. No ticket required.</p>
+
+    <div class="grid">
+      <a class="card" href="/corporate-chase">
+        <div class="thumb" style='background-image:url("/assets/games/corporate-chase-thumb.png");'></div>
+        <h3>Corporate Chase</h3>
+        <p>Collect cash, dodge managers, survive the office.</p>
+        <div class="meta">
+          <span>Arcade</span><span>Desktop & Mobile</span>
+        </div>
+      </a>
+
+      <a class="card" href="/help-desk-hero">
+        <div class="thumb" style='background-image:url("/assets/games/help-desk-hero-thumb.png");'></div>
+        <h3>Help Desk Hero</h3>
+        <p>Judge tickets: ridiculous or valid. Slap justice, get promoted.</p>
+        <div class="meta">
+          <span>Quiz/Arcade</span><span>Desktop & Mobile</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <style>
+    h1 { margin-bottom: .25rem; }
+    .sub { opacity: .85; margin-bottom: 1rem; }
+
+    .grid {
+      display: grid; gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      position: relative;
+      display: grid;
+      gap: .6rem;
+      padding: .8rem;
+      border: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, #101621, #0d131e);
+      border-radius: .9rem;
+      text-decoration: none;
+      color: inherit;
+      transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    .card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(29,127,227,.35);
+      box-shadow: 0 8px 28px rgba(0,0,0,.22);
+    }
+    .thumb {
+      height: 160px; border-radius: .7rem;
+      background-size: cover; background-position: center;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .meta { display: flex; gap: .5rem; opacity: .8; font-size: .9rem; }
+    .meta span {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      padding: .2rem .5rem; border-radius: 999px;
+    }
+  </style>
+</PageLayout>

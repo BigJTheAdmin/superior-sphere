@@ -1,0 +1,1043 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en-US" data-astro-cid-5hce7sga> <head><!-- Keep charset FIRST to prevent mojibake like â€™ --><meta charset="utf-8"><!-- Mobile default at ~75% scale (no pinch-zoom needed) --><meta name="viewport" content="width=device-width, initial-scale=0.75, viewport-fit=cover"><!-- Helpful mobile/browser theming --><meta name="theme-color" content="#0b0f14"><meta name="color-scheme" content="dark light"><meta name="format-detection" content="telephone=no"><!-- Your existing head (title, SEO, OG tags, etc.) --><!-- BaseHead --><title>Corporate Chase</title><meta name="description" content="Networking tools, automation, and troubleshooting for IT professionals."><link rel="canonical" href="https://pingtracessh.com/breakroom/corporate-chase/"><!-- Favicons (match files in /public) --><link rel="icon" href="/icon.png?v=2" sizes="any"><link rel="icon" href="/PTSicon.png?v=2" type="image/png"><link rel="apple-touch-icon" href="/icon.png?v=2"><meta name="theme-color" content="#0f0f0f"><!-- Open Graph --><meta property="og:type" content="website"><meta property="og:title" content="Corporate Chase"><meta property="og:description" content="Networking tools, automation, and troubleshooting for IT professionals."><meta property="og:url" content="https://pingtracessh.com/breakroom/corporate-chase/"><meta property="og:site_name" content="Ping.Trace.SSH"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pingtracessh.com/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Corporate Chase"><meta name="twitter:description" content="Networking tools, automation, and troubleshooting for IT professionals."><meta name="twitter:image" content="https://pingtracessh.com/"><!-- Optional: sitemap/rss if you actually generate them --><link rel="sitemap" type="application/xml" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Blog" href="/rss.xml"><!-- Mobile-safe baseline that won’t fight Tailwind --><link rel="stylesheet" href="/_astro/_slug_.BJY2hdSo.css">
+<style>.tool-wrapper[data-astro-cid-lynnw4jf]{display:flex;justify-content:center;padding:18px 10px 36px}.game-shell[data-astro-cid-lynnw4jf]{width:min(1200px,96vw);background:#0e1116;border:1px solid #232832;border-radius:14px;padding:14px;position:relative;box-shadow:0 14px 60px #00000073}.hud[data-astro-cid-lynnw4jf]{display:flex;gap:14px;align-items:center;justify-content:center;background:#11161f;border:1px solid #2b3240;border-radius:10px;padding:8px 10px;color:#e7eefc;font:600 14px/1 ui-sans-serif,system-ui;margin-bottom:10px}.game-flex[data-astro-cid-lynnw4jf]{display:grid;grid-template-columns:1fr;gap:12px}.canvas-shell[data-astro-cid-lynnw4jf]{display:flex;justify-content:center}#gameCanvas[data-astro-cid-lynnw4jf]{background:transparent;border:1px solid #2a2f37;border-radius:10px;box-shadow:0 10px 30px #00000059 inset,0 6px 26px #00000040}.overlay[data-astro-cid-lynnw4jf]{position:absolute;inset:62px 14px 0;display:none;place-items:center;z-index:40;pointer-events:auto;background:transparent}.instructions[data-astro-cid-lynnw4jf]{color:#aeb7c2;text-align:center;font:400 14px/1.6 ui-sans-serif,system-ui;margin-top:2px}
+</style><script type="module" src="/_astro/page.V2R8AmkL.js"></script></head> <body class="bg-global-bg text-global-text flex min-h-screen flex-col px-4 pt-6 font-mono text-sm font-normal antialiased sm:px-8" data-astro-cid-5hce7sga> <script>
+	const lightModePref = window.matchMedia("(prefers-color-scheme: light)");
+
+	function getUserPref() {
+		const storedTheme = typeof localStorage !== "undefined" && localStorage.getItem("theme");
+		return storedTheme || (lightModePref.matches ? "light" : "dark");
+	}
+
+	function setTheme(newTheme) {
+		if (newTheme !== "light" && newTheme !== "dark") {
+			return console.warn(
+				`Invalid theme value '${newTheme}' received. Expected 'light' or 'dark'.`,
+			);
+		}
+
+		const root = document.documentElement;
+
+		// root already set to newTheme, exit early
+		if (newTheme === root.getAttribute("data-theme")) {
+			return;
+		}
+
+		root.setAttribute("data-theme", newTheme);
+
+		if (typeof localStorage !== "undefined") {
+			localStorage.setItem("theme", newTheme);
+		}
+	}
+
+	// initial setup
+	setTheme(getUserPref());
+
+	// View Transitions hook to restore theme
+	document.addEventListener("astro:after-swap", () => setTheme(getUserPref()));
+
+	// listen for theme-change custom event, fired in src/components/ThemeToggle.astro
+	document.addEventListener("theme-change", (e) => {
+		setTheme(e.detail.theme);
+	});
+
+	// listen for prefers-color-scheme change.
+	lightModePref.addEventListener("change", (e) => setTheme(e.matches ? "light" : "dark"));
+</script> <a class="sr-only focus:not-sr-only focus:fixed focus:start-1 focus:top-1.5" href="#main">skip to content
+</a> <header class="group relative mb-8 flex w-full items-center sm:ps-18" id="main-header"> <!-- Left: Logo + Nav --> <div class="sm:flex-column flex flex-col items-center sm:items-center"> <a aria-current="false" class="inline-flex items-center sm:relative sm:inline-block" href="/"> <img src="/PTSwTerminalHORIZONTAL.png" alt="PingTraceSSH Logo" class="me-3 h-24 w-auto sm:h-45" loading="eager" decoding="async"> </a> <nav aria-label="Main menu" class="bg-global-bg/85 text-accent absolute -inset-x-4 top-14 hidden flex-col items-end gap-y-4 rounded-md py-4 shadow backdrop-blur-sm group-[.menu-open]:z-50 group-[.menu-open]:flex sm:static sm:z-auto sm:-ms-4 sm:mt-1 sm:flex sm:flex-row sm:items-center sm:divide-x sm:rounded-none sm:bg-transparent sm:py-0 sm:shadow-none sm:backdrop-blur-none" id="navigation-menu"> <a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/"> Home </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/services/"> Services </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/career/"> Career Tools </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/free-tools/"> Networking Tools </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/breakroom/"> Breakroom </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/about/"> About </a> </nav> </div> <!-- Right: Search + Donate (pushed fully right) --> <div class="ms-auto flex items-center gap-4 shrink-0"> <a href="https://buy.stripe.com/fZu8wQ3MMaeH60O5R79k40f" class="inline-flex items-center" aria-label="Donate"> <img src="/donate2.png" alt="Donate" class="h-50 w-auto cursor-pointer transition-transform hover:scale-125" loading="lazy" decoding="async"> </a> <site-search class="ms-auto" id="search"> <button class="hover:text-accent flex h-9 w-9 cursor-pointer items-center justify-center rounded-md" aria-keyshortcuts="Control+K Meta+K" data-open-modal disabled> <!-- Magnifying glass --> <svg aria-hidden="true" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"> <path d="M0 0h24v24H0z" stroke="none"></path> <circle cx="11" cy="11" r="7"></circle> <path d="M21 21l-6-6"></path> </svg> <span class="sr-only">Open Search</span> </button> <dialog aria-label="search" class="bg-global-bg h-full max-h-full w-full max-w-full border border-zinc-400 shadow-sm backdrop:backdrop-blur-sm open:flex sm:mx-auto sm:mt-16 sm:mb-auto sm:h-max sm:max-h-[calc(100%-8rem)] sm:min-h-[15rem] sm:w-5/6 sm:max-w-[48rem] sm:rounded-md"> <div class="dialog-frame flex grow flex-col gap-4 p-6 pt-12 sm:pt-6"> <button class="ms-auto cursor-pointer rounded-md bg-zinc-200 p-2 font-semibold dark:bg-zinc-700" data-close-modal>Close</button> <!-- SEARCH INPUT + RESULTS (replaces pagefind UI) --> <div class="flex flex-col gap-3"> <div class="relative"> <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-70"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"> <circle cx="11" cy="11" r="7"></circle> <line x1="21" y1="21" x2="16.65" y2="16.65"></line> </svg> </span> <input id="pts-search-input" type="search" placeholder="Search pages…" class="w-full rounded-md border border-zinc-400 bg-transparent py-2 pl-9 pr-9 outline-none focus:border-accent" autocomplete="off" aria-controls="pts-search-results"> <button id="pts-search-clear" class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 opacity-70 hover:opacity-100" title="Clear" aria-label="Clear" hidden> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <div id="pts-search-results" role="listbox" class="max-h-[50vh] overflow-auto rounded-md border border-zinc-400"> <!-- results render here --> </div> </div> </div> </dialog> </site-search> <script type="module">class p extends HTMLElement{#n;#e;#r;#o;#t;#s=[];#l=!1;constructor(){super(),this.#o=this.querySelector("button[data-open-modal]"),this.#n=this.querySelector("button[data-close-modal]"),this.#e=this.querySelector("dialog"),this.#r=this.querySelector(".dialog-frame"),this.#t=new AbortController,this.#o?(this.#o.addEventListener("click",this.openModal),this.#o.disabled=!1):console.warn("Search button not found"),this.#n?this.#n.addEventListener("click",this.closeModal):console.warn("Close button not found"),this.#e?this.#e.addEventListener("close",()=>{window.removeEventListener("click",this.onWindowClick)}):console.warn("Dialog not found")}connectedCallback(){window.addEventListener("keydown",this.onWindowKeydown,{signal:this.#t.signal}),(window.requestIdleCallback||(t=>setTimeout(t,1)))(()=>this.#a())}disconnectedCallback(){this.#t.abort()}openModal=e=>{if(!this.#e)return;this.#e.showModal(),this.querySelector("#pts-search-input")?.focus(),e?.stopPropagation(),window.addEventListener("click",this.onWindowClick,{signal:this.#t.signal}),this.#i(this.#s.slice(0,10))};closeModal=()=>this.#e?.close();onWindowClick=e=>{("href"in(e.target||{})||document.body.contains(e.target)&&!this.#r?.contains(e.target))&&this.closeModal()};onWindowKeydown=e=>{this.#e&&(e.metaKey===!0||e.ctrlKey===!0)&&e.key==="k"&&(this.#e.open?this.closeModal():this.openModal(),e.preventDefault())};async#a(){if(!this.#l)try{const e=await fetch("/api/pages-search.json",{cache:"force-cache"});if(!e.ok)throw new Error("Failed to fetch page index");this.#s=await e.json()}catch(e){console.error(e),this.#s=[]}finally{this.#l=!0,this.#c()}}#c(){const e=this.querySelector("#pts-search-input"),t=this.querySelector("#pts-search-clear");if(!e)return;const i=()=>{const r=e.value.trim().toLowerCase();if(!r){this.#i(this.#s.slice(0,10)),t&&(t.hidden=!0);return}t&&(t.hidden=!1);const l=r.split(/\s+/).filter(Boolean),a=s=>{let o=0;const d=(s.title||"").toLowerCase(),h=(s.description||"").toLowerCase(),u=(s.keywords||[]).map(n=>(n||"").toLowerCase());for(const n of l)d.includes(n)&&(o+=3),u.some(f=>f.includes(n))&&(o+=2),h.includes(n)&&(o+=1);return o},c=this.#s.map(s=>({doc:s,s:a(s)})).filter(s=>s.s>0).sort((s,o)=>o.s-s.s).slice(0,50).map(s=>s.doc);this.#i(c)};e.addEventListener("input",i,{signal:this.#t.signal}),e.addEventListener("keydown",r=>{r.key==="Escape"&&(e.value="",t&&(t.hidden=!0),this.#i(this.#s.slice(0,10)))},{signal:this.#t.signal}),t?.addEventListener("click",()=>{e.value="",t.hidden=!0,this.#i(this.#s.slice(0,10)),e.focus()},{signal:this.#t.signal})}#i(e){const t=this.querySelector("#pts-search-results");if(t){if(!e.length){t.innerHTML='<div class="p-3 text-sm opacity-70">No matches. Try different keywords.</div>';return}t.innerHTML=e.map(i=>`
+        <a href="${i.url}" role="option" class="block border-b border-zinc-700/40 p-3 hover:bg-accent/10 focus:bg-accent/10 focus:outline-none">
+          <div class="font-semibold">${i.title}</div>
+          ${i.description?`<div class="mt-0.5 text-sm opacity-80">${i.description}</div>`:""}
+        </a>
+      `).join("")}}}customElements.define("site-search",p);</script> </div> <!-- Mobile hamburger --> <mobile-button> <button aria-expanded="false" aria-haspopup="menu" class="group relative ms-4 h-7 w-7 sm:invisible sm:hidden" id="toggle-navigation-menu" type="button"> <span class="sr-only">Open main menu</span> <svg aria-hidden="true" class="absolute start-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 transition-all group-aria-expanded:scale-0 group-aria-expanded:opacity-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"> <path d="M3.75 9h16.5m-16.5 6.75h16.5" stroke-linecap="round" stroke-linejoin="round"></path> </svg> <svg aria-hidden="true" class="text-accent absolute start-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-0 opacity-0 transition-all group-aria-expanded:scale-100 group-aria-expanded:opacity-100" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"> <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path> </svg> </button> </mobile-button> </header> <script type="module">function s(t,e){t.classList.toggle(e)}class l extends HTMLElement{#e=!1;connectedCallback(){const e=document.getElementById("main-header"),n=this.querySelector("button");n?.addEventListener("click",()=>{e&&s(e,"menu-open"),this.#e=!this.#e,n.setAttribute("aria-expanded",this.#e.toString())})}}customElements.define("mobile-button",l);</script> <!-- Live status bar --> <div id="status-ticker-host"></div> <script type="module">
+  const host = document.getElementById("status-ticker-host");
+  const root = host.attachShadow({ mode: "open" });
+
+  root.innerHTML = `
+    <style>
+      .ticker-wrapper{overflow:hidden;background:#111;border-bottom:2px solid #333}
+      .ticker{display:inline-flex;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:.85rem;padding:.5rem 1rem;gap:3rem;font-weight:700;will-change:transform}
+      .lane{display:inline-flex;white-space:nowrap;gap:2rem}
+      .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.15rem .5rem;border-radius:9999px;border:1px solid #333;background:#0b0b0b}
+      .dot{width:8px;height:8px;border-radius:9999px;box-shadow:0 0 8px currentColor}
+      .up{color:#14f195!important}
+      .down{color:#ff3b3b!important}
+      .checking{color:#ffb020!important}
+      .track{position:relative;width:100%;overflow:hidden}
+      .rail{display:inline-flex;white-space:nowrap;gap:3rem;animation:scroll linear infinite}
+      @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+      .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;white-space:nowrap}
+    </style>
+
+    <div class="ticker-wrapper" aria-live="polite" aria-atomic="false">
+      <div class="track">
+        <div id="rail" class="rail">
+          <div id="laneA" class="ticker lane">Loading…</div>
+          <div id="laneB" class="ticker lane">Loading…</div>
+        </div>
+      </div>
+      <span id="a11y" class="sr-only"></span>
+    </div>
+  `;
+
+  const $ = (s)=>root.querySelector(s);
+  const laneA = $("#laneA");
+  const laneB = $("#laneB");
+  const rail  = $("#rail");
+  const a11y  = $("#a11y");
+
+  /** CONFIG **/
+  // IMPORTANT: On GitHub Pages, files in /public build to the site root.
+  // We compute the correct absolute URL whether you're on a custom domain
+  // or a subpath (e.g., https://username.github.io/repo/).
+  const JSON_FILENAME = "ping-services.json";
+  let FETCH_URL = "/ping-services.json";
+  try {
+    const baseHref = document.querySelector('base')?.getAttribute('href') || "/";
+    // new URL(relative, base) handles both "/" and "/repo/" styles
+    FETCH_URL = new URL(JSON_FILENAME, new URL(baseHref, location.origin)).toString();
+  } catch { /* noop; fallback stays "/ping-services.json" */ }
+
+  const BASE_POLL_MS = 30_000;
+  const POLL_JITTER_MS = 5_000;
+  const FETCH_TIMEOUT_MS = 12_000;           // backend sometimes slow
+  const PX_PER_SEC = 90;
+  const DATA_STALE_MS = 3 * 60_000;          // too old to trust
+  const DATA_FRESH_MS = 75_000;              // fresh enough to infer UP if no fails
+  const REQUIRE_CONSEC_FAILS = 2;            // confirm DOWN
+  const LOCAL_CACHE_KEY = "pts_status_ticker_cache_v4";
+  const STATE_CACHE_KEY = "pts_status_ticker_state_v4";
+
+  const renderCache = loadJson(LOCAL_CACHE_KEY) || { items: [], ts: 0 };
+  const stateCache  = loadJson(STATE_CACHE_KEY)  || {}; // { [name]: {state,lastTs} }
+
+  // Instant paint from cache (prevents empty bar on first load)
+  if (renderCache.items?.length) {
+    render(renderCache.items); autosizeScroller();
+  }
+
+  // Poll with jitter
+  let pollTimer=null;
+  const tick = async()=>{ await update(); scheduleNext(); };
+  scheduleNext(true);
+  function scheduleNext(immediate=false){
+    if(pollTimer) clearTimeout(pollTimer);
+    if(immediate) return void tick();
+    const j=(Math.random()*2-1)*POLL_JITTER_MS;
+    pollTimer=setTimeout(tick, BASE_POLL_MS+j);
+  }
+
+  document.addEventListener("visibilitychange", ()=> {
+    rail.style.animationPlayState = document.hidden ? "paused" : "running";
+  });
+  new ResizeObserver(()=>autosizeScroller()).observe(rail);
+
+  /** fetch with timeout + one retry */
+  async function fetchJson() {
+    const once = async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(()=>controller.abort(), FETCH_TIMEOUT_MS);
+      try {
+        const res = await fetch(FETCH_URL, { cache: "no-store", signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status} at ${FETCH_URL}`);
+        return await res.json();
+      } finally { clearTimeout(timer); }
+    };
+    try { return await once(); }
+    catch(e){
+      console.warn("[StatusTicker] fetch failed, retrying:", e?.message||e);
+      try { return await once(); }
+      catch(e2){
+        console.warn("[StatusTicker] second fetch failed, using cache:", e2?.message||e2);
+        // fall back to last known good data if we have it
+        if (renderCache.items?.length) return renderCache.items;
+        throw e2;
+      }
+    }
+  }
+
+  async function update(){
+    let data;
+    try { data = await fetchJson(); }
+    catch { return; } // keep last good
+
+    const arr = Array.isArray(data) ? data : (data?.results ?? data ?? []);
+    if (!Array.isArray(arr) || !arr.length) return;
+
+    const cooked = postProcess(arr);
+    if (!cooked.length) return;
+
+    render(cooked); autosizeScroller();
+    saveJson(LOCAL_CACHE_KEY, { items: cooked, ts: Date.now() });
+
+    const downs=cooked.filter(i=>i.state==="down");
+    a11y.textContent = downs.length ? `${downs.length} services down: ${downs.map(d=>d.name).join(", ")}`
+                                    : `All services up (${cooked.length})`;
+  }
+
+  function postProcess(raw){
+    const now=Date.now();
+    const list = raw.map(r=>normalizeOne(r,now)).filter(Boolean).filter(i=>!i.isStale).map(applyOptimistic);
+
+    // persist last known
+    for(const i of list){ stateCache[i.name]={state:i.state,lastTs:i.lastTs}; }
+    saveJson(STATE_CACHE_KEY,stateCache);
+
+    // down -> up -> checking
+    const order={down:0,up:1,checking:2};
+    list.sort((a,b)=> order[a.state]-order[b.state] || a.name.localeCompare(b.name));
+    return list;
+  }
+
+  function normalizeOne(r, now){
+    const name=String(r.name ?? r.service ?? r.id ?? "").trim();
+    if(!name) return null;
+
+    const lastTs = toMs(r.lastSeen) ?? toMs(r.lastUpdate) ?? toMs(r.checkedAt) ?? toMs(r.timestamp) ?? now;
+    const age = now - lastTs;
+    const isStale = age > DATA_STALE_MS;
+    const isFresh = age <= DATA_FRESH_MS;
+
+    const explicitUp   = asBool(r.up) || asBool(r.ok) || r.status===200 || String(r.status||"").startsWith("2");
+    const explicitDown = asBool(r.down) || String(r.state||"").toLowerCase()==="down" ||
+                         String(r.health||"").toLowerCase()==="unhealthy" || String(r.status||"").startsWith("5");
+
+    const fails = Number(r.consecutiveFails ?? r.failures ?? r.consecutive_failures ?? 0) || 0;
+
+    return {
+      name, lastTs, isStale, isFresh, explicitUp, explicitDown, fails,
+      latencyMs: numOrNull(r.latencyMs ?? r.rtt ?? r.latency),
+      region: r.region ?? r.pop ?? null,
+      state: explicitUp ? "up" : (explicitDown ? "down" : "checking"),
+    };
+  }
+
+  // **Key inference**
+  // - Explicit UP => UP
+  // - Explicit DOWN (fresh) => DOWN if fails >= threshold (or counter missing)
+  // - Otherwise:
+  //     if sample is FRESH and fails==0 => infer UP (prevents “stuck CHECKING”)
+  //     else keep last known UP if not stale
+  //     else CHECKING
+  function applyOptimistic(i){
+    const cached = stateCache[i.name];
+
+    if(i.explicitUp){ i.state="up"; return i; }
+    if(i.explicitDown && !i.isStale){
+      if(i.fails>=REQUIRE_CONSEC_FAILS || i.fails===0){ i.state="down"; return i; }
+      i.state="checking"; return i;
+    }
+    if(i.isFresh && i.fails===0){ i.state="up"; return i; }
+
+    if(cached){
+      const recent = (Date.now()-(cached.lastTs||0)) <= DATA_STALE_MS;
+      if(recent && cached.state==="up"){ i.state="up"; return i; }
+      if(recent && cached.state==="down"){ i.state="down"; return i; }
+    }
+    i.state="checking"; return i;
+  }
+
+  function render(items){
+    const row = items.map(chip).join("");
+    laneA.innerHTML=row; laneB.innerHTML=row;
+  }
+
+  function chip(i){
+    const cls=i.state;
+    const label= i.state==="up"?"UP":(i.state==="down"?"DOWN":"CHECKING");
+    const title=[`${i.name} — ${label}`,
+      i.latencyMs!=null?`Latency: ${Math.round(i.latencyMs)} ms`:null,
+      i.region?`Region: ${i.region}`:null,
+      i.lastTs?`Updated: ${new Date(i.lastTs).toLocaleString()}`:null
+    ].filter(Boolean).join(" • ");
+    return `<span class="chip ${cls}" title="${escapeHtml(title)}"><span class="dot ${cls}" aria-hidden="true"></span><span class="label">${escapeHtml(i.name)}: ${label}</span></span>`;
+  }
+
+  function autosizeScroller(){
+    const wrapW = root.host.getBoundingClientRect().width || 1;
+    ensureWidth(laneA,wrapW); ensureWidth(laneB,wrapW);
+    const laneW = laneA.scrollWidth || 600;
+    const dur = Math.max(8, Math.round(laneW / PX_PER_SEC));
+    rail.style.animationDuration = `${dur}s`;
+  }
+  function ensureWidth(lane,wrapW){
+    const minW=Math.max(wrapW,600); let guard=0;
+    while(lane.scrollWidth<minW && guard<8){ lane.innerHTML += lane.innerHTML; guard++; }
+  }
+
+  // utils
+  function asBool(v){ if(typeof v==="boolean")return v; if(typeof v==="number")return v>0; if(typeof v==="string")return ["ok","up","true","healthy","success"].includes(v.toLowerCase()); return false; }
+  function toMs(v){ if(v==null) return null; if(typeof v==="number") return v>1e12?v:v*1000; const d=new Date(v); return isNaN(d)?null:d.getTime(); }
+  function numOrNull(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
+  function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+  function loadJson(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch{ return null; } }
+  function saveJson(k,o){ try{ localStorage.setItem(k, JSON.stringify(o)); }catch{} }
+</script> <!-- Main site content --> <main id="main" class="flex-1" data-astro-cid-5hce7sga>  <section class="tool-wrapper" data-astro-cid-lynnw4jf> <div class="game-shell" data-astro-cid-lynnw4jf> <!-- HUD --> <div class="hud" data-astro-cid-lynnw4jf> <span id="scoreText" data-astro-cid-lynnw4jf>Score: 0</span> <span id="levelText" data-astro-cid-lynnw4jf>Level: 1</span> <span id="livesText" data-astro-cid-lynnw4jf>Lives: 3</span> </div> <div class="game-flex" data-astro-cid-lynnw4jf> <div class="canvas-shell" data-astro-cid-lynnw4jf> <canvas id="gameCanvas" width="1024" height="768" data-astro-cid-lynnw4jf></canvas> </div> <!-- Single window layer; JS renders menus into a Shadow DOM here --> <div id="overlay" class="overlay" style="display:none;" data-astro-cid-lynnw4jf></div> <div class="instructions" data-astro-cid-lynnw4jf> <h3 data-astro-cid-lynnw4jf>How to Play</h3> <p data-astro-cid-lynnw4jf>Use arrow keys or WASD to move. Collect coins/cash. Avoid managers. Clear all scorable items to level up.</p> </div> </div> </div> </section>  <script type="module">
+  // ================== GAME STATE ==================
+  let gameState = "menu"; // "menu" | "running" | "paused" | "levelup" | "gameover"
+  let level = 1, lives = 3;
+  let isInvulnerable = false;
+  const INVULN_TIME = 2000;
+
+  // Sound & Music state (persisted)
+  const SOUND_KEY = "corporate_chase_sound_on";
+  const MUSIC_KEY = "corporate_chase_music_on";
+  const MUSIC_VOL_KEY = "corporate_chase_music_vol";
+  let soundOn = true;
+  let musicOn = true;
+  let musicVol = 0.35;
+  let bgm = null;
+
+  // Power-ups
+  let effects = { speedUntil: 0, freezeUntil: 0 };
+  const now = () => Date.now();
+  const msLeft = (t) => Math.max(0, t - now());
+
+  // Persistent stats
+  const STORAGE_KEY = "corporate_chase_stats";
+  const loadStats = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { bestScore: 0, bestLevel: 1 }; } catch { return { bestScore: 0, bestLevel: 1 }; } };
+  const saveStats = (s) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {} };
+  let stats = loadStats();
+
+  // ================== CANVAS ==================
+  let canvas, ctx;
+  function bindCanvas() {
+    canvas = document.getElementById("gameCanvas");
+    if (!canvas) return false;
+    ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return false;
+    ctx.imageSmoothingEnabled = false;
+    return true;
+  }
+  if (!bindCanvas()) document.addEventListener("DOMContentLoaded", bindCanvas, { once: true });
+
+  // ================== HUD ==================
+  const hud = {
+    score: document.getElementById("scoreText"),
+    level: document.getElementById("levelText"),
+    lives: document.getElementById("livesText"),
+  };
+  function setHUD() {
+    if (hud.score) hud.score.textContent = "Score: " + player.score;
+    if (hud.level) hud.level.textContent = "Level: " + level;
+    if (hud.lives) hud.lives.textContent = "Lives: " + lives;
+  }
+
+  // ---------- Fullscreen helpers ----------
+  function isMobileDevice() {
+    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+          (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+  }
+  function isFullscreenActive() { return !!document.fullscreenElement; }
+  async function tryEnterFullscreen() {
+    const el = document.querySelector(".game-shell");
+    if (!el) return;
+    if (el.requestFullscreen) { try { await el.requestFullscreen(); } catch {} }
+  }
+  async function tryExitFullscreen() {
+    if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch {} }
+  }
+  document.addEventListener("fullscreenchange", () => {
+    if (!uiRoot) return;
+    const fsBtn = uiRoot.querySelector("#fs-btn");
+    if (fsBtn) fsBtn.textContent = isFullscreenActive() ? "Exit Fullscreen" : "Fullscreen";
+  });
+
+  // ================== MAP / CONSTANTS ==================
+  const map = [
+    [9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9],
+    [7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,0,0,0,6],
+    [7,0,1,14,1,0,1,12,0,3,1,1,0,1,0,0,0,13,0,6],
+    [7,0,1,0,0,0,1,1,0,0,0,1,0,2,1,0,1,1,0,6],
+    [7,0,1,0,13,0,0,0,0,0,0,1,0,0,0,0,0,0,0,6],
+    [7,0,2,0,1,1,0,1,1,14,0,3,0,1,1,5,0,0,0,6],
+    [7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,6],
+    [7,2,1,10,0,3,1,1,0,1,2,1,0,0,0,1,0,2,2,6],
+    [7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6],
+    [7,0,1,1,0,0,1,12,1,0,1,1,1,0,3,13,5,0,0,6],
+    [7,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,6],
+    [7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,6],
+    [7,0,0,0,0,15,0,0,0,0,0,0,0,0,2,0,0,0,0,6],
+    [8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8]
+  ];
+  const mapRows = map.length, mapCols = map[0].length;
+
+  const TILE_SIZE_FACTOR = 0.9;
+  let TILE_SIZE = 32, mapOffsetX = 0, mapOffsetY = 0;
+  const PLAYER_SPEED = 5, MANAGER_SPEED = 3;
+
+  // ================== SPRITES ==================
+  const SPRITE_SRC = {
+    floor: "/game/sprites/floor.png",        // NEW floor tile
+    player: "/game/sprites/player.png",
+    manager: "/game/sprites/manager.png",
+    coin: "/game/sprites/coin.png",
+    cash: "/game/sprites/cash.png",
+    tile: "/game/sprites/cubicle.png",
+    shelf: "/game/sprites/shelf.png",
+    shelf2: "/game/sprites/shelf2.png",
+    plant: "/game/sprites/plant.png",
+    water: "/game/sprites/water.png",
+    plant1: "/game/sprites/plant1.png",
+    plant2: "/game/sprites/plant2.png",
+    plant3: "/game/sprites/plant3.png",
+    plant4: "/game/sprites/plant4.png",
+    printer: "/game/sprites/printer.png",
+    wallFRONT: "/game/sprites/wallFRONT.png",
+    wallBACK: "/game/sprites/wallBACK.png",
+    wallLEFT: "/game/sprites/wallLEFT.png",
+    wallRIGHT: "/game/sprites/wallRIGHT.png",
+    speed: "/game/sprites/power_speed.png",
+    freeze: "/game/sprites/power_freeze.png",
+    extraLife: "/game/sprites/power_life.png"
+  };
+  const SPRITES = {};
+  for (const k in SPRITE_SRC) SPRITES[k] = new Image();
+  const loadImageSafe = (img, src, key) => new Promise((res) => { img.onload = res; img.onerror = () => { console.warn("sprite failed:", key); res(); }; img.src = src; });
+  async function preloadSprites() { await Promise.all(Object.entries(SPRITE_SRC).map(([k,s]) => loadImageSafe(SPRITES[k], s, k))); }
+
+  // ================== SOUND FX ==================
+  const SFX_SRC = {
+    coin: "/game/sounds/coin.mp3",
+    cash: "/game/sounds/cash.mp3",
+    power: "/game/sounds/power.mp3",
+    lifelost: "/game/sounds/lifelost.mp3",
+    levelup: "/game/sounds/levelup.mp3",
+    gameover: "/game/sounds/gameover.mp3",
+  };
+  const SFX_POOL = {};      // name -> [Audio...]
+  const SFX_INDEX = {};     // round-robin index
+  const SFX_VOLUME = { coin:0.65, cash:0.7, power:0.75, lifelost:0.85, levelup:0.8, gameover:0.9 };
+
+  function makeAudio(src) {
+    const a = new Audio(src);
+    a.preload = "auto";
+    a.crossOrigin = "anonymous";
+    return a;
+  }
+  function preloadSfx(poolSize = 4) {
+    Object.keys(SFX_SRC).forEach(name => {
+      SFX_POOL[name] = Array.from({ length: poolSize }, () => makeAudio(SFX_SRC[name]));
+      SFX_INDEX[name] = 0;
+    });
+  }
+  function playSfx(name) {
+    if (!soundOn) return;
+    const pool = SFX_POOL[name];
+    if (!pool || !pool.length) return;
+    const i = (SFX_INDEX[name] = (SFX_INDEX[name] + 1) % pool.length);
+    const a = pool[i];
+    try { a.currentTime = 0; a.volume = SFX_VOLUME[name] ?? 0.8; a.play().catch(()=>{}); } catch {}
+  }
+  function setSoundOn(on) {
+    soundOn = !!on;
+    try { localStorage.setItem(SOUND_KEY, soundOn ? "1" : "0"); } catch {}
+  }
+
+  // ================== BACKGROUND MUSIC ==================
+  const BGM_SRC = "/game/sounds/bgm.mp3";  // put your music file here
+  function ensureBgm(){
+    if (!bgm) {
+      bgm = new Audio(BGM_SRC);
+      bgm.loop = true;
+      bgm.preload = "auto";
+      bgm.crossOrigin = "anonymous";
+    }
+  }
+  function applyMusicState(){
+    ensureBgm();
+    try { bgm.volume = Math.max(0, Math.min(1, musicVol)); } catch {}
+    if (musicOn) {
+      bgm.play().catch(()=>{});  // requires user gesture; our menu clicks count
+    } else {
+      try { bgm.pause(); } catch {}
+    }
+  }
+  function setMusicOn(on){
+    musicOn = !!on;
+    try { localStorage.setItem(MUSIC_KEY, musicOn ? "1" : "0"); } catch {}
+    applyMusicState();
+  }
+  function setMusicVol(v){
+    const nv = Number(v);
+    if (!Number.isFinite(nv)) return;
+    musicVol = Math.max(0, Math.min(1, nv));
+    try { localStorage.setItem(MUSIC_VOL_KEY, String(musicVol)); } catch {}
+    applyMusicState();
+  }
+
+  // ================== ENTITIES ==================
+  const keys = { up:false, down:false, left:false, right:false };
+  const player = { x:0, y:0, width:0, height:0, speed:PLAYER_SPEED, score:0 };
+  let managers = [];
+  let collectibles = [];
+
+  // ================== DRAW ==================
+  function drawBackground(){ ctx.fillStyle="#1e1e1e"; ctx.fillRect(0,0,canvas.width,canvas.height); }
+  function drawMap(){
+    // draw floor first for every cell
+    const floor = SPRITES.floor;
+    for(let r=0;r<map.length;r++){
+      for(let c=0;c<map[r].length;c++){
+        const x=mapOffsetX+c*TILE_SIZE; const y=mapOffsetY+r*TILE_SIZE;
+        if (floor && floor.complete && floor.naturalWidth) {
+          ctx.drawImage(floor,x,y,TILE_SIZE,TILE_SIZE);
+        } else {
+          ctx.fillStyle = (r+c)%2===0 ? "#1a1e24" : "#151a20"; // fallback checker
+          ctx.fillRect(x,y,TILE_SIZE,TILE_SIZE);
+        }
+      }
+    }
+    // then draw blocking/decoration tiles
+    const spriteMap={1:"tile",2:"shelf",3:"plant",4:"plant1",5:"plant2",10:"plant3",11:"printer",6:"wallRIGHT",7:"wallLEFT",8:"wallBACK",9:"wallFRONT",12:"shelf2",13:"printer",14:"plant4",15:"water"};
+    for(let r=0;r<map.length;r++){
+      for(let c=0;c<map[r].length;c++){
+        const tile=map[r][c];
+        const k=spriteMap[tile];
+        const x=mapOffsetX+c*TILE_SIZE; const y=mapOffsetY+r*TILE_SIZE;
+        if(k&&SPRITES[k]) ctx.drawImage(SPRITES[k],x,y,TILE_SIZE,TILE_SIZE);
+      }
+    }
+  }
+  function drawCollectibles(){
+    for(const it of collectibles){
+      if(it.collected) continue;
+      const img=SPRITES[it.type];
+      if(img&&img.complete&&img.naturalWidth) {
+        ctx.drawImage(img,it.x-it.radius,it.y-it.radius,it.radius*2,it.radius*2);
+      } else {
+        ctx.beginPath(); ctx.arc(it.x,it.y,it.radius,0,Math.PI*2);
+        ctx.fillStyle= it.type==="cash"?"#9acd32": it.type==="speed"?"#2d9cdb": it.type==="freeze"?"#56ccf2": it.type==="extraLife"?"#eb5757":"#f1c40f"; ctx.fill();
+      }
+    }
+  }
+  function drawPlayer(){ if(isInvulnerable && Math.floor(Date.now()/150)%2===0) return; ctx.drawImage(SPRITES.player,player.x,player.y,player.width,player.height); }
+  function drawManagers(){
+    const frozen = msLeft(effects.freezeUntil)>0;
+    for(const m of managers){ if(frozen) ctx.globalAlpha=.5; ctx.drawImage(SPRITES.manager,m.x,m.y,m.width,m.height); ctx.globalAlpha=1; }
+  }
+
+  // ================== COLLISION / UPDATE ==================
+  function getTile(x,y){ const col=Math.floor((x-mapOffsetX)/TILE_SIZE); const row=Math.floor((y-mapOffsetY)/TILE_SIZE); if(row<0||col<0||row>=map.length||col>=map[0].length) return 1; return map[row][col]; }
+  function isBlocked(x,y,w,h){ const b=[1,2,3,5,6,7,8,9,10,12,13,14,15]; return b.includes(getTile(x,y))||b.includes(getTile(x+w-1,y))||b.includes(getTile(x,y+h-1))||b.includes(getTile(x+w-1,y+h-1)); }
+
+  function updatePlayer(){
+    const nx=player.x+(+keys.right-+keys.left)*player.speed;
+    const ny=player.y+(+keys.down-+keys.up)*player.speed;
+    if(!isBlocked(nx,player.y,player.width,player.height)) player.x=nx;
+    if(!isBlocked(player.x,ny,player.width,player.height)) player.y=ny;
+
+    for(const it of collectibles){
+      if(it.collected) continue;
+      const dx=player.x+player.width/2-it.x, dy=player.y+player.height/2-it.y;
+      if(Math.hypot(dx,dy)<it.radius+TILE_SIZE*0.3){
+        it.collected=true;
+        if(it.type==="cash"){ player.score+=10; playSfx("cash"); }
+        else if(it.type==="coin"){ player.score+=1; playSfx("coin"); }
+        else if(it.type==="speed"){ effects.speedUntil=now()+5000; player.speed=PLAYER_SPEED*1.8; playSfx("power"); }
+        else if(it.type==="freeze"){ effects.freezeUntil=now()+5000; playSfx("power"); }
+        else if(it.type==="extraLife"){ if(lives<5) lives++; playSfx("power"); }
+        setHUD();
+      }
+    }
+    if(msLeft(effects.speedUntil)===0 && player.speed!==PLAYER_SPEED) player.speed=PLAYER_SPEED;
+    if(allScorableCollected()) levelUp();
+  }
+
+  function moveManagers(){
+    const frozen=msLeft(effects.freezeUntil)>0;
+    for(const m of managers){
+      if(frozen) continue;
+      const pcx=player.x+player.width/2, pcy=player.y+player.height/2;
+      const mcx=m.x+m.width/2, mcy=m.y+m.height/2;
+      let dx=pcx-mcx, dy=pcy-mcy; const d=Math.hypot(dx,dy);
+      if(d>0){ dx/=d; dy/=d; const nx=m.x+dx*m.speed, ny=m.y+dy*m.speed; if(!isBlocked(nx,m.y,m.width,m.height)) m.x=nx; if(!isBlocked(m.x,ny,m.width,m.height)) m.y=ny; }
+    }
+  }
+
+  function checkManagerCollision(){
+    if(isInvulnerable) return;
+    for(const m of managers){
+      const pcx=player.x+player.width/2, pcy=player.y+player.height/2;
+      const mcx=m.x+m.width/2, mcy=m.y+m.height/2;
+      if(Math.hypot(pcx-mcx,pcy-mcy) < (player.width+m.width)*0.35){
+        lives--; setHUD();
+        if(lives>0){ playSfx("lifelost"); respawnPlayer(); } else gameOver();
+        break;
+      }
+    }
+  }
+
+  function respawnPlayer(){
+    player.x=mapOffsetX+TILE_SIZE; player.y=mapOffsetY+TILE_SIZE;
+    managers.forEach((m,i)=>{ const p=getManagerSpawn(i); m.x=p.x; m.y=p.y; });
+    effects.freezeUntil=0; effects.speedUntil=0; player.speed=PLAYER_SPEED;
+    isInvulnerable=true; setTimeout(()=>{isInvulnerable=false;}, INVULN_TIME);
+  }
+
+  function tileAt(c,r){ if(r<0||c<0||r>=map.length||c>=map[0].length) return 1; return map[r][c]; }
+  function isWalkableTile(c,r){ return tileAt(c,r)===0; }
+  function canPlaceAtXY(x,y,w,h){ return !isBlocked(x,y,w,h); }
+  function centerInTile(c,r,w,h){ return { x: mapOffsetX + c*TILE_SIZE + (TILE_SIZE-w)/2, y: mapOffsetY + r*TILE_SIZE + (TILE_SIZE-h)/2 }; }
+  function findNearestWalkable(c,r,w,h,maxR=6){
+    for(let R=0;R<=maxR;R++){
+      for(let dc=-R;dc<=R;dc++){ for(let dr=-R;dr<=R;dr++){
+        if(Math.max(Math.abs(dc),Math.abs(dr))!==R) continue;
+        const c2=c+dc, r2=r+dr; if(!isWalkableTile(c2,r2)) continue;
+        const pos=centerInTile(c2,r2,w,h); if(canPlaceAtXY(pos.x,pos.y,w,h)) return pos;
+      }}
+    }
+    return centerInTile(c,r,w,h);
+  }
+
+  // ================== LEVELS ==================
+  function allScorableCollected(){ return !collectibles.some(c=>!c.collected && (c.type==="coin"||c.type==="cash")); }
+  function levelUp(){
+    level++; setHUD();
+    rebuildManagersForLevel();
+    initCollectibles();
+    playSfx("levelup");
+    toast("Level " + level + "!");
+  }
+
+  // ================== LOOP ==================
+  function gameLoop(){
+    if(gameState!=="running") return;
+    updatePlayer(); moveManagers(); checkManagerCollision();
+    drawBackground(); drawMap(); drawCollectibles(); drawManagers(); drawPlayer();
+    requestAnimationFrame(gameLoop);
+  }
+
+  // ================== COLLECTIBLES ==================
+  function initCollectibles(){
+    collectibles=[];
+    for(let r=0;r<map.length;r++){
+      for(let c=0;c<map[r].length;c++){
+        if(map[r][c]===0){
+          const rand=Math.random(); let type="coin", radius=TILE_SIZE*0.2;
+          if(rand<0.05){ type=["speed","freeze","extraLife"][Math.floor(Math.random()*3)]; radius=TILE_SIZE*0.3; }
+          else if(rand<0.15){ type="cash"; radius=TILE_SIZE*0.3; }
+          collectibles.push({ x: mapOffsetX + c*TILE_SIZE + TILE_SIZE/2, y: mapOffsetY + r*TILE_SIZE + TILE_SIZE/2, radius, type, collected:false });
+        }
+      }
+    }
+  }
+
+  // ================== SHADOW DOM WINDOW LAYER ==================
+  let uiRoot = null; // ShadowRoot
+  const SHADOW_CSS =
+    ':host{ all:initial; contain:layout style; font: 13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:#e7eefc; }' +
+    '.window-card{ width:min(720px,92%); background:#16181d; border:1px solid #2a2f37; border-radius:14px; box-shadow:0 16px 60px rgba(0,0,0,.55); overflow:hidden; }' +
+    '.window-bar{ display:flex; align-items:center; justify-content:center; background:#1c1f25; border-bottom:1px solid #2a2f37; padding:10px 12px; }' +
+    '.window-title{ font-weight:800; letter-spacing:.2px; color:#dfe6f2; }' +
+    '.window-body{ padding:14px 16px 16px; }' +
+    '.menu-sub{ margin:0 0 .75rem; color:#aeb7c2; font-size:1.05rem; }' +
+    '.stats{ display:flex; flex-wrap:wrap; gap:.6rem .75rem; justify-content:center; margin:.6rem 0 1rem; }' +
+    '.chip{ border:1px solid #343a43; background:#1b1f24; padding:.45rem .65rem; border-radius:999px; color:#d7dde6; }' +
+    '.menu-actions{ display:flex; flex-wrap:wrap; gap:.6rem; justify-content:center; margin:.5rem 0 .25rem; }' +
+    '.btn{ appearance:none; border:1px solid #2a3347; color:#e7eefc; background:linear-gradient(180deg,#1a2030,#121726); padding:.65rem .95rem; border-radius:12px; cursor:pointer; font:600 14px/1 ui-sans-serif,system-ui; }' +
+    '.btn-primary{ background:linear-gradient(180deg,#4da3ff,#7cc4ff); color:#081018; border-color:#1a5db8; box-shadow:0 10px 24px rgba(77,163,255,.35); }' +
+    '.kbd{ border:1px solid #2a3347; background:#111726; border-radius:6px; padding:2px 6px; }' +
+    '.menu-footer{ border-top:1px solid #262a30; padding:10px 4px 0; color:#9aa3ad; text-align:center; }' +
+    '@keyframes popIn { from{ transform:translateY(-4px) scale(.98); opacity:0; } to{ transform:translateY(0) scale(1); opacity:1; } }';
+
+  function getOverlayEl(){ return document.getElementById("overlay"); }
+  function ensureShadow(){
+    const host = getOverlayEl();
+    if (!host) return null;
+    if (!uiRoot) { uiRoot = host.attachShadow({ mode: "open" }); }
+    return uiRoot;
+  }
+  function showOverlay(html){
+    const root = ensureShadow(); if(!root) return;
+    const style = "<style>" + SHADOW_CSS + "</style>";
+    const needsWrap = !/class\\s*=\\s*["'][^"']*window-card/i.test(html);
+    const wrapped = '<div class="window-card" role="dialog" aria-modal="true" style="animation:popIn .18s ease-out">' +
+                    '<div class="window-bar"><div class="window-title">Corporate Chase</div></div>' +
+                    '<div class="window-body">' + html + '</div></div>';
+    const content = needsWrap ? wrapped : html;
+    root.innerHTML = style + content;
+
+    const host = getOverlayEl(); host.style.display = "grid";
+
+    // bind events within the shadow
+    root.addEventListener("click", onShadowClick, { passive:false });
+    root.addEventListener("input", onShadowInput, { passive:true });
+  }
+  function hideOverlay(){
+    const host = getOverlayEl(); if(!host) return;
+    host.style.display = "none";
+    if (uiRoot) uiRoot.innerHTML = "";
+  }
+
+  function onShadowInput(e){
+    const t = e.target;
+    if (!t || !t.id) return;
+    if (t.id === "music-vol") {
+      setMusicVol(t.value);
+      // reflect value label
+      const lbl = uiRoot && uiRoot.getElementById ? uiRoot.getElementById("music-vol-label") : null;
+      if (lbl) lbl.textContent = Math.round(musicVol*100) + "%";
+    }
+  }
+
+  function onShadowClick(e){
+    const el = e.composedPath().find(n => n && n.id);
+    if(!el) return;
+    const id = el.id;
+    // any click counts as a user gesture — try to start bgm if enabled
+    if (musicOn) { applyMusicState(); }
+
+    switch(id){
+      case "start-btn": startGame(); break;
+      case "howto-btn": renderHowTo(); break;
+      case "settings-btn": renderSettings(); break;
+      case "back-btn":
+        if (gameState==="paused") renderPause(); else renderMainMenu();
+        break;
+      case "resume-btn":
+        hideOverlay(); gameState="running"; requestAnimationFrame(gameLoop); break;
+      case "endgame-btn":
+        renderMainMenu(); break;
+      case "restart-btn":
+        startGame(); break;
+      case "menu-btn":
+        renderMainMenu(); break;
+      case "toggle-sound":
+        setSoundOn(!soundOn); el.textContent = soundOn ? "On" : "Off"; break;
+      case "toggle-music":
+        setMusicOn(!musicOn); el.textContent = musicOn ? "On" : "Off"; break;
+      case "do-reset":
+        if(confirm("Reset local best score and best level?")){
+          saveStats({bestScore:0,bestLevel:1}); stats=loadStats();
+          alert("Stats reset.");
+          if (gameState==="menu") renderMainMenu();
+        }
+        break;
+      case "fs-btn":
+        if (isFullscreenActive()) { tryExitFullscreen(); el.textContent = "Fullscreen"; }
+        else { tryEnterFullscreen(); el.textContent = "Exit Fullscreen"; }
+        break;
+    }
+  }
+
+  function toast(t){
+    const msg=document.createElement("div");
+    msg.textContent=t;
+    Object.assign(msg.style,{position:"absolute",left:"50%",top:"12%",transform:"translateX(-50%)",
+      background:"rgba(26,28,32,.95)",color:"#fff",font:"bold 1.1rem ui-monospace,monospace",
+      padding:"10px 14px",borderRadius:"12px",boxShadow:"0 6px 26px rgba(0,0,0,.45)",zIndex:50});
+    const host=document.querySelector(".game-shell")||document.body; host.appendChild(msg);
+    setTimeout(()=>host.removeChild(msg),1100);
+  }
+
+  // ================== MENUS ==================
+  function renderMainMenu(){
+    gameState="menu";
+    stats = loadStats();
+    const body =
+      '<p class="menu-sub">Collect cash. Dodge managers. Clear the floor to level up.</p>' +
+      '<div class="stats">' +
+        '<span class="chip">Best Score: <strong id="bestScoreChip">' + (stats.bestScore||0) + '</strong></span>' +
+        '<span class="chip">Best Level: <strong id="bestLevelChip">' + (stats.bestLevel||1) + '</strong></span>' +
+        '<span class="chip">Lives per run: <strong>3</strong></span>' +
+      '</div>' +
+      '<div class="menu-actions">' +
+        '<button id="start-btn" class="btn btn-primary">Start Game</button>' +
+        '<button id="howto-btn" class="btn">How to Play</button>' +
+        '<button id="settings-btn" class="btn">Settings</button>' +
+        '<button id="fs-btn" class="btn">' + (isFullscreenActive() ? 'Exit Fullscreen' : 'Fullscreen') + '</button>' +
+      '</div>' +
+      '<div class="menu-footer">Press <span class="kbd">Enter</span> to start — <span class="kbd">↑</span> <span class="kbd">↓</span> <span class="kbd">←</span> <span class="kbd">→</span> or <span class="kbd">WASD</span></div>';
+    showOverlay(body);
+  }
+  function renderPause(){
+    gameState="paused";
+    const body =
+      '<div class="stats" style="justify-content:center;margin-top:.25rem;">' +
+        '<span class="chip">Score: <strong>' + player.score + '</strong></span>' +
+        '<span class="chip">Level: <strong>' + level + '</strong></span>' +
+        '<span class="chip">Lives: <strong>' + lives + '</strong></span>' +
+      '</div>' +
+      '<div class="menu-actions">' +
+        '<button id="resume-btn" class="btn btn-primary">Resume</button>' +
+        '<button id="settings-btn" class="btn">Settings</button>' +
+        '<button id="endgame-btn" class="btn">End Game</button>' +
+      '</div>';
+    showOverlay(body);
+  }
+  function renderGameOver(){
+    gameState="gameover";
+    stats = loadStats();
+    if(player.score>stats.bestScore) stats.bestScore=player.score;
+    if(level>stats.bestLevel) stats.bestLevel=level;
+    saveStats(stats);
+    playSfx("gameover");
+    const body =
+      '<p class="menu-sub">Tough round. Ready to try again?</p>' +
+      '<div class="stats">' +
+        '<span class="chip">Score: <strong>' + player.score + '</strong></span>' +
+        '<span class="chip">Best Score: <strong>' + stats.bestScore + '</strong></span>' +
+        '<span class="chip">Best Level: <strong>' + stats.bestLevel + '</strong></span>' +
+      '</div>' +
+      '<div class="menu-actions">' +
+        '<button id="restart-btn" class="btn btn-primary">Restart</button>' +
+        '<button id="menu-btn" class="btn">Main Menu</button>' +
+        '<button id="settings-btn" class="btn">Settings</button>' +
+      '</div>';
+    showOverlay(body);
+  }
+  function renderSettings(){
+    const volPct = Math.round(musicVol * 100);
+    const body =
+      '<div class="setting-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:.75rem;">' +
+        '<div><strong>Sound (SFX)</strong><div style="color:#9aa3ad;font-size:.9rem;">Toggle coin/cash/power effects</div></div>' +
+        '<button id="toggle-sound" class="btn">' + (soundOn ? 'On' : 'Off') + '</button>' +
+      '</div>' +
+      '<div class="setting-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:.75rem;">' +
+        '<div><strong>Music</strong><div style="color:#9aa3ad;font-size:.9rem;">Background track during play/menus</div></div>' +
+        '<button id="toggle-music" class="btn">' + (musicOn ? 'On' : 'Off') + '</button>' +
+      '</div>' +
+      '<div class="setting-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:.75rem;">' +
+        '<div><strong>Music Volume</strong><div style="color:#9aa3ad;font-size:.9rem;">Current: <span id="music-vol-label">' + volPct + '%</span></div></div>' +
+        '<input id="music-vol" type="range" min="0" max="1" step="0.01" value="' + musicVol + '" style="width:160px" />' +
+      '</div>' +
+      '<div class="setting-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:.2rem;">' +
+        '<div><strong>Reset Stats</strong><div style="color:#9aa3ad;font-size:.9rem;">Clear local best score & level</div></div>' +
+        '<button id="do-reset" class="btn">Reset</button>' +
+      '</div>' +
+      '<div class="menu-actions" style="margin-top:1rem;"><button id="back-btn" class="btn">Back</button></div>';
+    showOverlay(body);
+  }
+  function renderHowTo(){
+    const body =
+      '<p>Use the keys to move, collect <strong>coins</strong> and <strong>cash</strong>, and avoid the managers.</p>' +
+      '<ul>' +
+        '<li>Clear all scorable items to level up; each level adds another manager and speed ramps.</li>' +
+        '<li><strong>Speed</strong>: short burst of speed.</li>' +
+        '<li><strong>Freeze</strong>: managers pause briefly.</li>' +
+        '<li><strong>Extra Life</strong>: up to 5 lives.</li>' +
+        '<li>Press <span class="kbd">Esc</span> to pause in-game.</li>' +
+      '</ul>' +
+      '<div class="menu-actions"><button id="back-btn" class="btn">Back</button></div>';
+    showOverlay(body);
+  }
+
+  // ================== DESKTOP FIT / SIZING ==================
+  function resizeCanvasToDisplaySize(){
+    if(!canvas||!ctx) return;
+    const naturalW=1024, naturalH=768;
+    const scale=Math.min(window.innerWidth/naturalW,(window.innerHeight-180)/naturalH);
+    const cssW=Math.round(naturalW*Math.max(0.6,Math.min(1,scale)));
+    const cssH=Math.round(naturalH*Math.max(0.6,Math.min(1,scale)));
+    const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+    const targetW=Math.floor(cssW*dpr), targetH=Math.floor(cssH*dpr);
+    if(canvas.width!==targetW||canvas.height!==targetH){ canvas.width=targetW; canvas.height=targetH; }
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    canvas.style.width=cssW+"px"; canvas.style.height=cssH+"px";
+  }
+  function recalcLayout(){
+    resizeCanvasToDisplaySize();
+    const cssW=canvas.clientWidth||canvas.width, cssH=canvas.clientHeight||canvas.height;
+    TILE_SIZE=Math.floor(TILE_SIZE_FACTOR*Math.min(cssW/mapCols, cssH/mapRows));
+    mapOffsetX=Math.floor((cssW - TILE_SIZE*mapCols)/2);
+    mapOffsetY=Math.floor((cssH - TILE_SIZE*mapRows)/2);
+  }
+
+  // ================== INPUT ==================
+  document.addEventListener("keydown",(e)=>{
+    if(e.key==="Escape"){
+      if(gameState==="running"){ renderPause(); return; }
+      if(gameState==="paused"||gameState==="menu"||gameState==="gameover") renderMainMenu();
+    }
+    if(["ArrowUp","w","W"].includes(e.key)) keys.up=true;
+    if(["ArrowDown","s","S"].includes(e.key)) keys.down=true;
+    if(["ArrowLeft","a","A"].includes(e.key)) keys.left=true;
+    if(["ArrowRight","d","D"].includes(e.key)) keys.right=true;
+
+    if((e.key==="Enter" || e.key===" ") && gameState==="menu"){
+      startGame();
+    }
+  });
+  document.addEventListener("keyup",(e)=>{
+    if(["ArrowUp","w","W"].includes(e.key)) keys.up=false;
+    if(["ArrowDown","s","S"].includes(e.key)) keys.down=false;
+    if(["ArrowLeft","a","A"].includes(e.key)) keys.left=false;
+    if(["ArrowRight","d","D"].includes(e.key)) keys.right=false;
+  });
+
+  // ================== STARTUP ==================
+  window.addEventListener("resize", recalcLayout);
+  document.addEventListener("DOMContentLoaded", ()=>{
+    if(!bindCanvas()){ console.error("Canvas not found"); return; }
+
+    // Load persisted toggles
+    try {
+      soundOn = (localStorage.getItem(SOUND_KEY) ?? "1") !== "0";
+      musicOn = (localStorage.getItem(MUSIC_KEY) ?? "1") !== "0";
+      const v = parseFloat(localStorage.getItem(MUSIC_VOL_KEY));
+      if (Number.isFinite(v)) musicVol = Math.max(0, Math.min(1, v));
+    } catch {}
+
+    ensureBgm();            // prepare music element
+    preloadSfx();           // ready sound pools
+    recalcLayout();
+    injectControlsStyles();
+    ensureControlsContainer();
+    mountControlsRow();
+    preloadSprites().then(()=> renderMainMenu());
+  });
+
+  // ================== SPAWN/LEVEL BUILDERS ==================
+  function getManagerSpawn(i=0){
+    const baseX=mapOffsetX+TILE_SIZE*18, baseY=mapOffsetY+TILE_SIZE*9;
+    const offsets=[[0,0],[.6,0],[0,.6],[-.6,0],[0,-.6],[.6,.6],[-.6,.6],[.6,-.6],[-.6,-.6]];
+    const [ox,oy]=offsets[i%offsets.length];
+    return { x: baseX+ox*TILE_SIZE, y: baseY+oy*TILE_SIZE };
+  }
+  function rebuildManagersForLevel(){
+    managers=[];
+    for(let i=0;i<level;i++){
+      const p=getManagerSpawn(i);
+      managers.push({ x:p.x,y:p.y, width:TILE_SIZE*.8, height:TILE_SIZE*.8, speed:MANAGER_SPEED+0.4*i });
+    }
+  }
+
+  // ================== GAME OVER / START ==================
+  function gameOver(){ renderGameOver(); }
+
+  function startGame(){
+    hideOverlay();
+    recalcLayout();
+    level=1; lives=3; isInvulnerable=false;
+    player.score=0; player.speed=PLAYER_SPEED;
+    player.width=TILE_SIZE*.8; player.height=TILE_SIZE*.8;
+    player.x=mapOffsetX+TILE_SIZE; player.y=mapOffsetY+TILE_SIZE;
+    rebuildManagersForLevel();
+    effects.speedUntil=0; effects.freezeUntil=0;
+    initCollectibles();
+    setHUD();
+    gameState="running";
+    applyMusicState();  // start music on first gesture if enabled
+    requestAnimationFrame(gameLoop);
+  }
+
+  // ================== ONSCREEN CONTROLS (Rush Hour Dash style) ==================
+  let controlsMounted = false;
+
+  function injectControlsStyles(){
+    if (document.getElementById("cc-controls-style")) return;
+    const style = document.createElement("style");
+    style.id = "cc-controls-style";
+    style.textContent =
+      '.rhd-ctrl-wrap{display:flex;flex-direction:column;align-items:center;gap:.5rem;margin-top:.75rem;}' +
+      '.rhd-ctrl-toggle{appearance:none;border:1px solid #444;background:#1e1e1e;color:#eaeaea;padding:.5rem .75rem;border-radius:.5rem;cursor:pointer;font:600 14px system-ui,Arial;}' +
+      '.rhd-ctrl-toggle:hover{background:#262626;}' +
+      '.rhd-dpad{display:none;user-select:none;touch-action:none;}' +
+      '.rhd-dpad.show{display:grid;grid-template-columns:60px 60px 60px;grid-template-rows:60px 60px 60px;gap:.5rem;}' +
+      '.rhd-btn{display:flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:.75rem;background:#2a2a2a;border:1px solid #3a3a3a;color:#eee;font:700 16px system-ui,Arial;box-shadow:0 2px 6px rgba(0,0,0,.25) inset;}' +
+      '.rhd-btn:active{transform:scale(0.98);}' +
+      '.rhd-btn[disabled]{opacity:.25;}' +
+      '@media (max-width: 480px){.rhd-dpad.show{grid-template-columns:56px 56px 56px;grid-template-rows:56px 56px 56px}.rhd-btn{width:56px;height:56px}}';
+    document.head.appendChild(style);
+  }
+
+  function ensureControlsContainer(){
+    const shell = document.querySelector(".game-shell");
+    if (!shell) return;
+    let container = document.getElementById("controls-container");
+    const overlay = document.getElementById("overlay");
+    const canvasEl = document.getElementById("gameCanvas");
+
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "controls-container";
+    } else if (container.parentElement !== shell) {
+      container.parentElement && container.parentElement.removeChild(container);
+    }
+
+    if (overlay && overlay.parentElement === shell) overlay.insertAdjacentElement("afterend", container);
+    else if (canvasEl && canvasEl.parentElement === shell) canvasEl.insertAdjacentElement("afterend", container);
+    else shell.appendChild(container);
+  }
+
+  function mountControlsRow(){
+    if (controlsMounted) return;
+
+    const container = document.getElementById("controls-container") || document.body;
+    const wrap = document.createElement("div"); wrap.className = "rhd-ctrl-wrap";
+    const toggle = document.createElement("button"); toggle.className = "rhd-ctrl-toggle"; toggle.type = "button"; toggle.textContent = "Show Touch Controls";
+    const dpad = document.createElement("div"); dpad.className = "rhd-dpad";
+
+    const mkBtn = (label, dir, disabled=false) => {
+      const b = document.createElement("button");
+      b.className = "rhd-btn"; b.type = "button"; b.textContent = label;
+      if (disabled) b.setAttribute("disabled","true");
+      if (!disabled) b.dataset.dir = dir;
+      return b;
+    };
+
+    dpad.appendChild(document.createElement("span"));
+    dpad.appendChild(mkBtn("↑","up"));
+    dpad.appendChild(document.createElement("span"));
+    dpad.appendChild(mkBtn("←","left"));
+    dpad.appendChild(mkBtn("⦿","",true));
+    dpad.appendChild(mkBtn("→","right"));
+    dpad.appendChild(document.createElement("span"));
+    dpad.appendChild(mkBtn("↓","down"));
+    dpad.appendChild(document.createElement("span"));
+
+    wrap.appendChild(toggle);
+    wrap.appendChild(dpad);
+    container.appendChild(wrap);
+
+    const setDir = (dir, pressed) => {
+      if (dir==="up") keys.up = pressed;
+      else if (dir==="down") keys.down = pressed;
+      else if (dir==="left") keys.left = pressed;
+      else if (dir==="right") keys.right = pressed;
+    };
+
+    let cancelDocHandlers = null;
+    function beginPreventingScroll(){
+      const prevent = (e)=> e.preventDefault();
+      document.addEventListener("touchmove", prevent, { passive:false });
+      document.addEventListener("wheel", prevent, { passive:false });
+      cancelDocHandlers = () => {
+        document.removeEventListener("touchmove", prevent);
+        document.removeEventListener("wheel", prevent);
+        cancelDocHandlers = null;
+      };
+    }
+    function stopPreventingScroll(){ if (cancelDocHandlers) cancelDocHandlers(); }
+
+    dpad.querySelectorAll(".rhd-btn").forEach(btn=>{
+      const dir = btn.dataset.dir;
+      if (!dir) return;
+      const start = (ev)=>{ ev.preventDefault(); setDir(dir, true); beginPreventingScroll(); };
+      const end   = (ev)=>{ if (ev) ev.preventDefault(); setDir(dir, false); stopPreventingScroll(); };
+      btn.addEventListener("mousedown", start);
+      btn.addEventListener("mouseup", end);
+      btn.addEventListener("mouseleave", end);
+      btn.addEventListener("touchstart", start, { passive:false });
+      btn.addEventListener("touchend", end, { passive:false });
+      btn.addEventListener("touchcancel", end, { passive:false });
+    });
+
+    toggle.addEventListener("click", () => {
+      const show = !dpad.classList.contains("show");
+      dpad.classList.toggle("show", show);
+      toggle.textContent = show ? "Hide Touch Controls" : "Show Touch Controls";
+      if (!show) { keys.up = keys.down = keys.left = keys.right = false; stopPreventingScroll(); }
+    });
+
+    try {
+      const k="cc_auto_show_pad_v1";
+      const seen=localStorage.getItem(k);
+      if (isMobileDevice() && !seen) { toggle.click(); localStorage.setItem(k,"1"); }
+    } catch {}
+
+    controlsMounted = true;
+  }
+  // =========================================================
+  </script>  </main> <footer class="mt-auto flex w-full flex-col items-center justify-center gap-y-2 pt-10 pb-4 text-center align-top font-semibold text-gray-600 sm:flex-row sm:justify-between sm:text-xs dark:text-gray-400"> <div class="me-0 sm:me-4">
+&copy; J The Admin 2025.<span class="inline-block">&nbsp;🚀&nbsp;Ping.Trace.SSH</span> </div> <!-- Hidden on mobile, shown from md and up --> <nav aria-labelledby="footer_links" class="hidden md:flex gap-x-2 md:gap-x-0 md:divide-x md:divide-gray-500"> <p id="footer_links" class="sr-only">More on this site</p> <a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/"> Home </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/services/"> Services </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/career/"> Career Tools </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/free-tools/"> Networking Tools </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/breakroom/"> Breakroom </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/about/"> About </a> </nav> </footer> <!-- Hide footer navigation links on mobile only -->  </body> </html>

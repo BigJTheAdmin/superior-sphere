@@ -1,0 +1,862 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en-US" data-astro-cid-5hce7sga> <head><!-- Keep charset FIRST to prevent mojibake like â€™ --><meta charset="utf-8"><!-- Mobile default at ~75% scale (no pinch-zoom needed) --><meta name="viewport" content="width=device-width, initial-scale=0.75, viewport-fit=cover"><!-- Helpful mobile/browser theming --><meta name="theme-color" content="#0b0f14"><meta name="color-scheme" content="dark light"><meta name="format-detection" content="telephone=no"><!-- Your existing head (title, SEO, OG tags, etc.) --><!-- BaseHead --><title>Raise Planner</title><meta name="description" content="Networking tools, automation, and troubleshooting for IT professionals."><link rel="canonical" href="https://pingtracessh.com/career/raise-planner/"><!-- Favicons (match files in /public) --><link rel="icon" href="/icon.png?v=2" sizes="any"><link rel="icon" href="/PTSicon.png?v=2" type="image/png"><link rel="apple-touch-icon" href="/icon.png?v=2"><meta name="theme-color" content="#0f0f0f"><!-- Open Graph --><meta property="og:type" content="website"><meta property="og:title" content="Raise Planner"><meta property="og:description" content="Networking tools, automation, and troubleshooting for IT professionals."><meta property="og:url" content="https://pingtracessh.com/career/raise-planner/"><meta property="og:site_name" content="Ping.Trace.SSH"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://pingtracessh.com/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Raise Planner"><meta name="twitter:description" content="Networking tools, automation, and troubleshooting for IT professionals."><meta name="twitter:image" content="https://pingtracessh.com/"><!-- Optional: sitemap/rss if you actually generate them --><link rel="sitemap" type="application/xml" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Blog" href="/rss.xml"><!-- Mobile-safe baseline that won’t fight Tailwind --><link rel="stylesheet" href="/_astro/_slug_.BJY2hdSo.css">
+<link rel="stylesheet" href="/_astro/raise-planner.DB2yKtCh.css"><script type="module" src="/_astro/page.V2R8AmkL.js"></script></head> <body class="bg-global-bg text-global-text flex min-h-screen flex-col px-4 pt-6 font-mono text-sm font-normal antialiased sm:px-8" data-astro-cid-5hce7sga> <script>
+	const lightModePref = window.matchMedia("(prefers-color-scheme: light)");
+
+	function getUserPref() {
+		const storedTheme = typeof localStorage !== "undefined" && localStorage.getItem("theme");
+		return storedTheme || (lightModePref.matches ? "light" : "dark");
+	}
+
+	function setTheme(newTheme) {
+		if (newTheme !== "light" && newTheme !== "dark") {
+			return console.warn(
+				`Invalid theme value '${newTheme}' received. Expected 'light' or 'dark'.`,
+			);
+		}
+
+		const root = document.documentElement;
+
+		// root already set to newTheme, exit early
+		if (newTheme === root.getAttribute("data-theme")) {
+			return;
+		}
+
+		root.setAttribute("data-theme", newTheme);
+
+		if (typeof localStorage !== "undefined") {
+			localStorage.setItem("theme", newTheme);
+		}
+	}
+
+	// initial setup
+	setTheme(getUserPref());
+
+	// View Transitions hook to restore theme
+	document.addEventListener("astro:after-swap", () => setTheme(getUserPref()));
+
+	// listen for theme-change custom event, fired in src/components/ThemeToggle.astro
+	document.addEventListener("theme-change", (e) => {
+		setTheme(e.detail.theme);
+	});
+
+	// listen for prefers-color-scheme change.
+	lightModePref.addEventListener("change", (e) => setTheme(e.matches ? "light" : "dark"));
+</script> <a class="sr-only focus:not-sr-only focus:fixed focus:start-1 focus:top-1.5" href="#main">skip to content
+</a> <header class="group relative mb-8 flex w-full items-center sm:ps-18" id="main-header"> <!-- Left: Logo + Nav --> <div class="sm:flex-column flex flex-col items-center sm:items-center"> <a aria-current="false" class="inline-flex items-center sm:relative sm:inline-block" href="/"> <img src="/PTSwTerminalHORIZONTAL.png" alt="PingTraceSSH Logo" class="me-3 h-24 w-auto sm:h-45" loading="eager" decoding="async"> </a> <nav aria-label="Main menu" class="bg-global-bg/85 text-accent absolute -inset-x-4 top-14 hidden flex-col items-end gap-y-4 rounded-md py-4 shadow backdrop-blur-sm group-[.menu-open]:z-50 group-[.menu-open]:flex sm:static sm:z-auto sm:-ms-4 sm:mt-1 sm:flex sm:flex-row sm:items-center sm:divide-x sm:rounded-none sm:bg-transparent sm:py-0 sm:shadow-none sm:backdrop-blur-none" id="navigation-menu"> <a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/"> Home </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/services/"> Services </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/career/"> Career Tools </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/free-tools/"> Networking Tools </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/breakroom/"> Breakroom </a><a aria-current="false" class="px-4 py-4 underline-offset-2 hover:underline sm:py-0" data-astro-prefetch href="/about/"> About </a> </nav> </div> <!-- Right: Search + Donate (pushed fully right) --> <div class="ms-auto flex items-center gap-4 shrink-0"> <a href="https://buy.stripe.com/fZu8wQ3MMaeH60O5R79k40f" class="inline-flex items-center" aria-label="Donate"> <img src="/donate2.png" alt="Donate" class="h-50 w-auto cursor-pointer transition-transform hover:scale-125" loading="lazy" decoding="async"> </a> <site-search class="ms-auto" id="search"> <button class="hover:text-accent flex h-9 w-9 cursor-pointer items-center justify-center rounded-md" aria-keyshortcuts="Control+K Meta+K" data-open-modal disabled> <!-- Magnifying glass --> <svg aria-hidden="true" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"> <path d="M0 0h24v24H0z" stroke="none"></path> <circle cx="11" cy="11" r="7"></circle> <path d="M21 21l-6-6"></path> </svg> <span class="sr-only">Open Search</span> </button> <dialog aria-label="search" class="bg-global-bg h-full max-h-full w-full max-w-full border border-zinc-400 shadow-sm backdrop:backdrop-blur-sm open:flex sm:mx-auto sm:mt-16 sm:mb-auto sm:h-max sm:max-h-[calc(100%-8rem)] sm:min-h-[15rem] sm:w-5/6 sm:max-w-[48rem] sm:rounded-md"> <div class="dialog-frame flex grow flex-col gap-4 p-6 pt-12 sm:pt-6"> <button class="ms-auto cursor-pointer rounded-md bg-zinc-200 p-2 font-semibold dark:bg-zinc-700" data-close-modal>Close</button> <!-- SEARCH INPUT + RESULTS (replaces pagefind UI) --> <div class="flex flex-col gap-3"> <div class="relative"> <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-70"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"> <circle cx="11" cy="11" r="7"></circle> <line x1="21" y1="21" x2="16.65" y2="16.65"></line> </svg> </span> <input id="pts-search-input" type="search" placeholder="Search pages…" class="w-full rounded-md border border-zinc-400 bg-transparent py-2 pl-9 pr-9 outline-none focus:border-accent" autocomplete="off" aria-controls="pts-search-results"> <button id="pts-search-clear" class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 opacity-70 hover:opacity-100" title="Clear" aria-label="Clear" hidden> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"> <line x1="18" y1="6" x2="6" y2="18"></line> <line x1="6" y1="6" x2="18" y2="18"></line> </svg> </button> </div> <div id="pts-search-results" role="listbox" class="max-h-[50vh] overflow-auto rounded-md border border-zinc-400"> <!-- results render here --> </div> </div> </div> </dialog> </site-search> <script type="module">class p extends HTMLElement{#n;#e;#r;#o;#t;#s=[];#l=!1;constructor(){super(),this.#o=this.querySelector("button[data-open-modal]"),this.#n=this.querySelector("button[data-close-modal]"),this.#e=this.querySelector("dialog"),this.#r=this.querySelector(".dialog-frame"),this.#t=new AbortController,this.#o?(this.#o.addEventListener("click",this.openModal),this.#o.disabled=!1):console.warn("Search button not found"),this.#n?this.#n.addEventListener("click",this.closeModal):console.warn("Close button not found"),this.#e?this.#e.addEventListener("close",()=>{window.removeEventListener("click",this.onWindowClick)}):console.warn("Dialog not found")}connectedCallback(){window.addEventListener("keydown",this.onWindowKeydown,{signal:this.#t.signal}),(window.requestIdleCallback||(t=>setTimeout(t,1)))(()=>this.#a())}disconnectedCallback(){this.#t.abort()}openModal=e=>{if(!this.#e)return;this.#e.showModal(),this.querySelector("#pts-search-input")?.focus(),e?.stopPropagation(),window.addEventListener("click",this.onWindowClick,{signal:this.#t.signal}),this.#i(this.#s.slice(0,10))};closeModal=()=>this.#e?.close();onWindowClick=e=>{("href"in(e.target||{})||document.body.contains(e.target)&&!this.#r?.contains(e.target))&&this.closeModal()};onWindowKeydown=e=>{this.#e&&(e.metaKey===!0||e.ctrlKey===!0)&&e.key==="k"&&(this.#e.open?this.closeModal():this.openModal(),e.preventDefault())};async#a(){if(!this.#l)try{const e=await fetch("/api/pages-search.json",{cache:"force-cache"});if(!e.ok)throw new Error("Failed to fetch page index");this.#s=await e.json()}catch(e){console.error(e),this.#s=[]}finally{this.#l=!0,this.#c()}}#c(){const e=this.querySelector("#pts-search-input"),t=this.querySelector("#pts-search-clear");if(!e)return;const i=()=>{const r=e.value.trim().toLowerCase();if(!r){this.#i(this.#s.slice(0,10)),t&&(t.hidden=!0);return}t&&(t.hidden=!1);const l=r.split(/\s+/).filter(Boolean),a=s=>{let o=0;const d=(s.title||"").toLowerCase(),h=(s.description||"").toLowerCase(),u=(s.keywords||[]).map(n=>(n||"").toLowerCase());for(const n of l)d.includes(n)&&(o+=3),u.some(f=>f.includes(n))&&(o+=2),h.includes(n)&&(o+=1);return o},c=this.#s.map(s=>({doc:s,s:a(s)})).filter(s=>s.s>0).sort((s,o)=>o.s-s.s).slice(0,50).map(s=>s.doc);this.#i(c)};e.addEventListener("input",i,{signal:this.#t.signal}),e.addEventListener("keydown",r=>{r.key==="Escape"&&(e.value="",t&&(t.hidden=!0),this.#i(this.#s.slice(0,10)))},{signal:this.#t.signal}),t?.addEventListener("click",()=>{e.value="",t.hidden=!0,this.#i(this.#s.slice(0,10)),e.focus()},{signal:this.#t.signal})}#i(e){const t=this.querySelector("#pts-search-results");if(t){if(!e.length){t.innerHTML='<div class="p-3 text-sm opacity-70">No matches. Try different keywords.</div>';return}t.innerHTML=e.map(i=>`
+        <a href="${i.url}" role="option" class="block border-b border-zinc-700/40 p-3 hover:bg-accent/10 focus:bg-accent/10 focus:outline-none">
+          <div class="font-semibold">${i.title}</div>
+          ${i.description?`<div class="mt-0.5 text-sm opacity-80">${i.description}</div>`:""}
+        </a>
+      `).join("")}}}customElements.define("site-search",p);</script> </div> <!-- Mobile hamburger --> <mobile-button> <button aria-expanded="false" aria-haspopup="menu" class="group relative ms-4 h-7 w-7 sm:invisible sm:hidden" id="toggle-navigation-menu" type="button"> <span class="sr-only">Open main menu</span> <svg aria-hidden="true" class="absolute start-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 transition-all group-aria-expanded:scale-0 group-aria-expanded:opacity-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"> <path d="M3.75 9h16.5m-16.5 6.75h16.5" stroke-linecap="round" stroke-linejoin="round"></path> </svg> <svg aria-hidden="true" class="text-accent absolute start-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-0 opacity-0 transition-all group-aria-expanded:scale-100 group-aria-expanded:opacity-100" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"> <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path> </svg> </button> </mobile-button> </header> <script type="module">function s(t,e){t.classList.toggle(e)}class l extends HTMLElement{#e=!1;connectedCallback(){const e=document.getElementById("main-header"),n=this.querySelector("button");n?.addEventListener("click",()=>{e&&s(e,"menu-open"),this.#e=!this.#e,n.setAttribute("aria-expanded",this.#e.toString())})}}customElements.define("mobile-button",l);</script> <!-- Live status bar --> <div id="status-ticker-host"></div> <script type="module">
+  const host = document.getElementById("status-ticker-host");
+  const root = host.attachShadow({ mode: "open" });
+
+  root.innerHTML = `
+    <style>
+      .ticker-wrapper{overflow:hidden;background:#111;border-bottom:2px solid #333}
+      .ticker{display:inline-flex;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:.85rem;padding:.5rem 1rem;gap:3rem;font-weight:700;will-change:transform}
+      .lane{display:inline-flex;white-space:nowrap;gap:2rem}
+      .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.15rem .5rem;border-radius:9999px;border:1px solid #333;background:#0b0b0b}
+      .dot{width:8px;height:8px;border-radius:9999px;box-shadow:0 0 8px currentColor}
+      .up{color:#14f195!important}
+      .down{color:#ff3b3b!important}
+      .checking{color:#ffb020!important}
+      .track{position:relative;width:100%;overflow:hidden}
+      .rail{display:inline-flex;white-space:nowrap;gap:3rem;animation:scroll linear infinite}
+      @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+      .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;white-space:nowrap}
+    </style>
+
+    <div class="ticker-wrapper" aria-live="polite" aria-atomic="false">
+      <div class="track">
+        <div id="rail" class="rail">
+          <div id="laneA" class="ticker lane">Loading…</div>
+          <div id="laneB" class="ticker lane">Loading…</div>
+        </div>
+      </div>
+      <span id="a11y" class="sr-only"></span>
+    </div>
+  `;
+
+  const $ = (s)=>root.querySelector(s);
+  const laneA = $("#laneA");
+  const laneB = $("#laneB");
+  const rail  = $("#rail");
+  const a11y  = $("#a11y");
+
+  /** CONFIG **/
+  // IMPORTANT: On GitHub Pages, files in /public build to the site root.
+  // We compute the correct absolute URL whether you're on a custom domain
+  // or a subpath (e.g., https://username.github.io/repo/).
+  const JSON_FILENAME = "ping-services.json";
+  let FETCH_URL = "/ping-services.json";
+  try {
+    const baseHref = document.querySelector('base')?.getAttribute('href') || "/";
+    // new URL(relative, base) handles both "/" and "/repo/" styles
+    FETCH_URL = new URL(JSON_FILENAME, new URL(baseHref, location.origin)).toString();
+  } catch { /* noop; fallback stays "/ping-services.json" */ }
+
+  const BASE_POLL_MS = 30_000;
+  const POLL_JITTER_MS = 5_000;
+  const FETCH_TIMEOUT_MS = 12_000;           // backend sometimes slow
+  const PX_PER_SEC = 90;
+  const DATA_STALE_MS = 3 * 60_000;          // too old to trust
+  const DATA_FRESH_MS = 75_000;              // fresh enough to infer UP if no fails
+  const REQUIRE_CONSEC_FAILS = 2;            // confirm DOWN
+  const LOCAL_CACHE_KEY = "pts_status_ticker_cache_v4";
+  const STATE_CACHE_KEY = "pts_status_ticker_state_v4";
+
+  const renderCache = loadJson(LOCAL_CACHE_KEY) || { items: [], ts: 0 };
+  const stateCache  = loadJson(STATE_CACHE_KEY)  || {}; // { [name]: {state,lastTs} }
+
+  // Instant paint from cache (prevents empty bar on first load)
+  if (renderCache.items?.length) {
+    render(renderCache.items); autosizeScroller();
+  }
+
+  // Poll with jitter
+  let pollTimer=null;
+  const tick = async()=>{ await update(); scheduleNext(); };
+  scheduleNext(true);
+  function scheduleNext(immediate=false){
+    if(pollTimer) clearTimeout(pollTimer);
+    if(immediate) return void tick();
+    const j=(Math.random()*2-1)*POLL_JITTER_MS;
+    pollTimer=setTimeout(tick, BASE_POLL_MS+j);
+  }
+
+  document.addEventListener("visibilitychange", ()=> {
+    rail.style.animationPlayState = document.hidden ? "paused" : "running";
+  });
+  new ResizeObserver(()=>autosizeScroller()).observe(rail);
+
+  /** fetch with timeout + one retry */
+  async function fetchJson() {
+    const once = async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(()=>controller.abort(), FETCH_TIMEOUT_MS);
+      try {
+        const res = await fetch(FETCH_URL, { cache: "no-store", signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status} at ${FETCH_URL}`);
+        return await res.json();
+      } finally { clearTimeout(timer); }
+    };
+    try { return await once(); }
+    catch(e){
+      console.warn("[StatusTicker] fetch failed, retrying:", e?.message||e);
+      try { return await once(); }
+      catch(e2){
+        console.warn("[StatusTicker] second fetch failed, using cache:", e2?.message||e2);
+        // fall back to last known good data if we have it
+        if (renderCache.items?.length) return renderCache.items;
+        throw e2;
+      }
+    }
+  }
+
+  async function update(){
+    let data;
+    try { data = await fetchJson(); }
+    catch { return; } // keep last good
+
+    const arr = Array.isArray(data) ? data : (data?.results ?? data ?? []);
+    if (!Array.isArray(arr) || !arr.length) return;
+
+    const cooked = postProcess(arr);
+    if (!cooked.length) return;
+
+    render(cooked); autosizeScroller();
+    saveJson(LOCAL_CACHE_KEY, { items: cooked, ts: Date.now() });
+
+    const downs=cooked.filter(i=>i.state==="down");
+    a11y.textContent = downs.length ? `${downs.length} services down: ${downs.map(d=>d.name).join(", ")}`
+                                    : `All services up (${cooked.length})`;
+  }
+
+  function postProcess(raw){
+    const now=Date.now();
+    const list = raw.map(r=>normalizeOne(r,now)).filter(Boolean).filter(i=>!i.isStale).map(applyOptimistic);
+
+    // persist last known
+    for(const i of list){ stateCache[i.name]={state:i.state,lastTs:i.lastTs}; }
+    saveJson(STATE_CACHE_KEY,stateCache);
+
+    // down -> up -> checking
+    const order={down:0,up:1,checking:2};
+    list.sort((a,b)=> order[a.state]-order[b.state] || a.name.localeCompare(b.name));
+    return list;
+  }
+
+  function normalizeOne(r, now){
+    const name=String(r.name ?? r.service ?? r.id ?? "").trim();
+    if(!name) return null;
+
+    const lastTs = toMs(r.lastSeen) ?? toMs(r.lastUpdate) ?? toMs(r.checkedAt) ?? toMs(r.timestamp) ?? now;
+    const age = now - lastTs;
+    const isStale = age > DATA_STALE_MS;
+    const isFresh = age <= DATA_FRESH_MS;
+
+    const explicitUp   = asBool(r.up) || asBool(r.ok) || r.status===200 || String(r.status||"").startsWith("2");
+    const explicitDown = asBool(r.down) || String(r.state||"").toLowerCase()==="down" ||
+                         String(r.health||"").toLowerCase()==="unhealthy" || String(r.status||"").startsWith("5");
+
+    const fails = Number(r.consecutiveFails ?? r.failures ?? r.consecutive_failures ?? 0) || 0;
+
+    return {
+      name, lastTs, isStale, isFresh, explicitUp, explicitDown, fails,
+      latencyMs: numOrNull(r.latencyMs ?? r.rtt ?? r.latency),
+      region: r.region ?? r.pop ?? null,
+      state: explicitUp ? "up" : (explicitDown ? "down" : "checking"),
+    };
+  }
+
+  // **Key inference**
+  // - Explicit UP => UP
+  // - Explicit DOWN (fresh) => DOWN if fails >= threshold (or counter missing)
+  // - Otherwise:
+  //     if sample is FRESH and fails==0 => infer UP (prevents “stuck CHECKING”)
+  //     else keep last known UP if not stale
+  //     else CHECKING
+  function applyOptimistic(i){
+    const cached = stateCache[i.name];
+
+    if(i.explicitUp){ i.state="up"; return i; }
+    if(i.explicitDown && !i.isStale){
+      if(i.fails>=REQUIRE_CONSEC_FAILS || i.fails===0){ i.state="down"; return i; }
+      i.state="checking"; return i;
+    }
+    if(i.isFresh && i.fails===0){ i.state="up"; return i; }
+
+    if(cached){
+      const recent = (Date.now()-(cached.lastTs||0)) <= DATA_STALE_MS;
+      if(recent && cached.state==="up"){ i.state="up"; return i; }
+      if(recent && cached.state==="down"){ i.state="down"; return i; }
+    }
+    i.state="checking"; return i;
+  }
+
+  function render(items){
+    const row = items.map(chip).join("");
+    laneA.innerHTML=row; laneB.innerHTML=row;
+  }
+
+  function chip(i){
+    const cls=i.state;
+    const label= i.state==="up"?"UP":(i.state==="down"?"DOWN":"CHECKING");
+    const title=[`${i.name} — ${label}`,
+      i.latencyMs!=null?`Latency: ${Math.round(i.latencyMs)} ms`:null,
+      i.region?`Region: ${i.region}`:null,
+      i.lastTs?`Updated: ${new Date(i.lastTs).toLocaleString()}`:null
+    ].filter(Boolean).join(" • ");
+    return `<span class="chip ${cls}" title="${escapeHtml(title)}"><span class="dot ${cls}" aria-hidden="true"></span><span class="label">${escapeHtml(i.name)}: ${label}</span></span>`;
+  }
+
+  function autosizeScroller(){
+    const wrapW = root.host.getBoundingClientRect().width || 1;
+    ensureWidth(laneA,wrapW); ensureWidth(laneB,wrapW);
+    const laneW = laneA.scrollWidth || 600;
+    const dur = Math.max(8, Math.round(laneW / PX_PER_SEC));
+    rail.style.animationDuration = `${dur}s`;
+  }
+  function ensureWidth(lane,wrapW){
+    const minW=Math.max(wrapW,600); let guard=0;
+    while(lane.scrollWidth<minW && guard<8){ lane.innerHTML += lane.innerHTML; guard++; }
+  }
+
+  // utils
+  function asBool(v){ if(typeof v==="boolean")return v; if(typeof v==="number")return v>0; if(typeof v==="string")return ["ok","up","true","healthy","success"].includes(v.toLowerCase()); return false; }
+  function toMs(v){ if(v==null) return null; if(typeof v==="number") return v>1e12?v:v*1000; const d=new Date(v); return isNaN(d)?null:d.getTime(); }
+  function numOrNull(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
+  function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+  function loadJson(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch{ return null; } }
+  function saveJson(k,o){ try{ localStorage.setItem(k, JSON.stringify(o)); }catch{} }
+</script> <!-- Main site content --> <main id="main" class="flex-1" data-astro-cid-5hce7sga>  <section class="tool-wrapper" data-astro-cid-o26pmxre> <h1 data-astro-cid-o26pmxre>Raise Planner</h1> <p class="subtitle" data-astro-cid-o26pmxre>
+Live, market-aware raise targets powered by current salary data, inflation, and wage-growth
+			signals.
+</p> <!-- ===== FORM ===== --> <form id="raise-form" class="form-grid" data-astro-cid-o26pmxre> <div class="two-col" data-astro-cid-o26pmxre> <label data-astro-cid-o26pmxre>
+Job title
+<input id="title" name="title" placeholder="e.g., Network Engineer" required data-astro-cid-o26pmxre> </label> <label data-astro-cid-o26pmxre>
+Location (City, ST or Country)
+<div class="input-with-btn" data-astro-cid-o26pmxre> <input id="location" name="location" placeholder="e.g., Tampa, FL" required data-astro-cid-o26pmxre> <button type="button" id="use-location" class="mini-btn" data-astro-cid-o26pmxre>Use my location</button> </div> </label> </div> <div class="two-col" data-astro-cid-o26pmxre> <label data-astro-cid-o26pmxre>
+Years of experience
+<input id="experience" type="number" name="experience" min="0" value="5" required data-astro-cid-o26pmxre> </label> <label data-astro-cid-o26pmxre>
+Current salary (USD)
+<input id="salary" type="number" name="salary" min="0" placeholder="80000" required data-astro-cid-o26pmxre> </label> </div> <div class="two-col" data-astro-cid-o26pmxre> <label data-astro-cid-o26pmxre>
+Received a raise in last 12 months?
+<select id="recentRaise" name="recentRaise" required data-astro-cid-o26pmxre> <option value="" data-astro-cid-o26pmxre>-- Select --</option> <option value="yes" data-astro-cid-o26pmxre>Yes</option> <option value="no" data-astro-cid-o26pmxre>No</option> </select> </label> <label data-astro-cid-o26pmxre>
+Last performance review
+<select id="review" name="review" required data-astro-cid-o26pmxre> <option value="" data-astro-cid-o26pmxre>-- Select --</option> <option value="excellent" data-astro-cid-o26pmxre>Excellent</option> <option value="good" data-astro-cid-o26pmxre>Good</option> <option value="average" data-astro-cid-o26pmxre>Average</option> <option value="poor" data-astro-cid-o26pmxre>Poor</option> </select> </label> </div> <div class="two-col" data-astro-cid-o26pmxre> <label data-astro-cid-o26pmxre>
+Do you lead or mentor others?
+<select id="leadership" name="leadership" required data-astro-cid-o26pmxre> <option value="" data-astro-cid-o26pmxre>-- Select --</option> <option value="yes" data-astro-cid-o26pmxre>Yes</option> <option value="no" data-astro-cid-o26pmxre>No</option> </select> </label> <label data-astro-cid-o26pmxre>
+Taken on new responsibilities?
+<select id="growth" name="growth" required data-astro-cid-o26pmxre> <option value="" data-astro-cid-o26pmxre>-- Select --</option> <option value="yes" data-astro-cid-o26pmxre>Yes</option> <option value="no" data-astro-cid-o26pmxre>No</option> </select> </label> </div> <div class="two-col" data-astro-cid-o26pmxre> <label data-astro-cid-o26pmxre>
+Do you know your market value?
+<select id="marketAwareness" name="marketAwareness" required data-astro-cid-o26pmxre> <option value="" data-astro-cid-o26pmxre>-- Select --</option> <option value="yes" data-astro-cid-o26pmxre>Yes</option> <option value="no" data-astro-cid-o26pmxre>No</option> </select> </label> <label data-astro-cid-o26pmxre>
+Open to switching companies?
+<select id="openToLeave" name="openToLeave" required data-astro-cid-o26pmxre> <option value="" data-astro-cid-o26pmxre>-- Select --</option> <option value="yes" data-astro-cid-o26pmxre>Yes</option> <option value="no" data-astro-cid-o26pmxre>No</option> </select> </label> </div> <button id="submitBtn" type="submit" class="submit-btn" data-astro-cid-o26pmxre>Generate Raise Plan</button> </form> <!-- ===== RESULTS ===== --> <div id="live-panels" class="panels" style="display:none;" data-astro-cid-o26pmxre> <div class="grid-3" data-astro-cid-o26pmxre> <!-- Likelihood --> <div class="tool-card highlight" id="likelihood-card" data-astro-cid-o26pmxre> <div class="card-head" data-astro-cid-o26pmxre> <h3 data-astro-cid-o26pmxre>Raise Likelihood</h3> <span class="caps small dim" id="likelihood-pill" data-astro-cid-o26pmxre>—</span> </div> <div id="chance-wrap" class="chance" data-astro-cid-o26pmxre> <div class="chance-bar" data-astro-cid-o26pmxre></div> <div class="chance-gradient" data-astro-cid-o26pmxre></div> <div class="chance-main" data-astro-cid-o26pmxre> <div id="chance-num" class="chance-num" data-astro-cid-o26pmxre>—</div> <div id="chance-label" class="chance-label" data-astro-cid-o26pmxre>—</div> </div> <div id="chance-hints" class="chance-hints small" data-astro-cid-o26pmxre></div> </div> </div> <!-- Market --> <div class="tool-card" id="market-card" data-astro-cid-o26pmxre> <div class="card-head" data-astro-cid-o26pmxre> <h3 data-astro-cid-o26pmxre>Market Compensation</h3> <span class="caps small chip info" id="market-scope" data-astro-cid-o26pmxre>—</span> </div> <div class="kv-grid" id="market-body" data-astro-cid-o26pmxre></div> <div class="source small" id="market-source" data-astro-cid-o26pmxre></div> </div> <!-- Macro --> <div class="tool-card" id="macro-card" data-astro-cid-o26pmxre> <h3 data-astro-cid-o26pmxre>Macro Signals</h3> <div class="kv-grid" id="macro-body" data-astro-cid-o26pmxre></div> </div> </div> <div class="grid-2" data-astro-cid-o26pmxre> <!-- Plan --> <div class="tool-card" id="plan-card" data-astro-cid-o26pmxre> <h3 data-astro-cid-o26pmxre>Personalized Raise Plan</h3> <div id="plan-summary" class="plan-summary" data-astro-cid-o26pmxre></div> <div class="hr" data-astro-cid-o26pmxre></div> <div id="plan-body" data-astro-cid-o26pmxre></div> <details class="collapser" data-astro-cid-o26pmxre> <summary data-astro-cid-o26pmxre>Manager email (copy-paste)</summary> <pre class="pre" id="email-text" data-astro-cid-o26pmxre></pre> <button id="copy-email" class="btn ghost" data-astro-cid-o26pmxre>Copy manager email</button> </details> <details class="collapser" data-astro-cid-o26pmxre> <summary data-astro-cid-o26pmxre>2-minute meeting script</summary> <pre class="pre" id="script-text" data-astro-cid-o26pmxre></pre> <button id="copy-script" class="btn ghost" data-astro-cid-o26pmxre>Copy 2-minute script</button> </details> <details class="math" id="diag-wrap" style="display:none;" data-astro-cid-o26pmxre> <summary data-astro-cid-o26pmxre>Diagnostics</summary> <pre id="diag-body" class="pre" data-astro-cid-o26pmxre></pre> </details> <details class="math" data-astro-cid-o26pmxre> <summary data-astro-cid-o26pmxre>Show my math</summary> <pre id="math-body" class="pre" data-astro-cid-o26pmxre></pre> </details> </div> <!-- Demand + Insights --> <div class="tool-card" id="demand-card" data-astro-cid-o26pmxre> <div class="card-head" data-astro-cid-o26pmxre> <h3 data-astro-cid-o26pmxre>Role Demand</h3> <span class="caps small chip" id="demand-pill" data-astro-cid-o26pmxre>—</span> </div> <div class="kv-grid tight" id="demand-body" data-astro-cid-o26pmxre></div> <details class="collapser" id="insights-box" style="margin-top:.75rem;display:none;" open data-astro-cid-o26pmxre> <summary data-astro-cid-o26pmxre>Market insights</summary> <!-- Fresh postings spans the whole insights area.
+                 Side panels stack alongside on wide screens and below on small screens. --> <div class="insights-areas" data-astro-cid-o26pmxre> <section class="panel companies" data-astro-cid-o26pmxre> <h4 data-astro-cid-o26pmxre>Who’s hiring</h4> <div id="insights-companies" class="chip-grid" data-astro-cid-o26pmxre></div> </section> <section class="panel hotspots" data-astro-cid-o26pmxre> <h4 data-astro-cid-o26pmxre>Hotspots</h4> <div id="insights-hotspots" class="mini table" data-astro-cid-o26pmxre></div> </section> <section class="panel skills" data-astro-cid-o26pmxre> <h4 data-astro-cid-o26pmxre>Skills in titles</h4> <div id="insights-skills" class="chip-row" data-astro-cid-o26pmxre></div> </section> <section class="panel recent" data-astro-cid-o26pmxre> <div class="row-head" data-astro-cid-o26pmxre> <h4 data-astro-cid-o26pmxre>Fresh postings</h4> <span class="small dim" data-astro-cid-o26pmxre>Most recent nearby listings</span> </div> <div id="insights-recent" class="cards scroll recent-grid" data-astro-cid-o26pmxre></div> </section> </div> </details> </div> </div> <!-- Improve Your Odds --> <div class="tool-card" id="advice-card" style="margin-top:1rem;" data-astro-cid-o26pmxre> <div class="card-head" data-astro-cid-o26pmxre> <h3 data-astro-cid-o26pmxre>Improve Your Odds</h3> <span class="small dim" data-astro-cid-o26pmxre>Quick wins & positioning</span> </div> <div id="advice-grid" class="advice-grid" data-astro-cid-o26pmxre></div> </div> </div> </section>  <script type="module">
+		// ---------- helpers ----------
+		const $ = (id) => document.getElementById(id);
+		const fmtMoney = (n) =>
+			Number(n).toLocaleString(undefined, {
+				style: "currency",
+				currency: "USD",
+				maximumFractionDigits: 0,
+			});
+		const pct = (n) => (n * 100).toFixed(1) + "%";
+		const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+		const safeNum = (x) => {
+			const n = Number(x);
+			return Number.isFinite(n) ? n : null;
+		};
+
+		// ---------- Use my location ----------
+		const locBtn = $("use-location"),
+			locInput = $("location");
+		if (locBtn) {
+			locBtn.addEventListener("click", async () => {
+				if (!("geolocation" in navigator)) {
+					alert("Location services are not available in this browser.");
+					return;
+				}
+				const busy = (b) => {
+					locBtn.disabled = b;
+					locBtn.textContent = b ? "Locating…" : "Use my location";
+				};
+				busy(true);
+				try {
+					const pos = await new Promise((resolve, reject) =>
+						navigator.geolocation.getCurrentPosition(resolve, reject, {
+							enableHighAccuracy: true,
+							timeout: 10000,
+							maximumAge: 0,
+						}),
+					);
+					const { latitude: lat, longitude: lon } = pos.coords;
+					const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+					const res = await fetch(url, { headers: { Accept: "application/json" } });
+					if (res.ok) {
+						const data = await res.json();
+						const a = data?.address || {};
+						const city = a.city || a.town || a.village || a.hamlet || a.suburb || "";
+						const state = a.state || a.region || "";
+						const country = a.country || "";
+						const cc = (a.country_code || "").toUpperCase();
+						let pretty = "";
+						if (cc === "US" && city && state) pretty = `${city}, ${state}`;
+						else if (city && country) pretty = `${city}, ${country}`;
+						else if (state && country) pretty = `${state}, ${country}`;
+						else pretty = data?.display_name || `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+						locInput.value = pretty;
+						locInput.dispatchEvent(new Event("input", { bubbles: true }));
+						locInput.dispatchEvent(new Event("change", { bubbles: true }));
+					} else {
+						locInput.value = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+					}
+				} catch (e) {
+					console.warn("Geolocation error:", e);
+					alert("Couldn't get your location. Type city/state/country manually.");
+				} finally {
+					busy(false);
+				}
+			});
+		}
+
+		// ---------- API ----------
+		async function fetchInsights(payload) {
+			const url = new URL("/api/raise-insights", window.location.origin);
+			url.searchParams.set("title", payload.title);
+			url.searchParams.set("location", payload.location);
+			url.searchParams.set("salary", String(payload.salary));
+			const res = await fetch(url.toString(), {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			});
+			if (!res.ok) {
+				throw new Error(`Failed (${res.status})`);
+			}
+			return res.json();
+		}
+
+		// ---------- UI refs ----------
+		const form = $("raise-form");
+		const submitBtn = $("submitBtn");
+		const panels = $("live-panels");
+
+		const chanceBar = document.querySelector(".chance-bar");
+		const chanceNum = $("chance-num");
+		const chanceLbl = $("chance-label");
+		const chanceHint = $("chance-hints");
+		const likelihoodPill = $("likelihood-pill");
+
+		const marketBody = $("market-body");
+		const macroBody = $("macro-body");
+		const marketScope = $("market-scope");
+		const marketSource = $("market-source");
+		const demandBody = $("demand-body");
+		const demandPill = $("demand-pill");
+
+		const companiesEl = $("insights-companies");
+		const recentEl = $("insights-recent");
+		const hotspotsEl = $("insights-hotspots");
+		const skillsEl = $("insights-skills");
+		const insightsBox = $("insights-box");
+
+		const planSummary = $("plan-summary");
+		const planBody = $("plan-body");
+		const emailEl = $("email-text");
+		const scriptEl = $("script-text");
+		const mathBody = $("math-body");
+		const diagWrap = $("diag-wrap");
+		const diagBody = $("diag-body");
+
+		const adviceGrid = $("advice-grid");
+
+		// ---------- Likelihood calculation ----------
+		function demandBump(text) {
+			const t = (text || "").toLowerCase();
+			if (t.includes("very high")) return +15;
+			if (t.includes("high")) return +8;
+			if (t.includes("low")) return -10;
+			return 0;
+		}
+		function calcChance({ leverage, marketGap, demandText, budget, recentRaise }) {
+			let p = 35;
+			p += leverage * 0.4;
+			p += demandBump(demandText);
+			if (marketGap != null) {
+				if (marketGap > 0.07) p += 12;
+				else if (marketGap > 0.03) p += 6;
+				else if (marketGap < -0.05) p -= 8;
+			}
+			if (recentRaise === "yes") p -= 12;
+			if (budget >= 4.5) p += 5;
+			if (budget <= 3.0) p -= 5;
+			p = clamp(p, 5, 95);
+			let label = "Challenging",
+				cls = "bad";
+			if (p >= 75) {
+				label = "Likely";
+				cls = "ok";
+			} else if (p >= 55) {
+				label = "Possible";
+				cls = "warn";
+			}
+			return { p: Math.round(p), label, cls };
+		}
+
+		// ---------- Macro renderer ----------
+		function renderMacro(macro) {
+			const rows = [];
+			const b = safeNum(macro?.budget);
+			const c = safeNum(macro?.cpi_yoy);
+			const e = safeNum(macro?.eci_yoy);
+
+			if (c !== null)
+				rows.push(
+					`<div class="metric"><span>Inflation (YoY CPI)</span><b>${c.toFixed(1)}%</b></div>`,
+				);
+			if (e !== null)
+				rows.push(
+					`<div class="metric"><span>Wage growth (YoY ECI)</span><b>${e.toFixed(1)}%</b></div>`,
+				);
+			rows.push(
+				`<div class="metric"><span>Typical raise budgets</span><b>${(b ?? 3.5).toFixed(1)}%</b></div>`,
+			);
+			macroBody.innerHTML = rows.join("");
+			return { budget: b ?? 3.5, cpi: c, eci: e };
+		}
+
+		// ---------- Advice generator ----------
+		function titleKind(t) {
+			const s = (t || "").toLowerCase();
+			if (s.includes("network")) return "network";
+			if (s.includes("sre") || s.includes("site reliability") || s.includes("devops")) return "sre";
+			if (s.includes("software") || s.includes("developer") || s.includes("engineer"))
+				return "softeng";
+			if (s.includes("data")) return "data";
+			if (s.includes("security")) return "security";
+			if (s.includes("product")) return "pm";
+			if (s.includes("designer") || s.includes("design")) return "design";
+			if (s.includes("sales") || s.includes("account")) return "sales";
+			if (s.includes("support") || s.includes("help desk") || s.includes("service desk"))
+				return "support";
+			if (s.includes("marketing")) return "marketing";
+			return "other";
+		}
+		function improveAdvice({ kind, leverage, marketGap, demand, targetMid, yoe, answers }) {
+			const A = [];
+
+			if (marketGap != null && marketGap > 0.03)
+				A.push(
+					`<strong>Ask for a market adjustment.</strong> Cite local median and recent postings; position it as keeping pay competitive.`,
+				);
+			else
+				A.push(
+					`<strong>Anchor to cycle budgets.</strong> Propose a <b>${(targetMid * 0.03).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 })}+</b> total adjustment tied to next-cycle KPIs.`,
+				);
+
+			if (answers.recentRaise === "yes")
+				A.push(
+					`<strong>Set a milestone plan.</strong> Agree on concrete KPIs that unlock a mid-cycle adjustment (60-day review).`,
+				);
+			if (answers.openToLeave === "yes")
+				A.push(
+					`<strong>Line up external comps.</strong> A recruiter screen or interview clarifies market value and adds leverage.`,
+				);
+			if (leverage < 50)
+				A.push(
+					`<strong>Ship a 1-pager.</strong> 3 quantified wins (before→after), artifacts (PRs/dashboards/incidents avoided), and next-cycle KPIs.`,
+				);
+
+			switch (kind) {
+				case "network":
+					A.push(
+						`<strong>Quantify reliability.</strong> Uptime %, MTTR, change failure rate, ticket aging.`,
+					);
+					A.push(
+						`<strong>Show cost wins.</strong> Peering/egress savings, SD-WAN consolidation, carrier renegotiations.`,
+					);
+					if (yoe >= 5)
+						A.push(
+							`<strong>Show scope.</strong> BGP/EVPN/SD-WAN ownership, cloud networking (VPC/TGW), automation (Ansible/Terraform).`,
+						);
+					A.push(
+						`<strong>Certs that move the needle.</strong> CCNP/CCIE or a cloud networking specialty.`,
+					);
+					break;
+				case "sre":
+					A.push(
+						`<strong>Lead with SLOs.</strong> MTTR/MTTD drops, error-budget policy adoption, toil removed via automation.`,
+					);
+					break;
+				case "softeng":
+					A.push(
+						`<strong>Quantify delivery.</strong> Cycle time, PR throughput, defects escaped, and business impact.`,
+					);
+					break;
+				case "data":
+					A.push(
+						`<strong>Tie to business.</strong> Pipeline reliability, freshness, model lift, analyst hours saved.`,
+					);
+					break;
+				case "security":
+					A.push(
+						`<strong>Quantify risk reduction.</strong> Vulns remediated, MDR/MFA coverage, dwell time shortened.`,
+					);
+					break;
+				default:
+					A.push(
+						`<strong>Translate to impact.</strong> Money saved, revenue gained, risk reduced, time saved.`,
+					);
+					break;
+			}
+
+			if ((demand || "").toLowerCase().includes("low"))
+				A.push(
+					`<strong>Offer a phased path.</strong> Now + next review, or a title/scope bump with raise next cycle.`,
+				);
+
+			return A;
+		}
+
+		// ---------- Submit ----------
+		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			submitBtn.disabled = true;
+
+			try {
+				const A = Object.fromEntries(new FormData(form).entries());
+				const title = String(A.title || "").trim();
+				const location = String(A.location || "").trim();
+				const salary = Number(String(A.salary || "").replace(/[,$\s]/g, ""));
+				const yoe = Math.max(0, Number(A.experience || 0));
+				if (!title || !location || !Number.isFinite(salary) || salary <= 0) {
+					alert("Please enter a job title, location, and a valid salary.");
+					return;
+				}
+
+				// leverage score (0–100)
+				let leverage = 0;
+				const bumps = [],
+					cuts = [];
+				if (A.review === "excellent") {
+					leverage += 18;
+					bumps.push("+18: excellent review");
+				} else if (A.review === "good") {
+					leverage += 10;
+					bumps.push("+10: good review");
+				} else if (A.review === "poor") {
+					leverage -= 10;
+					cuts.push("-10: poor review");
+				}
+				if (A.leadership === "yes") {
+					leverage += 8;
+					bumps.push("+8: leadership/mentorship");
+				}
+				if (A.growth === "yes") {
+					leverage += 8;
+					bumps.push("+8: new responsibilities");
+				}
+				if (A.marketAwareness === "yes") {
+					leverage += 5;
+					bumps.push("+5: prepared with comps");
+				}
+				if (A.openToLeave === "yes") {
+					leverage += 12;
+					bumps.push("+12: open to external offers");
+				}
+				if (A.recentRaise === "yes") {
+					leverage -= 10;
+					cuts.push("-10: received raise in last 12m");
+				} else {
+					leverage += 6;
+					bumps.push("+6: no raise in last 12m");
+				}
+				if (yoe >= 12) {
+					leverage += 12;
+					bumps.push("+12: staff/principal scope");
+				} else if (yoe >= 7) {
+					leverage += 8;
+					bumps.push("+8: senior scope");
+				} else if (yoe <= 2) {
+					leverage -= 5;
+					cuts.push("-5: junior tenure");
+				}
+				leverage = clamp(leverage, 0, 100);
+
+				const { adzuna, macro, diagnostics } = await fetchInsights({ title, location, salary });
+
+				// diagnostics
+				if (!adzuna) {
+					diagWrap.style.display = "block";
+					diagBody.textContent = JSON.stringify(diagnostics, null, 2);
+				} else {
+					diagWrap.style.display = "none";
+					diagBody.textContent = "";
+				}
+
+				// market
+				const med = safeNum(adzuna?.median);
+				const p25 = safeNum(adzuna?.p25);
+				const p75 = safeNum(adzuna?.p75);
+				const nJobs = adzuna?.count ?? 0;
+				const demand = adzuna?.demandText || "—";
+				const scopeStep = adzuna?.sourceStep || "local";
+
+				marketBody.innerHTML = `
+          <div class="metric"><span>Market median</span><b>${med ? fmtMoney(med) : "—"}</b></div>
+          <div class="metric"><span>25th–75th pct.</span><b>${p25 ? fmtMoney(p25) : "—"} – ${p75 ? fmtMoney(p75) : "—"}</b></div>
+          <div class="metric"><span>Active postings (est.)</span><b>${nJobs || "—"}</b></div>`;
+				marketScope.textContent = scopeStep.replace(/[-_]/g, " ");
+				marketSource.textContent = `Source: Adzuna — “${title}” near ${location}.`;
+
+				// macro
+				const m = renderMacro(macro);
+				const budget = m.budget,
+					cpi = m.cpi,
+					eci = m.eci;
+
+				// demand details
+				const cs = adzuna?.contractSplit || { permanent: 0, contract: 0, other: 0 };
+				const ts = adzuna?.timeSplit || { full_time: 0, part_time: 0, other: 0 };
+				const remotePct =
+					adzuna?.remoteShare != null ? (adzuna.remoteShare * 100).toFixed(0) + "%" : "—";
+				demandBody.innerHTML = `
+          <div class="metric"><span>Local demand</span><b>${demand}</b></div>
+          <div class="metric"><span>Permanent</span><b>${cs.permanent}</b></div>
+          <div class="metric"><span>Contract</span><b>${cs.contract}</b></div>
+          <div class="metric"><span>Full-time</span><b>${ts.full_time}</b></div>
+          <div class="metric"><span>Part-time</span><b>${ts.part_time}</b></div>
+          <div class="metric"><span>Likely remote mentions</span><b>${remotePct}</b></div>`;
+				demandPill.textContent = demand;
+				demandPill.className =
+					"caps small chip " +
+					(demand.includes("high") ? "ok" : demand.includes("low") ? "bad" : "info");
+
+				// insights content
+				const companies = (adzuna?.companies || [])
+					.slice(0, 12)
+					.map(
+						(c) =>
+							`<span class="chip"><b>${c.name}</b><span class="count">· ${c.count}</span>${c.medSalary ? `<span class="count"> · ~${fmtMoney(c.medSalary)}</span>` : ""}</span>`,
+					)
+					.join("");
+				companiesEl.innerHTML =
+					companies || `<div class="small dim">Not enough postings to rank companies.</div>`;
+
+				const rec = (adzuna?.recent || [])
+					.slice(0, 20)
+					.map((r) => {
+						const pay =
+							r.salaryMin && r.salaryMax
+								? `<span class="pay">${fmtMoney(r.salaryMin)}–${fmtMoney(r.salaryMax)}</span>`
+								: "<span class='dim'>—</span>";
+						const loc = (r.location || "").toString().split(",").slice(0, 2).join(", ");
+						const age = r.ageDays != null ? `${r.ageDays}d` : "—";
+						return `<div class="post-card">
+                    <div class="post-title">${r.title || "—"}</div>
+                    <div class="post-sub">
+                      <span class="pill">${r.company || "—"}</span>
+                      <span class="pill mono">${loc || "—"}</span>
+                      <span class="pill mono">${age}</span>
+                    </div>
+                    <div>${pay}</div>
+                  </div>`;
+					})
+					.join("");
+				recentEl.innerHTML = rec || `<div class="small dim">No recent postings.</div>`;
+
+				const hot = (adzuna?.locations || [])
+					.slice(0, 14)
+					.map((l) => `<div class="row"><span>${l.name}</span><b>${l.count}</b></div>`)
+					.join("");
+				hotspotsEl.innerHTML =
+					hot || `<div class="small dim" style="padding:.4rem .6rem;">No clear hotspots.</div>`;
+
+				const skills = (adzuna?.skills || [])
+					.map((s) => `<span class="tag">${s.name} (${s.count})</span>`)
+					.join(" ");
+				skillsEl.innerHTML = skills || `<div class="small dim">Not enough signal.</div>`;
+				insightsBox.style.display = "block";
+
+				// raise range
+				const marketGap = med ? (med - salary) / Math.max(1, salary) : null;
+				let floorPct = budget;
+				if (cpi != null) floorPct = Math.max(floorPct, cpi);
+				let stretchPct = Math.max(floorPct + 1.5, (eci ?? 0) + 0.5);
+				if (marketGap != null && marketGap > 0.03) {
+					floorPct += 1.2;
+					stretchPct += 1.8;
+				}
+				if (marketGap != null && marketGap > 0.07) {
+					floorPct += 0.8;
+					stretchPct += 1.0;
+				}
+				floorPct = clamp(floorPct + (leverage / 100) * 3.0, 1.5, 14.0);
+				stretchPct = clamp(stretchPct + (leverage / 100) * 4.5, floorPct + 0.5, 20.0);
+				const low = Math.round(salary * (1 + floorPct / 100));
+				const high = Math.round(salary * (1 + stretchPct / 100));
+				const targetMid = Math.round((low + high) / 2);
+
+				const underOverHtml = med
+					? salary < med
+						? `<span class="tag">Below market by ~${pct((med - salary) / salary)}</span>`
+						: `<span class="tag">At/Above market</span>`
+					: "";
+
+				// chance %
+				const chance = calcChance({
+					leverage,
+					marketGap,
+					demandText: demand,
+					budget,
+					recentRaise: A.recentRaise,
+				});
+				chanceNum.textContent = chance.p + "%";
+				chanceLbl.textContent = chance.label;
+				chanceLbl.className = "chance-label " + chance.cls;
+				likelihoodPill.textContent = chance.label;
+				likelihoodPill.className = "caps small dim";
+				chanceBar.style.width = chance.p + "%";
+				chanceHint.innerHTML = `<div class="small">Levers: leverage ${Math.round(leverage)}, demand ${demand}${marketGap != null ? `, market gap ${(marketGap * 100).toFixed(1)}%` : ""}, budgets ${budget.toFixed(1)}%${A.recentRaise === "yes" ? " (recent raise)" : ""}.</div>`;
+
+				// plan summary
+				$("plan-summary").innerHTML = `
+          <div class="summary-row">
+            <span class="summary-pill"><b>Current:</b> ${fmtMoney(salary)}</span>
+            ${underOverHtml ? `<span class="summary-pill">${underOverHtml}</span>` : ""}
+            <span class="summary-pill"><b>Ask:</b> ${fmtMoney(low)} – ${fmtMoney(high)} <span class="dim">(${floorPct.toFixed(1)}%–${stretchPct.toFixed(1)}%)</span></span>
+            <span class="summary-pill"><b>Median:</b> ${med ? fmtMoney(med) : "—"}</span>
+            <span class="summary-pill"><b>Posts:</b> ${nJobs}</span>
+          </div>
+        `;
+
+				// plan details
+				planBody.innerHTML = `
+          <h4>How to position</h4>
+          <ul class="small">
+            <li>Anchor to budgets ${budget.toFixed(1)}%${cpi != null ? ` and CPI ${cpi.toFixed(1)}%` : ""}; cite local market ${med ? fmtMoney(med) : "—"} median.</li>
+            <li>Lead with outcomes + expanded scope; bring artifacts.</li>
+            <li>${nJobs ? `Mention active demand (~${nJobs} postings).` : `If demand is light, propose a phased increase or title/scope bump now.`}</li>
+          </ul>`;
+
+				// email/script
+				$("email-text").textContent = `Subject: Compensation Review – ${title}
+
+Hi <Manager>,
+
+Based on current market data for ${title} in ${location}${med ? ` (median ~${fmtMoney(med)})` : ""}, typical raise budgets around ${budget.toFixed(1)}%${cpi != null ? `, and inflation of ${cpi.toFixed(1)}%` : ""}, I’d like to discuss adjusting my compensation to ${fmtMoney(low)}–${fmtMoney(high)} (${floorPct.toFixed(1)}%–${stretchPct.toFixed(1)}%).
+
+Highlights this cycle:
+${
+	bumps
+		.slice(0, 3)
+		.map((b) => "• " + b.replace(/\+\d+:\s*/, ""))
+		.join("\n") || "• Delivered measurable impact on core goals."
+}
+
+Could we set aside 20 minutes this week? I’ll bring a 1-pager with outcomes and next-cycle KPIs.
+
+Thanks,
+<Your Name>`;
+
+				$("script-text").textContent =
+					`Thanks for meeting, <Manager>. In the last cycle I delivered X, Y, and Z outcomes.
+Considering typical budgets (~${budget.toFixed(1)}%)${cpi != null ? ` and inflation (${cpi.toFixed(1)}%)` : ""}${med ? `, plus local market median of ${fmtMoney(med)} for ${title}` : ""}, I’m targeting ${fmtMoney(low)}–${fmtMoney(high)} (${floorPct.toFixed(1)}%–${stretchPct.toFixed(1)}%).
+If that isn’t feasible this cycle, what specific milestones would make it possible? I’m happy to align on a 60-day checkpoint and adjust scope to hit them.`;
+
+				$("copy-email").onclick = () =>
+					navigator.clipboard.writeText(($("email-text").textContent || "").trim());
+				$("copy-script").onclick = () =>
+					navigator.clipboard.writeText(($("script-text").textContent || "").trim());
+
+				// math
+				$("math-body").textContent = `Inputs:
+  title=${title}
+  location=${location}
+  salary=${salary}
+  yoe=${yoe}
+Answers leverage: ${Math.round(leverage)} / 100
+Market median=${med ?? "—"}  postings=${nJobs}  demand=${demand}
+Budgets=${budget}%  CPI=${cpi ?? "—"}  ECI=${eci ?? "—"}
+
+Ask range:
+  ${floorPct.toFixed(2)}% – ${stretchPct.toFixed(2)}%  →  ${fmtMoney(low)} – ${fmtMoney(high)}
+
+Chance:
+  ${chance.p}% (${chance.label})`;
+
+				// advice as cards
+				const adv = improveAdvice({
+					kind: titleKind(title),
+					leverage,
+					marketGap,
+					demand,
+					targetMid,
+					yoe,
+					answers: A,
+				});
+				adviceGrid.innerHTML = adv
+					.map(
+						(x, i) => `
+          <div class="advice-card">
+            <div class="eyebrow">Tip ${i + 1}</div>
+            <div class="small">${x}</div>
+          </div>
+        `,
+					)
+					.join("");
+
+				panels.style.display = "block";
+				panels.scrollIntoView({ behavior: "smooth", block: "start" });
+			} catch (err) {
+				console.error(err);
+				alert("Could not generate insights. Open DevTools — Console for details.");
+			} finally {
+				submitBtn.disabled = false;
+			}
+		});
+	</script>  </main> <footer class="mt-auto flex w-full flex-col items-center justify-center gap-y-2 pt-10 pb-4 text-center align-top font-semibold text-gray-600 sm:flex-row sm:justify-between sm:text-xs dark:text-gray-400"> <div class="me-0 sm:me-4">
+&copy; J The Admin 2025.<span class="inline-block">&nbsp;🚀&nbsp;Ping.Trace.SSH</span> </div> <!-- Hidden on mobile, shown from md and up --> <nav aria-labelledby="footer_links" class="hidden md:flex gap-x-2 md:gap-x-0 md:divide-x md:divide-gray-500"> <p id="footer_links" class="sr-only">More on this site</p> <a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/"> Home </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/services/"> Services </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/career/"> Career Tools </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/free-tools/"> Networking Tools </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/breakroom/"> Breakroom </a><a class="hover:text-global-text px-4 py-2 hover:underline md:py-0" href="/about/"> About </a> </nav> </footer> <!-- Hide footer navigation links on mobile only -->  </body> </html>
