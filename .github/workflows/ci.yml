@@ -2,18 +2,28 @@ name: ci
 
 on:
   push:
-    branches: [main]
+    branches:
+      - '**'        # run on every branch
   pull_request:
     branches: [main]
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:
     name: Check for build and type issues
     runs-on: ubuntu-latest
+
+    # Pass Worker URL/token to the Astro build (set these as Actions secrets)
+    env:
+      PUBLIC_TRACE_RELAY_URL: ${{ secrets.PUBLIC_TRACE_RELAY_URL }}
+      PUBLIC_TRACE_RELAY_AUTH: ${{ secrets.PUBLIC_TRACE_RELAY_AUTH }}
 
     steps:
       - name: Checkout code
@@ -35,12 +45,12 @@ jobs:
       - name: Install dependencies (no frozen lockfile)
         run: pnpm install --no-frozen-lockfile
 
-      # Run type-checks but don't fail the build on TS issues
+      # Type/link checks but don't fail the build on TS/MD issues
       - name: Run Astro check (non-blocking)
         run: pnpm astro check
         continue-on-error: true
 
-      # Ensure site builds
+      # Ensure site builds (static)
       - name: Run Astro build
         run: pnpm build
 

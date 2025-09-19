@@ -1,0 +1,14 @@
+name = "trace-worker"
+main = "src/index.ts"
+compatibility_date = "2024-09-01"
+
+# (optional) later you can bind a custom subdomain:
+# routes = [{ pattern = "trace.pingtracessh.com/*", zone_name = "pingtracessh.com" }]
+
+[vars]
+# For quick testing during setup you can leave "*" here.
+# After deploy, change to your site URL (e.g., https://pingtracessh.com)
+ALLOW_ORIGIN = "*"
+AUTH_TOKEN = ""        # optional bearer token; keep "" to disable
+GEO_PROVIDER = "ip-api"  # "ip-api" (no key) or "ipdata"
+IPDATA_KEY = ""          # only if GEO_PROVIDER="ipdata"
