@@ -14,792 +14,804 @@ const link = (p: string = "") => `${BASE}${p.replace(/^\/+/, "")}`;
  * 3) Switch modes via .env at repo root:
  *      PUBLIC_STRIPE_MODE=test   # (default while developing)
  *      PUBLIC_STRIPE_MODE=live   # (production)
- * If a link is missing (still a placeholder), the JS below will route the button to Calendly instead.
+ * If a link is missing (still a placeholder), we’ll try the other mode automatically.
+ * If neither mode has a real Stripe URL, the JS below will route the button to Calendly.
  */
 const STRIPE_MODE = (import.meta.env.PUBLIC_STRIPE_MODE ?? "test").toLowerCase();
 
 type StripeLinks = {
-	firewallAudit: string;
-	incidentRetainer: string;
-	customProject: string;
+  firewallAudit: string;
+  incidentRetainer: string;
+  customProject: string;
 };
 
 const STRIPE_TEST: StripeLinks = {
-	// ⬇️ Paste your TEST payment link URLs here (start with https://buy.stripe.com/test_...)
-	firewallAudit: "",
-	incidentRetainer: "PASTE_TEST_incident_retainer",
-	designReview: "PASTE_TEST_design_review",
+  // ⬇️ TEST links (https://buy.stripe.com/test_...)
+  firewallAudit: "PASTE_TEST_firewall_audit",
+  incidentRetainer: "PASTE_TEST_incident_retainer",
+  customProject: "PASTE_TEST_custom_project",
 };
 
 const STRIPE_LIVE: StripeLinks = {
-	// ⬇️ Paste your LIVE payment link URLs here (start with https://buy.stripe.com/live_...)
-	firewallAudit: "https://buy.stripe.com/5kQ3cw1EEeuX60O6Vb9k40e",
-	incidentRetainer: "https://buy.stripe.com/aFa5kEbfebiLdtgenD9k40d",
-	customProject: "https://buy.stripe.com/28E7sM976dqT4WKgvL9k408",
-};
-
-const ACTIVE_STRIPE: StripeLinks = STRIPE_MODE === "live" ? STRIPE_LIVE : STRIPE_TEST;
-
-const LINKS = {
-	calendly: "https://calendly.com/javonpri/30min",
-	stripe: ACTIVE_STRIPE,
+  // ⬇️ LIVE links (already provided)
+  firewallAudit: "https://buy.stripe.com/5kQ3cw1EEeuX60O6Vb9k40e",
+  incidentRetainer: "https://buy.stripe.com/aFa5kEbfebiLdtgenD9k40d",
+  customProject: "https://buy.stripe.com/28E7sM976dqT4WKgvL9k408",
 };
 
 function isStripeUrl(u: string) {
-	return /^https?:\/\/buy\.stripe\.com\//i.test(u);
+  return /^https?:\/\/buy\.stripe\.com\//i.test(u || "");
 }
+
+// Prefer selected mode; if missing, fall back to the other mode’s value.
+function resolveStripeLinks(): StripeLinks {
+  const primary = STRIPE_MODE === "live" ? STRIPE_LIVE : STRIPE_TEST;
+  const secondary = STRIPE_MODE === "live" ? STRIPE_TEST : STRIPE_LIVE;
+  const pick = (k: keyof StripeLinks) => isStripeUrl(primary[k]) ? primary[k] : (isStripeUrl(secondary[k]) ? secondary[k] : "");
+  return {
+    firewallAudit: pick("firewallAudit"),
+    incidentRetainer: pick("incidentRetainer"),
+    customProject: pick("customProject"),
+  };
+}
+
+const ACTIVE_STRIPE = resolveStripeLinks();
+
+const LINKS = {
+  calendly: "https://calendly.com/javonpri/30min",
+  stripe: ACTIVE_STRIPE,
+};
 
 // Warn in dev console if any link is missing (so you notice quickly)
 Object.entries(LINKS.stripe).forEach(([k, v]) => {
-	if (!isStripeUrl(v)) {
-		if (import.meta.env.DEV)
-			console.warn(
-				`Stripe Payment Link missing for ${k} (mode=${STRIPE_MODE}). Using Calendly fallback.`,
-			);
-	}
+  if (!isStripeUrl(v)) {
+    if (import.meta.env.DEV) {
+      console.warn(`Stripe Payment Link missing for ${k} (mode=${STRIPE_MODE}). Using Calendly fallback.`);
+    }
+  }
 });
 ---
 
 <PageLayout meta={{ title: "Professional Network Engineering Services" }}>
-	<section class="services-wrapper">
-		<!-- Hero -->
-		<header class="hero">
-			<h1>Professional Services</h1>
-			<p class="kicker">Ping. Trace. Fix. Repeat.</p>
-			<p class="lede">
-				When the stakes are high, the network’s on fire, or compliance auditors are sharpening
-				pencils—bring in a seasoned engineer who can <strong>fix, secure, and optimize</strong> without
-				taking business down.
-			</p>
-			<div class="hero-cta">
-				<a class="btn primary" href={LINKS.calendly}>Book a Free Consult</a>
-				<a class="btn" href="#pricing">See Packages</a>
-			</div>
-			<div class="guarantee">
-				<strong>Zero-Risk Guarantee:</strong> If you don’t get measurable improvement from our audit
-				or remediation plan, we’ll refund you.
-			</div>
-			<div class="updated">Last updated: {UPDATED}</div>
-		</header>
+  <section class="services-wrapper">
+    <!-- Hero -->
+    <header class="hero">
+      <h1>Professional Services</h1>
+      <p class="kicker">Ping. Trace. Fix. Repeat.</p>
+      <p class="lede">
+        When the stakes are high, the network’s on fire, or compliance auditors are sharpening
+        pencils—bring in a seasoned engineer who can <strong>fix, secure, and optimize</strong> without
+        taking business down.
+      </p>
+      <div class="hero-cta">
+        <a class="btn primary" href={LINKS.calendly}>Book a Free Consult</a>
+        <a class="btn" href="#pricing">See Packages</a>
+      </div>
+      <div class="guarantee">
+        <strong>Zero-Risk Guarantee:</strong> If you don’t get measurable improvement from our audit
+        or remediation plan, we’ll refund you.
+      </div>
+      <div class="updated">Last updated: {UPDATED}</div>
+    </header>
 
-		<!-- Trust strip -->
-		<section class="trust">
-			<ul class="badges">
-				<li><span class="chip">Palo Alto • Panorama</span></li>
-				<li><span class="chip">Cisco IOS/ASA/FTD</span></li>
-				<li><span class="chip">Fortinet</span></li>
-				<li><span class="chip">AWS • TGW • VM-Series</span></li>
-				<li><span class="chip">PCI • HIPAA • SOC 2</span></li>
-			</ul>
-		</section>
+    <!-- Trust strip -->
+    <section class="trust">
+      <ul class="badges">
+        <li><span class="chip">Palo Alto • Panorama</span></li>
+        <li><span class="chip">Cisco IOS/ASA/FTD</span></li>
+        <li><span class="chip">Fortinet</span></li>
+        <li><span class="chip">AWS • TGW • VM-Series</span></li>
+        <li><span class="chip">PCI • HIPAA • SOC 2</span></li>
+      </ul>
+    </section>
 
-		<!-- Pricing Grid (Above the fold conversion) -->
-		<section id="pricing" class="pricing-grid">
-			<article class="price-card">
-				<div class="ribbon">Most Popular</div>
-				<h3>Firewall Audit</h3>
-				<p class="price">
-					<span class="big">$500</span>
-					<span class="tiny">flat</span>
-				</p>
-				<ul class="list">
-					<li>Best-practice review (Palo Alto / Cisco / Fortinet)</li>
-					<li>Shadow rules &amp; risky services surfaced</li>
-					<li>Quick wins &amp; remediation plan</li>
-					<li>30-min readout session</li>
-				</ul>
-				<a
-					class="btn buy js-buy"
-					href={LINKS.stripe.firewallAudit}
-					data-fallback={LINKS.calendly}
-					data-pkg="firewall-audit">Buy Audit</a
-				>
-				<a class="btn ghost" href={LINKS.calendly}>Ask a Question</a>
-			</article>
+    <!-- Pricing Grid (Above the fold conversion) -->
+    <section id="pricing" class="pricing-grid">
+      <article class="price-card">
+        <div class="ribbon">Most Popular</div>
+        <h3>Firewall Audit</h3>
+        <p class="price">
+          <span class="big">$500</span>
+          <span class="tiny">flat</span>
+        </p>
+        <ul class="list">
+          <li>Best-practice review (Palo Alto / Cisco / Fortinet)</li>
+          <li>Shadow rules &amp; risky services surfaced</li>
+          <li>Quick wins &amp; remediation plan</li>
+          <li>30-min readout session</li>
+        </ul>
+        <a
+          class="btn buy js-buy"
+          href={LINKS.stripe.firewallAudit}
+          data-fallback={LINKS.calendly}
+          data-pkg="firewall-audit">Buy Audit</a
+        >
+        <a class="btn ghost" href={LINKS.calendly}>Ask a Question</a>
+      </article>
 
-			<article class="price-card highlight">
-				<h3>Incident Retainer</h3>
-				<p class="price">
-					<span class="big">$500</span>
-					<span class="tiny">/month</span>
-				</p>
-				<ul class="list">
-					<li>On-demand triage &amp; containment</li>
-					<li>Emergency policy fixes / rollbacks</li>
-					<li>Root cause snapshot &amp; notes</li>
-					<li>Credit unused minutes to projects</li>
-				</ul>
-				<a
-					class="btn buy js-buy"
-					href={LINKS.stripe.incidentRetainer}
-					data-fallback={LINKS.calendly}
-					data-pkg="incident-retainer">Start Retainer</a
-				>
-				<a class="btn ghost" href={LINKS.calendly}>Talk Now</a>
-			</article>
+      <article class="price-card highlight">
+        <h3>Incident Retainer</h3>
+        <p class="price">
+          <span class="big">$500</span>
+          <span class="tiny">/month</span>
+        </p>
+        <ul class="list">
+          <li>On-demand triage &amp; containment</li>
+          <li>Emergency policy fixes / rollbacks</li>
+          <li>Root cause snapshot &amp; notes</li>
+          <li>Credit unused minutes to projects</li>
+        </ul>
+        <a
+          class="btn buy js-buy"
+          href={LINKS.stripe.incidentRetainer}
+          data-fallback={LINKS.calendly}
+          data-pkg="incident-retainer">Start Retainer</a
+        >
+        <a class="btn ghost" href={LINKS.calendly}>Talk Now</a>
+      </article>
 
-			<article class="price-card">
-				<h3>Custom Projects</h3>
-				<p class="price">
-					<span class="big">$1,500</span>
-					<span class="tiny">project</span>
-				</p>
-				<ul class="list">
-					<li>L3/L7 topology &amp; policy architecture</li>
-					<li>AWS VPC / TGW / VM-Series patterns</li>
-					<li>HA, QoS, segmentation, logging</li>
-					<li>Remediation &amp; rollout checklist</li>
-				</ul>
-				<a
-					class="btn buy js-buy"
-					href={LINKS.stripe.customProject}
-					data-fallback={LINKS.calendly}
-					data-pkg="custom-prroject">Book Review</a
-				>
-				<a class="btn ghost" href={LINKS.calendly}>Free Scoping Call</a>
-			</article>
-		</section>
+      <article class="price-card">
+        <h3>Custom Projects</h3>
+        <p class="price">
+          <span class="big">$1,500</span>
+          <span class="tiny">project</span>
+        </p>
+        <ul class="list">
+          <li>L3/L7 topology &amp; policy architecture</li>
+          <li>AWS VPC / TGW / VM-Series patterns</li>
+          <li>HA, QoS, segmentation, logging</li>
+          <li>Remediation &amp; rollout checklist</li>
+        </ul>
+        <a
+          class="btn buy js-buy"
+          href={LINKS.stripe.customProject}
+          data-fallback={LINKS.calendly}
+          data-pkg="custom-project">Book Review</a
+        >
+        <a class="btn ghost" href={LINKS.calendly}>Free Scoping Call</a>
+      </article>
+    </section>
 
-		<hr class="divider" />
+    <hr class="divider" />
 
-		<!-- Detailed Services -->
-		<article class="service-card">
-			<h2>Firewall &amp; Security Services</h2>
-			<ul>
-				<li>Full <strong>Palo Alto</strong>, Cisco ASA/FTD, and Fortinet configuration audits</li>
-				<li>Policy cleanup &amp; best-practice alignment (apps, ports, objects, logging)</li>
-				<li>Panorama templates &amp; global policy management</li>
-				<li>On-demand incident response for outages and breaches</li>
-			</ul>
-			<p class="note">
-				<em>Typical outcome:</em> reduce policy count 20–40%, eliminate risky services, improve logging
-				fidelity.
-			</p>
-		</article>
+    <!-- Detailed Services -->
+    <article class="service-card">
+      <h2>Firewall &amp; Security Services</h2>
+      <ul>
+        <li>Full <strong>Palo Alto</strong>, Cisco ASA/FTD, and Fortinet configuration audits</li>
+        <li>Policy cleanup &amp; best-practice alignment (apps, ports, objects, logging)</li>
+        <li>Panorama templates &amp; global policy management</li>
+        <li>On-demand incident response for outages and breaches</li>
+      </ul>
+      <p class="note">
+        <em>Typical outcome:</em> reduce policy count 20–40%, eliminate risky services, improve logging
+        fidelity.
+      </p>
+    </article>
 
-		<article class="service-card">
-			<h2>Network Design &amp; Optimization</h2>
-			<ul>
-				<li>Multi-site switch/router/firewall topologies</li>
-				<li>AWS VPC, Transit Gateway, and VM-Series deployments</li>
-				<li>Performance tuning: QoS, segmentation, traffic flow analysis</li>
-			</ul>
-			<p class="note">
-				<em>Typical outcome:</em> fewer outages, faster change windows, and clear traffic paths.
-			</p>
-		</article>
+    <article class="service-card">
+      <h2>Network Design &amp; Optimization</h2>
+      <ul>
+        <li>Multi-site switch/router/firewall topologies</li>
+        <li>AWS VPC, Transit Gateway, and VM-Series deployments</li>
+        <li>Performance tuning: QoS, segmentation, traffic flow analysis</li>
+      </ul>
+      <p class="note">
+        <em>Typical outcome:</em> fewer outages, faster change windows, and clear traffic paths.
+      </p>
+    </article>
 
-		<article class="service-card">
-			<h2>Compliance &amp; Best Practices</h2>
-			<ul>
-				<li>PCI DSS, HIPAA, and SOC 2 readiness assessments</li>
-				<li>Configuration standardization &amp; automation templates</li>
-				<li>Security documentation and audit prep</li>
-			</ul>
-			<p class="note">
-				<em>Typical outcome:</em> pass audits with fewer findings and cleaner artifacts.
-			</p>
-		</article>
+    <article class="service-card">
+      <h2>Compliance &amp; Best Practices</h2>
+      <ul>
+        <li>PCI DSS, HIPAA, and SOC 2 readiness assessments</li>
+        <li>Configuration standardization &amp; automation templates</li>
+        <li>Security documentation and audit prep</li>
+      </ul>
+      <p class="note">
+        <em>Typical outcome:</em> pass audits with fewer findings and cleaner artifacts.
+      </p>
+    </article>
 
-		<article class="service-card">
-			<h2>Managed Network Services</h2>
-			<ul>
-				<li>Monthly firewall policy maintenance &amp; monitoring</li>
-				<li>24/7 alerting and uptime tracking</li>
-				<li>Runbooks, SOPs, and internal documentation</li>
-			</ul>
-			<p class="note"><em>Pricing:</em> Retainers from $500 to $3,000/month (custom quote).</p>
-		</article>
+    <article class="service-card">
+      <h2>Managed Network Services</h2>
+      <ul>
+        <li>Monthly firewall policy maintenance &amp; monitoring</li>
+        <li>24/7 alerting and uptime tracking</li>
+        <li>Runbooks, SOPs, and internal documentation</li>
+      </ul>
+      <p class="note"><em>Pricing:</em> Retainers from $500 to $3,000/month (custom quote).</p>
+    </article>
 
-		<article class="service-card">
-			<h2>Career Coaching for Network Engineers</h2>
-			<ul>
-				<li>1-on-1 certification &amp; skills mentorship</li>
-				<li>Resume &amp; LinkedIn optimization for higher-paying roles</li>
-				<li>Cloud &amp; security roadmaps</li>
-			</ul>
-			<p class="note"><em>Pricing:</em> $150–$300/session or $500 for 4-session packages.</p>
-		</article>
+    <article class="service-card">
+      <h2>Career Coaching for Network Engineers</h2>
+      <ul>
+        <li>1-on-1 certification &amp; skills mentorship</li>
+        <li>Resume &amp; LinkedIn optimization for higher-paying roles</li>
+        <li>Cloud &amp; security roadmaps</li>
+      </ul>
+      <p class="note"><em>Pricing:</em> $150–$300/session or $500 for 4-session packages.</p>
+    </article>
 
-		<!-- Social proof -->
-		<section class="proof">
-			<blockquote class="pull">
-				<span class="mark">“Cut our incident response time by 60%.”</span><br />
-				Firewall cleanup + logging overhaul delivered in 48 hours.
-			</blockquote>
-			<ul class="mini-stats">
-				<li><span class="num">40%</span><span class="lbl">Policy Reduction</span></li>
-				<li><span class="num">48h</span><span class="lbl">Turnaround</span></li>
-				<li><span class="num">99.9%</span><span class="lbl">Uptime Target</span></li>
-			</ul>
-		</section>
+    <!-- Social proof -->
+    <section class="proof">
+      <blockquote class="pull">
+        <span class="mark">“Cut our incident response time by 60%.”</span><br />
+        Firewall cleanup + logging overhaul delivered in 48 hours.
+      </blockquote>
+      <ul class="mini-stats">
+        <li><span class="num">40%</span><span class="lbl">Policy Reduction</span></li>
+        <li><span class="num">48h</span><span class="lbl">Turnaround</span></li>
+        <li><span class="num">99.9%</span><span class="lbl">Uptime Target</span></li>
+      </ul>
+    </section>
 
-		<!-- CTA strip -->
-		<section class="cta-strip">
-			<div class="cta-left">
-				<h3>Ready to get started?</h3>
-				<p>Buy now, or book a short consult. We’ll scope it in plain English.</p>
-			</div>
-			<div class="cta-actions">
-				<a
-					class="btn primary js-buy"
-					href={LINKS.stripe.firewallAudit}
-					data-fallback={LINKS.calendly}
-					data-pkg="firewall-audit">Buy Audit ($500)</a
-				>
-				<a class="btn" href={LINKS.calendly}>Book a Free Consult</a>
-			</div>
-		</section>
+    <!-- CTA strip -->
+    <section class="cta-strip">
+      <div class="cta-left">
+        <h3>Ready to get started?</h3>
+        <p>Buy now, or book a short consult. We’ll scope it in plain English.</p>
+      </div>
+      <div class="cta-actions">
+        <a
+          class="btn primary js-buy"
+          href={LINKS.stripe.firewallAudit}
+          data-fallback={LINKS.calendly}
+          data-pkg="firewall-audit">Buy Audit ($500)</a
+        >
+        <a class="btn" href={LINKS.calendly}>Book a Free Consult</a>
+      </div>
+    </section>
 
-		<!-- Contact form -->
-		<article class="contact-card">
-			<h2>Prefer email?</h2>
-			<p>Send details and I’ll reply with next steps today.</p>
+    <!-- Contact form -->
+    <article class="contact-card">
+      <h2>Prefer email?</h2>
+      <p>Send details and I’ll reply with next steps today.</p>
 
-			<form
-				id="servicesForm"
-				name="service-inquiry"
-				action="https://formspree.io/f/mgvzgweq"
-				method="POST"
-				accept-charset="UTF-8"
-				class="contact-form"
-			>
-				<input type="hidden" name="_subject" value="New Service Inquiry — PingTraceSSH" />
-				<input type="hidden" name="_redirect" value="/thank-you" />
-				<input type="text" name="_honeypot" class="hidden" tabindex="-1" autocomplete="off" />
+      <form
+        id="servicesForm"
+        name="service-inquiry"
+        action="https://formspree.io/f/mgvzgweq"
+        method="POST"
+        accept-charset="UTF-8"
+        class="contact-form"
+      >
+        <input type="hidden" name="_subject" value="New Service Inquiry — PingTraceSSH" />
+        <input type="hidden" name="_redirect" value="/thank-you" />
+        <input type="text" name="_honeypot" class="hidden" tabindex="-1" autocomplete="off" />
 
-				<div class="grid">
-					<label>
-						Name
-						<input id="f_name" type="text" name="name" required />
-					</label>
-					<label>
-						Email
-						<input id="f_email" type="email" name="email" required />
-					</label>
-					<label>
-						Company / Organization
-						<input type="text" name="company" />
-					</label>
-					<label>
-						Service Needed
-						<select name="service">
-							<option value="Firewall Audit">Firewall Audit</option>
-							<option value="Network Design">Network Design</option>
-							<option value="Compliance Readiness">Compliance Readiness</option>
-							<option value="Managed Services">Managed Services</option>
-							<option value="Career Coaching">Career Coaching</option>
-							<option value="Other">Other</option>
-						</select>
-					</label>
-				</div>
+        <div class="grid">
+          <label>
+            Name
+            <input id="f_name" type="text" name="name" required />
+          </label>
+          <label>
+            Email
+            <input id="f_email" type="email" name="email" required />
+          </label>
+          <label>
+            Company / Organization
+            <input type="text" name="company" />
+          </label>
+          <label>
+            Service Needed
+            <select name="service">
+              <option value="Firewall Audit">Firewall Audit</option>
+              <option value="Network Design">Network Design</option>
+              <option value="Compliance Readiness">Compliance Readiness</option>
+              <option value="Managed Services">Managed Services</option>
+              <option value="Career Coaching">Career Coaching</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+        </div>
 
-				<label>
-					Brief Description
-					<textarea
-						name="message"
-						rows="6"
-						placeholder="Tell me about your environment, timelines, and goals."></textarea>
-				</label>
+        <label>
+          Brief Description
+          <textarea
+            name="message"
+            rows="6"
+            placeholder="Tell me about your environment, timelines, and goals."></textarea>
+        </label>
 
-				<button id="submitBtn" type="submit" class="btn primary">Request a Consultation</button>
-				<p id="formStatus" class="status" role="status" aria-live="polite"></p>
-			</form>
-		</article>
+        <button id="submitBtn" type="submit" class="btn primary">Request a Consultation</button>
+        <p id="formStatus" class="status" role="status" aria-live="polite"></p>
+      </form>
+    </article>
 
-		<!-- FAQs -->
-		<section class="faq">
-			<h2>FAQs</h2>
-			<div class="faq-list">
-				<details>
-					<summary>How fast can you start?</summary>
-					<p>
-						Audits typically start within 24–48 hours. Incident retainers start immediately after
-						purchase.
-					</p>
-				</details>
-				<details>
-					<summary>What access do you need?</summary>
-					<p>
-						Read-only access to configs/logs (or sanitized exports). For changes, we’ll work through
-						your approved change window.
-					</p>
-				</details>
-				<details>
-					<summary>Do you sign NDAs / MSAs?</summary>
-					<p>Yes. Standard mutual NDA available. MSAs welcomed for ongoing work.</p>
-				</details>
-				<details>
-					<summary>Refund policy?</summary>
-					<p>
-						Covered by our Zero-Risk Guarantee on audits. For hourly work, unused retainer time can
-						be credited to future projects.
-					</p>
-				</details>
-			</div>
-		</section>
-	</section>
+    <!-- FAQs -->
+    <section class="faq">
+      <h2>FAQs</h2>
+      <div class="faq-list">
+        <details>
+          <summary>How fast can you start?</summary>
+          <p>
+            Audits typically start within 24–48 hours. Incident retainers start immediately after
+            purchase.
+          </p>
+        </details>
+        <details>
+          <summary>What access do you need?</summary>
+          <p>
+            Read-only access to configs/logs (or sanitized exports). For changes, we’ll work through
+            your approved change window.
+          </p>
+        </details>
+        <details>
+          <summary>Do you sign NDAs / MSAs?</summary>
+          <p>Yes. Standard mutual NDA available. MSAs welcomed for ongoing work.</p>
+        </details>
+        <details>
+          <summary>Refund policy?</summary>
+          <p>
+            Covered by our Zero-Risk Guarantee on audits. For hourly work, unused retainer time can
+            be credited to future projects.
+          </p>
+        </details>
+      </div>
+    </section>
+  </section>
 </PageLayout>
 
 <style>
-	:root {
-		--bg: #0f0f0f;
-		--card: #1b1b1b;
-		--card-border: #2a2a2a;
-		--muted: #9aa0a6;
-		--text: #e8eaed;
-		--accent: #22d3ee;
-		--accent-2: #7c3aed;
-		--chip: #242424;
-		--chip-border: #333;
-		--shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-		--radius-lg: 14px;
-		--radius-sm: 8px;
+  /* (styles unchanged from your version) */
+  :root {
+    --bg: #0f0f0f;
+    --card: #1b1b1b;
+    --card-border: #2a2a2a;
+    --muted: #9aa0a6;
+    --text: #e8eaed;
+    --accent: #22d3ee;
+    --accent-2: #7c3aed;
+    --chip: #242424;
+    --chip-border: #333;
+    --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    --radius-lg: 14px;
+    --radius-sm: 8px;
 
-		--accent-strong: #0ea5e9;
-		--accent-strong-dark: #0284c7;
-	}
+    --accent-strong: #0ea5e9;
+    --accent-strong-dark: #0284c7;
+  }
 
-	.services-wrapper {
-		display: block;
-		padding: 32px 1rem 70px;
-	}
+  .services-wrapper {
+    display: block;
+    padding: 32px 1rem 70px;
+  }
 
-	.hero {
-		text-align: center;
-		max-width: 1000px;
-		margin: 0 auto 18px;
-	}
-	.hero h1 {
-		margin: 0;
-		font-size: clamp(1.8rem, 2.5vw, 2.4rem);
-		letter-spacing: 0.2px;
-	}
-	.kicker {
-		margin-top: 8px;
-		color: var(--muted);
-		font-size: 0.98rem;
-		text-transform: uppercase;
-		letter-spacing: 0.8px;
-	}
-	.lede {
-		margin: 14px auto 0;
-		color: var(--text);
-		line-height: 1.75;
-		font-size: 1.06rem;
-	}
-	.hero-cta {
-		display: flex;
-		gap: 12px;
-		justify-content: center;
-		flex-wrap: wrap;
-		margin-top: 16px;
-	}
-	.guarantee {
-		margin: 14px auto 0;
-		font-size: 0.95rem;
-		color: #c6fff4;
-		background: linear-gradient(90deg, rgba(16, 185, 129, 0.14), rgba(34, 211, 238, 0.1));
-		border: 1px solid #1c443e;
-		border-radius: 10px;
-		padding: 10px 12px;
-		max-width: 880px;
-	}
-	.updated {
-		margin-top: 10px;
-		color: var(--muted);
-		font-size: 0.85rem;
-	}
+  .hero {
+    text-align: center;
+    max-width: 1000px;
+    margin: 0 auto 18px;
+  }
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+    letter-spacing: 0.2px;
+  }
+  .kicker {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 0.98rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .lede {
+    margin: 14px auto 0;
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 1.06rem;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .guarantee {
+    margin: 14px auto 0;
+    font-size: 0.95rem;
+    color: #c6fff4;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.14), rgba(34, 211, 238, 0.1));
+    border: 1px solid #1c443e;
+    border-radius: 10px;
+    padding: 10px 12px;
+    max-width: 880px;
+  }
+  .updated {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
 
-	.btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		padding: 10px 14px;
-		border-radius: 10px;
-		border: 1px solid var(--card-border);
-		background: #212121;
-		color: var(--text);
-		text-decoration: none;
-		font-weight: 700;
-		transition:
-			transform 0.15s ease,
-			background 0.15s ease,
-			border 0.15s ease,
-			box-shadow 0.15s ease;
-	}
-	.btn:hover {
-		transform: translateY(-1px);
-		background: #262626;
-		border-color: #3a3a3a;
-	}
-	.btn.primary {
-		background: linear-gradient(90deg, var(--accent), var(--accent-2));
-		border: none;
-		color: #051316;
-	}
-	.btn.primary:hover {
-		filter: brightness(1.05);
-	}
-	.btn.buy {
-		background: linear-gradient(90deg, #06b6d4, #22d3ee);
-		border: none;
-		color: #041318;
-		font-weight: 800;
-	}
-	.btn.buy:hover {
-		filter: brightness(1.07);
-	}
-	.btn.ghost {
-		background: #151515;
-		border: 1px solid var(--card-border);
-		color: var(--text);
-	}
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: #212121;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+    transition:
+      transform 0.15s ease,
+      background 0.15s ease,
+      border 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+    background: #262626;
+    border-color: #3a3a3a;
+  }
+  .btn.primary {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border: none;
+    color: #051316;
+  }
+  .btn.primary:hover {
+    filter: brightness(1.05);
+  }
+  .btn.buy {
+    background: linear-gradient(90deg, #06b6d4, #22d3ee);
+    border: none;
+    color: #041318;
+    font-weight: 800;
+  }
+  .btn.buy:hover {
+    filter: brightness(1.07);
+  }
+  .btn.ghost {
+    background: #151515;
+    border: 1px solid var(--card-border);
+    color: var(--text);
+  }
 
-	.trust {
-		max-width: 1100px;
-		margin: 14px auto 18px;
-	}
-	.badges {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: flex;
-		flex-wrap: wrap;
-		gap: 10px;
-		justify-content: center;
-	}
-	.chip {
-		display: inline-block;
-		padding: 7px 10px;
-		background: var(--chip);
-		border: 1px solid var(--chip-border);
-		border-radius: 999px;
-		font-size: 0.9rem;
-		color: var(--muted);
-	}
+  .trust {
+    max-width: 1100px;
+    margin: 14px auto 18px;
+  }
+  .badges {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .chip {
+    display: inline-block;
+    padding: 7px 10px;
+    background: var(--chip);
+    border: 1px solid var(--chip-border);
+    border-radius: 999px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
 
-	.pricing-grid {
-		max-width: 1100px;
-		margin: 16px auto 22px;
-		display: grid;
-		gap: clamp(14px, 2vw, 18px);
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
-	@media (max-width: 980px) {
-		.pricing-grid {
-			grid-template-columns: 1fr;
-		}
-	}
-	.price-card {
-		position: relative;
-		background: var(--card);
-		border: 1px solid var(--card-border);
-		border-radius: var(--radius-lg);
-		padding: 16px;
-		box-shadow: var(--shadow);
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-	.price-card.highlight {
-		outline: 1px solid rgba(34, 211, 238, 0.35);
-		background: linear-gradient(180deg, rgba(34, 211, 238, 0.05), rgba(124, 58, 237, 0.04));
-	}
-	.price-card h3 {
-		margin: 6px 0 0;
-		font-size: 1.15rem;
-	}
-	.price {
-		display: flex;
-		align-items: baseline;
-		gap: 8px;
-	}
-	.price .big {
-		font-size: 1.8rem;
-		font-weight: 900;
-		background: linear-gradient(90deg, var(--accent), var(--accent-2));
-		-webkit-background-clip: text;
-		background-clip: text;
-		color: transparent;
-	}
-	.price .tiny {
-		font-size: 0.8rem;
-		color: var(--muted);
-	}
-	.list {
-		list-style: none;
-		padding: 0;
-		margin: 6px 0 6px;
-		display: grid;
-		gap: 6px;
-		color: var(--text);
-	}
-	.ribbon {
-		position: absolute;
-		top: 12px;
-		right: 12px;
-		font-size: 0.72rem;
-		font-weight: 800;
-		background: linear-gradient(90deg, #10b981, #22c55e);
-		color: #052314;
-		border-radius: 999px;
-		padding: 4px 8px;
-		border: 1px solid rgba(16, 185, 129, 0.35);
-	}
+  .pricing-grid {
+    max-width: 1100px;
+    margin: 16px auto 22px;
+    display: grid;
+    gap: clamp(14px, 2vw, 18px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @media (max-width: 980px) {
+    .pricing-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .price-card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .price-card.highlight {
+    outline: 1px solid rgba(34, 211, 238, 0.35);
+    background: linear-gradient(180deg, rgba(34, 211, 238, 0.05), rgba(124, 58, 237, 0.04));
+  }
+  .price-card h3 {
+    margin: 6px 0 0;
+    font-size: 1.15rem;
+  }
+  .price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .price .big {
+    font-size: 1.8rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .price .tiny {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .list {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 6px;
+    display: grid;
+    gap: 6px;
+    color: var(--text);
+  }
+  .ribbon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #10b981, #22c55e);
+    color: #052314;
+    border-radius: 999px;
+    padding: 4px 8px;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
 
-	.divider {
-		margin: 26px auto;
-		border: 0;
-		height: 1px;
-		max-width: 1100px;
-		background: linear-gradient(to right, transparent, #2f2f2f, transparent);
-	}
+  .divider {
+    margin: 26px auto;
+    border: 0;
+    height: 1px;
+    max-width: 1100px;
+    background: linear-gradient(to right, transparent, #2f2f2f, transparent);
+  }
 
-	.service-card {
-		background: var(--card);
-		border: 1px solid var(--card-border);
-		border-radius: var(--radius-lg);
-		padding: clamp(16px, 2vw, 24px);
-		max-width: 1100px;
-		margin: 0 auto 12px;
-		box-shadow: var(--shadow);
-	}
-	.service-card h2 {
-		margin: 0 0 6px;
-		font-size: 1.2rem;
-	}
-	.service-card ul {
-		margin: 6px 0 8px;
-		padding-left: 1.1rem;
-	}
-	.service-card .note {
-		color: var(--muted);
-		margin: 2px 0 0;
-	}
+  .service-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: clamp(16px, 2vw, 24px);
+    max-width: 1100px;
+    margin: 0 auto 12px;
+    box-shadow: var(--shadow);
+  }
+  .service-card h2 {
+    margin: 0 0 6px;
+    font-size: 1.2rem;
+  }
+  .service-card ul {
+    margin: 6px 0 8px;
+    padding-left: 1.1rem;
+  }
+  .service-card .note {
+    color: var(--muted);
+    margin: 2px 0 0;
+  }
 
-	.proof {
-		max-width: 1100px;
-		margin: 12px auto 6px;
-		display: grid;
-		gap: 12px;
-	}
-	.pull {
-		padding: 14px 16px;
-		border-left: 4px solid var(--accent);
-		background: linear-gradient(90deg, rgba(34, 211, 238, 0.1), rgba(124, 58, 237, 0.1));
-		border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-	}
-	.pull .mark {
-		font-weight: 800;
-		color: #e6fdff;
-	}
-	.mini-stats {
-		display: flex;
-		gap: 12px;
-		flex-wrap: wrap;
-	}
-	.mini-stats li {
-		min-width: 120px;
-		text-align: center;
-		background: #151515;
-		border: 1px solid var(--card-border);
-		border-radius: 12px;
-		padding: 10px 12px;
-	}
-	.mini-stats .num {
-		font-weight: 900;
-		font-size: 1.2rem;
-		background: linear-gradient(90deg, var(--accent), var(--accent-2));
-		-webkit-background-clip: text;
-		background-clip: text;
-		color: transparent;
-	}
-	.mini-stats .lbl {
-		display: block;
-		margin-top: 4px;
-		font-size: 0.82rem;
-		color: var(--muted);
-	}
+  .proof {
+    max-width: 1100px;
+    margin: 12px auto 6px;
+    display: grid;
+    gap: 12px;
+  }
+  .pull {
+    padding: 14px 16px;
+    border-left: 4px solid var(--accent);
+    background: linear-gradient(90deg, rgba(34, 211, 238, 0.1), rgba(124, 58, 237, 0.1));
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  .pull .mark {
+    font-weight: 800;
+    color: #e6fdff;
+  }
+  .mini-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .mini-stats li {
+    min-width: 120px;
+    text-align: center;
+    background: #151515;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .mini-stats .num {
+    font-weight: 900;
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .mini-stats .lbl {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
 
-	.cta-strip {
-		margin: 16px auto 22px;
-		max-width: 1100px;
-		background: #151515;
-		border: 1px solid var(--card-border);
-		border-radius: var(--radius-lg);
-		padding: 14px 16px;
-		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: 12px;
-		align-items: center;
-	}
-	@media (max-width: 720px) {
-		.cta-strip {
-			grid-template-columns: 1fr;
-		}
-		.cta-actions {
-			justify-content: flex-start;
-		}
-	}
-	.cta-left h3 {
-		margin: 0;
-	}
-	.cta-left p {
-		margin: 2px 0 0;
-		color: var(--muted);
-	}
-	.cta-actions {
-		display: flex;
-		gap: 10px;
-		justify-content: flex-end;
-		flex-wrap: wrap;
-	}
+  .cta-strip {
+    margin: 16px auto 22px;
+    max-width: 1100px;
+    background: #151515;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+  @media (max-width: 720px) {
+    .cta-strip {
+      grid-template-columns: 1fr;
+    }
+    .cta-actions {
+      justify-content: flex-start;
+    }
+  }
+  .cta-left h3 {
+    margin: 0;
+  }
+  .cta-left p {
+    margin: 2px 0 0;
+    color: var(--muted);
+  }
+  .cta-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
 
-	.contact-card {
-		background: linear-gradient(180deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02));
-		border: 1px solid #6b4b16;
-		border-left: 4px solid #f59e0b;
-		border-radius: var(--radius-lg);
-		padding: clamp(16px, 2vw, 24px);
-		max-width: 1100px;
-		margin: 0 auto 16px;
-		box-shadow: var(--shadow);
-	}
-	.contact-form label {
-		display: block;
-		font-weight: 600;
-		margin: 8px 0;
-	}
-	.contact-form .grid {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0.75rem 1rem;
-	}
-	@media (max-width: 720px) {
-		.contact-form .grid {
-			grid-template-columns: 1fr;
-		}
-	}
-	.contact-form input,
-	.contact-form select,
-	.contact-form textarea {
-		width: 100%;
-		margin-top: 0.35rem;
-		padding: 0.6rem 0.7rem;
-		border-radius: 8px;
-		border: 1px solid var(--card-border);
-		background: #111827;
-		color: var(--text);
-	}
-	.contact-form textarea {
-		resize: vertical;
-	}
-	.status {
-		min-height: 1.25rem;
-		margin-top: 0.5rem;
-		font-size: 0.95rem;
-		opacity: 0.9;
-	}
-	.hidden {
-		display: none !important;
-	}
+  .contact-card {
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02));
+    border: 1px solid #6b4b16;
+    border-left: 4px solid #f59e0b;
+    border-radius: var(--radius-lg);
+    padding: clamp(16px, 2vw, 24px);
+    max-width: 1100px;
+    margin: 0 auto 16px;
+    box-shadow: var(--shadow);
+  }
+  .contact-form label {
+    display: block;
+    font-weight: 600;
+    margin: 8px 0;
+  }
+  .contact-form .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1rem;
+  }
+  @media (max-width: 720px) {
+    .contact-form .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .contact-form input,
+  .contact-form select,
+  .contact-form textarea {
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.6rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: #111827;
+    color: var(--text);
+  }
+  .contact-form textarea {
+    resize: vertical;
+  }
+  .status {
+    min-height: 1.25rem;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    opacity: 0.9;
+  }
+  .hidden {
+    display: none !important;
+  }
 
-	.faq {
-		max-width: 1100px;
-		margin: 16px auto 0;
-	}
-	.faq h2 {
-		margin: 0 0 8px;
-	}
-	.faq-list {
-		display: grid;
-		gap: 8px;
-	}
-	.faq-list details {
-		background: #151515;
-		border: 1px solid var(--card-border);
-		border-radius: 10px;
-		padding: 10px 12px;
-	}
-	.faq-list summary {
-		cursor: pointer;
-		font-weight: 700;
-	}
-	.faq-list p {
-		margin: 8px 0 2px;
-		color: var(--text);
-	}
+  .faq {
+    max-width: 1100px;
+    margin: 16px auto 0;
+  }
+  .faq h2 {
+    margin: 0 0 8px;
+  }
+  .faq-list {
+    display: grid;
+    gap: 8px;
+  }
+  .faq-list details {
+    background: #151515;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .faq-list summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .faq-list p {
+    margin: 8px 0 2px;
+    color: var(--text);
+  }
 </style>
 
 <!-- Calendly assets (once per page) -->
 <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet" />
-<script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async
-></script>
+<script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
 <script is:inline>
-	(function () {
-		const CAL_URL = "https://calendly.com/javonpri/30min";
-		const STRIPE_HOST = /^https?:\/\/buy\.stripe\.com\//i;
+  (function () {
+    const CAL_URL = "https://calendly.com/javonpri/30min";
+    const STRIPE_HOST = /^https?:\/\/buy\.stripe\.com\//i;
 
-		// Intercept Buy buttons: if link isn't a real Stripe link, open Calendly instead.
-		document.querySelectorAll(".js-buy").forEach((btn) => {
-			btn.addEventListener("click", (e) => {
-				const href = btn.getAttribute("href") || "";
-				const pkg = btn.getAttribute("data-pkg") || "";
-				if (!STRIPE_HOST.test(href)) {
-					e.preventDefault();
-					const url = new URL(CAL_URL);
-					url.searchParams.set("utm_source", "site");
-					url.searchParams.set("utm_medium", "button");
-					if (pkg) url.searchParams.set("pkg", pkg);
-					window.location.href = url.toString();
-				}
-			});
-		});
+    // Intercept Buy buttons: if link isn't a real Stripe link, open Calendly instead.
+    document.querySelectorAll(".js-buy").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const href = btn.getAttribute("href") || "";
+        const pkg = btn.getAttribute("data-pkg") || "";
+        if (!STRIPE_HOST.test(href)) {
+          e.preventDefault();
+          const url = new URL(CAL_URL);
+          url.searchParams.set("utm_source", "site");
+          url.searchParams.set("utm_medium", "button");
+          if (pkg) url.searchParams.set("pkg", pkg);
+          window.location.href = url.toString();
+        }
+      });
+    });
 
-		// Enhance Formspree submit + open Calendly with prefill
-		const form = document.getElementById("servicesForm");
-		const statusEl = document.getElementById("formStatus");
-		const submitBtn = document.getElementById("submitBtn") || form?.querySelector(".btn.primary");
-		const ENDPOINT = "https://formspree.io/f/mgvzgweq";
+    // Enhance Formspree submit + open Calendly with prefill
+    const form = document.getElementById("servicesForm");
+    const statusEl = document.getElementById("formStatus");
+    const submitBtn = document.getElementById("submitBtn") || form?.querySelector(".btn.primary");
+    const ENDPOINT = "https://formspree.io/f/mgvzgweq";
 
-		form?.addEventListener("submit", async (e) => {
-			if (!window.fetch) return; // fallback to normal POST + redirect
-			e.preventDefault();
-			statusEl.textContent = "Sending…";
-			if (submitBtn) submitBtn.disabled = true;
+    form?.addEventListener("submit", async (e) => {
+      if (!window.fetch) return; // fallback to normal POST + redirect
+      e.preventDefault();
+      statusEl.textContent = "Sending…";
+      if (submitBtn) submitBtn.disabled = true;
 
-			try {
-				const formData = new FormData(form);
-				const data = Object.fromEntries(formData.entries());
+      try {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
 
-				const res = await fetch(ENDPOINT, {
-					method: "POST",
-					headers: { Accept: "application/json", "Content-Type": "application/json" },
-					body: JSON.stringify(data),
-				});
+        const res = await fetch(ENDPOINT, {
+          method: "POST",
+          headers: { Accept: "application/json", "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
 
-				if (res.ok) {
-					form.reset();
-					statusEl.textContent = "Thanks! Your request is in. Choose a time that works for you…";
-					window.Calendly?.initPopupWidget({
-						url: CAL_URL,
-						prefill: { name: data.name || "", email: data.email || "" },
-					});
-				} else {
-					let msg = "There was an issue sending your message. Please try again.";
-					try {
-						const result = await res.json();
-						if (result?.errors?.length) msg = result.errors.map((er) => er.message).join(", ");
-					} catch {}
-					statusEl.textContent = msg;
-				}
-			} catch {
-				statusEl.textContent = "Network error. Please check your connection and try again.";
-			} finally {
-				if (submitBtn) submitBtn.disabled = false;
-			}
-		});
-	})();
+        if (res.ok) {
+          form.reset();
+          statusEl.textContent = "Thanks! Your request is in. Choose a time that works for you…";
+          window.Calendly?.initPopupWidget({
+            url: CAL_URL,
+            prefill: { name: data.name || "", email: data.email || "" },
+          });
+        } else {
+          let msg = "There was an issue sending your message. Please try again.";
+          try {
+            const result = await res.json();
+            if (result?.errors?.length) msg = result.errors.map((er) => er.message).join(", ");
+          } catch {}
+          statusEl.textContent = msg;
+        }
+      } catch {
+        statusEl.textContent = "Network error. Please check your connection and try again.";
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  })();
 </script>
