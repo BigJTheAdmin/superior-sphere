@@ -1,5 +1,44 @@
 ---
 import PageLayout from "@/layouts/Base.astro";
+
+/* =====================================================
+   Stripe links (TEST & LIVE) + smart fallback
+   - Paste TEST links in STRIPE_TEST (https://buy.stripe.com/test_...)
+   - Paste LIVE links in STRIPE_LIVE (https://buy.stripe.com/live_...)
+   - Switch modes with .env: PUBLIC_STRIPE_MODE=test|live
+   - If a link is missing, buttons fall back to #intake and preselect the package
+===================================================== */
+const STRIPE_MODE = (import.meta.env.PUBLIC_STRIPE_MODE ?? "test").toLowerCase();
+
+type StripeLinks = {
+  resumeReview: string;     // Résumé Review
+  resumeLinkedIn: string;   // Résumé + LinkedIn
+  careerBranding: string;   // Career Branding Package
+};
+
+const STRIPE_TEST: StripeLinks = {
+  resumeReview:   "PASTE_TEST_resume_review",
+  resumeLinkedIn: "PASTE_TEST_resume_linkedin",
+  careerBranding: "PASTE_TEST_career_branding",
+};
+
+const STRIPE_LIVE: StripeLinks = {
+  resumeReview:   "https://buy.stripe.com/6oU3cwcjifz10GuenD9k407",
+  resumeLinkedIn: "https://buy.stripe.com/7sY00kfvu86zgFs3IZ9k406",
+  careerBranding: "https://buy.stripe.com/7sY6oIcjifz1ah47Zf9k405",
+};
+
+const STRIPE = STRIPE_MODE === "live" ? STRIPE_LIVE : STRIPE_TEST;
+const FALLBACK = "#intake";
+const STRIPE_HOST_RE = /^https?:\/\/buy\.stripe\.com\//i;
+
+function isStripeUrl(u: string) { return STRIPE_HOST_RE.test(u); }
+
+// If you configure Stripe "after completion" redirect back here like:
+// /career/services?pkg=review&paid=1 — we’ll preselect and show a confirmation note.
+const url = new URL(Astro.request.url);
+const pkgParam = (url.searchParams.get("pkg") || "").toLowerCase(); // review | resume_linkedin | career_branding
+const paid = url.searchParams.get("paid") === "1";
 ---
 
 <PageLayout meta={{ title: "LinkedIn & Résumé Services — PingTraceSSH" }}>
@@ -8,7 +47,7 @@ import PageLayout from "@/layouts/Base.astro";
 			<h1>LinkedIn & Résumé Services</h1>
 			<p class="tagline">
 				Stop getting ignored. We turn your résumé and LinkedIn into recruiter magnets —
-				ATS‑optimized, results‑driven, and tailored for IT & network pros.
+				ATS-optimized, results-driven, and tailored for IT & network pros.
 			</p>
 			<div class="cta-row">
 				<a class="btn primary" href="#packages">See Packages</a>
@@ -21,28 +60,33 @@ import PageLayout from "@/layouts/Base.astro";
 			<!-- Review -->
 			<article class="card free">
 				<div class="ribbon soon">Available Now</div>
-				<h2>Résumé Review <span class="pill">$49</span></h2>
+				<h2>Résumé Review <span class="pill">$79</span></h2>
 				<p class="blurb">
 					Quick, actionable feedback that gets you unstuck — perfect if you already have a decent
 					draft and want expert eyes.
 				</p>
 				<ul class="features">
-					<li>Tracked‑changes markup + clean final export</li>
+					<li>Tracked-changes markup + clean final export</li>
 					<li>ATS keyword analysis for your target roles</li>
 					<li>Structure, impact bullet rewrites, and clarity fixes</li>
 					<li>2–3 business day turnaround</li>
 					<li>1 free revision within 30 days</li>
 				</ul>
 				<div class="price-row">
-					<div class="price">$49</div>
-					<a class="btn primary" href="#intake">Start Review</a>
+					<div class="price">$79</div>
+					<a
+						class="btn primary js-stripe"
+						href={STRIPE.resumeReview}
+						data-fallback={FALLBACK}
+						data-pkg="review"
+					>Start Review</a>
 				</div>
 			</article>
 
 			<!-- Review + LinkedIn -->
 			<article class="card pro">
 				<div class="ribbon soon">Best Value</div>
-				<h2>Résumé + LinkedIn <span class="pill">$129</span></h2>
+				<h2>Résumé + LinkedIn <span class="pill">$149</span></h2>
 				<p class="blurb">
 					Our most popular upgrade — polish your résumé and align your LinkedIn so recruiters find
 					(and message) you first.
@@ -50,13 +94,18 @@ import PageLayout from "@/layouts/Base.astro";
 				<ul class="features">
 					<li>Complete résumé edit + modern, clean formatting</li>
 					<li>LinkedIn headline, About, skills & keyword overhaul</li>
-					<li>Role‑targeted ATS optimization & job‑match tuning</li>
+					<li>Role-targeted ATS optimization & job-match tuning</li>
 					<li>48–72 hour turnaround</li>
 					<li>1 free revision within 30 days</li>
 				</ul>
 				<div class="price-row">
-					<div class="price">$129</div>
-					<a class="btn" href="#intake">Optimize Both</a>
+					<div class="price">$149</div>
+					<a
+						class="btn js-stripe"
+						href={STRIPE.resumeLinkedIn}
+						data-fallback={FALLBACK}
+						data-pkg="resume_linkedin"
+					>Optimize Both</a>
 				</div>
 			</article>
 
@@ -70,14 +119,19 @@ import PageLayout from "@/layouts/Base.astro";
 				</p>
 				<ul class="features">
 					<li>Full résumé rewrite + premium template options</li>
-					<li>LinkedIn overhaul with recruiter‑tested copy</li>
-					<li>30‑minute strategy call (interview angle & story)</li>
+					<li>LinkedIn overhaul with recruiter-tested copy</li>
+					<li>30-minute strategy call (interview angle & story)</li>
 					<li>Priority 24–48 hour turnaround</li>
 					<li>Custom “Career Growth Roadmap” PDF</li>
 				</ul>
 				<div class="price-row">
 					<div class="price">$299</div>
-					<a class="btn" href="#intake">Get the Premium Upgrade</a>
+					<a
+						class="btn js-stripe"
+						href={STRIPE.careerBranding}
+						data-fallback={FALLBACK}
+						data-pkg="career_branding"
+					>Get the Premium Upgrade</a>
 				</div>
 			</article>
 		</div>
@@ -97,13 +151,13 @@ import PageLayout from "@/layouts/Base.astro";
 					</thead>
 					<tbody>
 						<tr>
-							<td>Tracked‑changes edit + clean final file</td>
+							<td>Tracked-changes edit + clean final file</td>
 							<td>Included</td>
 							<td>Included</td>
 							<td>Included</td>
 						</tr>
 						<tr>
-							<td>ATS keyword analysis & job‑match tuning</td>
+							<td>ATS keyword analysis & job-match tuning</td>
 							<td>Included</td>
 							<td>Included (enhanced)</td>
 							<td>Included (enhanced)</td>
@@ -145,14 +199,14 @@ import PageLayout from "@/layouts/Base.astro";
 
 		<!-- Value Prop -->
 		<section class="value">
-			<h3>What makes this a 5‑star experience?</h3>
+			<h3>What makes this a 5-star experience?</h3>
 			<ul class="value-points">
 				<li>
-					<strong>Recruiter‑first writing.</strong> Impact bullets and clean structure that pass the
-					7‑second skim test.
+					<strong>Recruiter-first writing.</strong> Impact bullets and clean structure that pass the
+					7-second skim test.
 				</li>
 				<li>
-					<strong>ATS‑ready by default.</strong> Your résumé won’t disappear in filters — we align to
+					<strong>ATS-ready by default.</strong> Your résumé won’t disappear in filters — we align to
 					real job posts.
 				</li>
 				<li>
@@ -173,9 +227,13 @@ import PageLayout from "@/layouts/Base.astro";
 		<!-- Intake Form -->
 		<section class="waitlist" id="intake">
 			<h3>Start Your Review</h3>
+			{paid && (
+				<p class="fineprint" role="status">
+					Payment received — complete the intake and we’ll begin right away.
+				</p>
+			)}
 			<p>Tell us where you’re headed. We’ll handle the words, positioning, and polish.</p>
 
-			<!-- NOTE: Replace YOUR_FORM_ID with your real Formspree ID -->
 			<form
 				id="intakeForm"
 				name="career-services-intake"
@@ -184,13 +242,8 @@ import PageLayout from "@/layouts/Base.astro";
 				accept-charset="UTF-8"
 				class="waitlist-form"
 			>
-				<!-- Email subject you receive -->
 				<input type="hidden" name="_subject" value="New Career Services Intake — PingTraceSSH" />
-				<!-- Optional: CC another inbox (remove if not needed) -->
-				<!-- <input type="hidden" name="_cc" value="ops@pingtracessh.com"> -->
-				<!-- Fallback redirect if JS is disabled -->
 				<input type="hidden" name="_redirect" value="/thank-you" />
-				<!-- Honeypot (spam trap) -->
 				<input type="text" name="_honeypot" class="hidden" tabindex="-1" autocomplete="off" />
 
 				<div class="grid">
@@ -231,9 +284,9 @@ import PageLayout from "@/layouts/Base.astro";
 					<label>
 						Package
 						<select name="package" required>
-							<option value="Resume Review">$49 — Résumé Review</option>
-							<option value="Resume + LinkedIn">$129 — Résumé + LinkedIn</option>
-							<option value="Career Branding">$299 — Career Branding</option>
+							<option value="Resume Review" selected={pkgParam==="review"}>$49 — Résumé Review</option>
+							<option value="Resume + LinkedIn" selected={pkgParam==="resume_linkedin"}>$129 — Résumé + LinkedIn</option>
+							<option value="Career Branding" selected={pkgParam==="career_branding"}>$299 — Career Branding</option>
 						</select>
 					</label>
 				</div>
@@ -248,15 +301,13 @@ import PageLayout from "@/layouts/Base.astro";
 
 				<button id="submitBtn" type="submit" class="btn primary">Submit &amp; Get Started</button>
 
-				<!-- Live status message area -->
 				<p
 					id="formStatus"
 					class="fineprint"
 					role="status"
 					aria-live="polite"
 					style="min-height:1.25rem;"
-				>
-				</p>
+				></p>
 			</form>
 
 			<p class="fineprint">
@@ -277,15 +328,15 @@ import PageLayout from "@/layouts/Base.astro";
 			<details>
 				<summary>Do you use templates?</summary>
 				<p>
-					We start with recruiter‑approved layouts, then tailor content and structure to your
+					We start with recruiter-approved layouts, then tailor content and structure to your
 					experience and target role.
 				</p>
 			</details>
 			<details>
 				<summary>What files do I get back?</summary>
 				<p>
-					Tracked‑changes version (so you can see edits), a clean final PDF, and an editable DOCX.
-					LinkedIn copy is delivered in a paste‑ready doc.
+					Tracked-changes version (so you can see edits), a clean final PDF, and an editable DOCX.
+					LinkedIn copy is delivered in a paste-ready doc.
 				</p>
 			</details>
 			<details>
@@ -579,60 +630,26 @@ import PageLayout from "@/layouts/Base.astro";
 </style>
 
 <script is:inline>
-	// Progressive enhancement: AJAX submit to Formspree with a nice status message.
-	// If anything fails, the normal form POST still works via browser default.
+	// Stripe fallback: if a .js-stripe button isn't a real Stripe link,
+	// route to #intake and preselect the chosen package.
 	(function () {
-		const form = document.getElementById("intakeForm");
-		const statusEl = document.getElementById("formStatus");
-		const submitBtn = document.getElementById("submitBtn");
+		const STRIPE_HOST = /^https?:\/\/buy\.stripe\.com\//i;
+		const map = {
+			"review": "Resume Review",
+			"resume_linkedin": "Resume + LinkedIn",
+			"career_branding": "Career Branding",
+		};
 
-		if (!form) return;
-
-		// Replace with your real endpoint ID:
-		const ENDPOINT = "https://formspree.io/f/xovlgveo";
-
-		form.addEventListener("submit", async (e) => {
-			// Use JS path only if fetch exists
-			if (!window.fetch) return;
-
-			e.preventDefault();
-
-			statusEl.textContent = "Sending…";
-			submitBtn.disabled = true;
-
-			try {
-				// Gather form data into a JSON object (preferred by Formspree)
-				const formData = new FormData(form);
-				const data = Object.fromEntries(formData.entries());
-
-				const res = await fetch(ENDPOINT, {
-					method: "POST",
-					headers: { Accept: "application/json", "Content-Type": "application/json" },
-					body: JSON.stringify(data),
+		document.querySelectorAll(".js-stripe").forEach((btn) => {
+			const href = btn.getAttribute("href") || "";
+			if (!STRIPE_HOST.test(href)) {
+				btn.addEventListener("click", (e) => {
+					e.preventDefault();
+					const pkg = btn.getAttribute("data-pkg") || "";
+					const sel = document.querySelector('select[name="package"]');
+					if (sel && map[pkg]) sel.value = map[pkg];
+					location.hash = "#intake";
 				});
-
-				if (res.ok) {
-					// Success UI: clear form and show message
-					form.reset();
-					statusEl.textContent =
-						"Thanks! Your intake has been received. We’ll email next steps shortly.";
-					submitBtn.disabled = false;
-				} else {
-					// Try to read error details
-					let msg = "There was an issue sending your message. Please try again.";
-					try {
-						const result = await res.json();
-						if (result && result.errors && result.errors.length) {
-							msg = result.errors.map((e) => e.message).join(", ");
-						}
-					} catch {}
-					statusEl.textContent = msg;
-					submitBtn.disabled = false;
-				}
-			} catch (err) {
-				// Network fail → fallback message
-				statusEl.textContent = "Network error. Please check your connection and try again.";
-				submitBtn.disabled = false;
 			}
 		});
 	})();

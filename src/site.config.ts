@@ -32,7 +32,7 @@ export const menuLinks: { path: string; title: string }[] = [
 	},	
 	{
 		path: "/free-tools/",
-		title: "Free Tools",
+		title: "Networking Tools",
 	},
 	{
 		path: "/breakroom/",
