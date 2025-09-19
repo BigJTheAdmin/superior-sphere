@@ -1,3 +1,4 @@
+export const prerender = true;
 import { runTrace } from "@/lib/traceRelay";
 
 async function onRunTraceroute(target: string) {

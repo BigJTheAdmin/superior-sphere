@@ -1,7 +1,7 @@
 // /src/pages/api/ping-services.json.ts
 import type { APIRoute } from "astro";
 
-export const prerender = false;
+export const prerender = true;
 
 type Method = "HEAD" | "GET";
 type Family =
