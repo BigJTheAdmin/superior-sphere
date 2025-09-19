@@ -59,7 +59,25 @@ import PageLayout from "@/layouts/Base.astro";
             width="600"
             height="600"
           />
-          <figcaption>Building for the people who keep the lights green.</figcaption>
+          <figcaption>
+            <a
+              href="https://www.linkedin.com/in/javon-pringley-106384119/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="linkedin-pill"
+              aria-label="Connect with me on LinkedIn"
+            >
+              <img
+                src="/linkedin.png"
+                alt="LinkedIn"
+                class="li-ico"
+                width="20"
+                height="20"
+                loading="lazy"
+              />
+              <span>Network Engineer · Industry Certs — LinkedIn</span>
+            </a>
+          </figcaption>
         </figure>
       </div>
 
@@ -149,7 +167,7 @@ import PageLayout from "@/layouts/Base.astro";
     .btn {
       display:inline-flex; align-items:center; justify-content:center;
       padding:10px 14px; border-radius:10px; border:1px solid var(--card-border);
-      background:#212121; color:var(--text); text-decoration:none; font-weight:600;
+      background:#212121; color:#e8eaed; text-decoration:none; font-weight:600;
       transition:transform .15s ease, background .15s ease, border .15s ease;
     }
     .btn:hover { transform:translateY(-1px); background:#262626; border-color:#3a3a3a; }
@@ -158,12 +176,30 @@ import PageLayout from "@/layouts/Base.astro";
 
     .signature { margin-top:14px; color:var(--muted); font-style:italic; }
 
+    /* Scope the big image to DIRECT CHILD so icons don't blow up */
     .about-figure {
       position:relative; background:#121212; border:1px solid var(--card-border);
       border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow);
     }
-    .about-figure img { display:block; width:100%; height:auto; object-fit:cover; }
-    .about-figure figcaption { padding:10px 12px; font-size:.9rem; color:var(--muted); border-top:1px solid var(--card-border); background:#161616; }
+    .about-figure > img {          /* <-- changed from .about-figure img */
+      display:block; width:100%; height:auto; object-fit:cover;
+    }
+    .about-figure figcaption {
+      padding:10px 12px; font-size:.9rem; color:var(--muted);
+      border-top:1px solid var(--card-border); background:#161616; text-align:center;
+    }
+
+    .linkedin-pill {
+      display:inline-flex; align-items:center; gap:8px;
+      color:var(--accent); font-weight:700; text-decoration:none;
+      transition:color .2s ease;
+    }
+    .linkedin-pill:hover { color:var(--accent-2); text-decoration:underline; }
+
+    .li-ico {
+      width:16px; height:16px;     /* force the small size */
+      display:inline-block; object-fit:contain;
+    }
 
     .divider { margin:22px 0 10px; border:0; height:1px; background:linear-gradient(to right, transparent, #2f2f2f, transparent); }
 
